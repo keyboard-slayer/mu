@@ -24,23 +24,8 @@ pub fn include(dirname: []const u8, ext: []const u8, alloc: Allocator) ![][]cons
 }
 
 pub fn downloadFile(url: []const u8, out: []const u8, alloc: Allocator) !void {
-    switch (builtin.os.tag) {
-        .windows => {
-            const arg = try std.fmt.allocPrint(alloc, "\"Invoke-WebRequest \\\"{s}\\\" -OutFile \\\"{s}\\\"", .{ url, out });
-
-            const argv = &[_][]const u8{
-                "powershell",
-                "-command",
-                arg,
-            };
-
-            _ = try std.ChildProcess.exec(.{ .allocator = alloc, .argv = argv });
-        },
-        else => {
-            const argv = &[_][]const u8{ "curl", url, "--output", out };
-            _ = try std.ChildProcess.exec(.{ .allocator = alloc, .argv = argv });
-        },
-    }
+       const argv = &[_][]const u8{ "curl", url, "--output", out };
+        _ = try std.ChildProcess.exec(.{ .allocator = alloc, .argv = argv });
 }
 
 pub fn create_sysroot(exe: *LibExeObjStep, legacy: bool) !void {

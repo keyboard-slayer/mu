@@ -107,19 +107,6 @@ pub fn build(b: *Builder) !void {
         exe.setBuildMode(.ReleaseFast);
     }
 
-    switch (builtin.os.tag) {
-        .windows => {
-            try qemu_args.append("--accel whpx");
-        },
-        .linux => {
-            try qemu_args.append("-enable-kvm");
-        },
-        else => {
-            std.log.err("Unknown {}", .{builtin.os.tag});
-            std.os.exit(1);
-        },
-    }
-
     const qemu_cmd = b.addSystemCommand(qemu_args.toOwnedSlice());
     run.dependOn(&qemu_cmd.step);
 
