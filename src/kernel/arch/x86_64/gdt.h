@@ -1,8 +1,8 @@
 // A purpose for GDT
 
 #pragma once
-
-// Entry of table
+#include <stdint.h>
+#include <macro.h>
 
 struct gdt_entry
 {
@@ -12,12 +12,14 @@ struct gdt_entry
     u8int base_middle;
     u8int base_high;
 }__attribute__((packed));
-
-// Pointer of table
+typedef struct gdt_entry gdt_entry_t;
 
 struct gdt_ptr
 {
     u16int limit;
-    u32bit base;
+    uintptr_t base;
 }__attribute__((packed));
+typedef struct gdt_ptr gdt_ptr_t;
+
+void gdt_init();
 
