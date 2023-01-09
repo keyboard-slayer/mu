@@ -3,6 +3,7 @@ const utils = @import("../../../../meta/utils.zig");
 const Allocator = std.mem.Allocator;
 const LibExeObjStep = std.build.LibExeObjStep;
 const Features = std.Target.x86.Feature;
+const builtin = @import("builtin");
 const Step = std.build.Step;
 
 pub const RunStep = struct {
@@ -20,15 +21,15 @@ pub const RunStep = struct {
 
     pub fn doStep(step: *Step) anyerror!void {
         const self = @fieldParentPtr(RunStep, "step", step);
-        const ovmf = try std.fs.path.join(self.alloc, &.{ ".", "zig-cache", "tmp", "DEBUGX64_OVMF.fd" });
+        const ovmf = try std.fs.path.join(self.alloc, &.{ ".", "zig-cache", "tmp", "OVMF.fd" });
 
-        try utils.downloadFile("https://retrage.github.io/edk2-nightly/bin/DEBUGX64_OVMF.fd", ovmf, self.alloc);
+        try utils.downloadFile("https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd", ovmf, self.alloc);
     }
 };
 
 pub fn import(exe: *LibExeObjStep, flags: []const []const u8, qemu_args: *std.ArrayList([]const u8)) !void {
     const dirname = try std.fs.path.join(exe.builder.allocator, &.{ ".", "src", "kernel", "arch", "x86_64" });
-    const ovmf = try std.fs.path.join(exe.builder.allocator, &.{ ".", "zig-cache", "tmp", "DEBUGX64_OVMF.fd" });
+    const ovmf = try std.fs.path.join(exe.builder.allocator, &.{ ".", "zig-cache", "tmp", "OVMF.fd" });
 
     var target: std.zig.CrossTarget = .{
         .cpu_arch = .x86_64,
@@ -43,17 +44,33 @@ pub fn import(exe: *LibExeObjStep, flags: []const []const u8, qemu_args: *std.Ar
     target.cpu_features_sub.addFeature(@enumToInt(Features.avx2));
     target.cpu_features_add.addFeature(@enumToInt(Features.soft_float));
 
+    try qemu_args.append("qemu-system-x86_64");
+
+    switch (builtin.os.tag) {
+        .windows => {
+            try qemu_args.appendSlice(&.{
+                "-cpu", "max"
+            });
+        },
+        .linux => {
+            try qemu_args.appendSlice(&.{
+                "-enable-kvm", "-cpu", "host"
+            });
+        },
+        else => {
+            std.log.err("Unknown {}", .{builtin.os.tag});
+            std.os.exit(1);
+        },
+    }
+
     try qemu_args.*.appendSlice(&.{
-        "qemu-system-x86_64",
         "-no-reboot",
         "-no-shutdown",
-        "-enable-kvm",
         "-d", "guest_errors",
         "-serial", "mon:stdio",
         "-bios", ovmf,
         "-smp", "4",
         "-M", "q35",
-        "-cpu", "host",
         "-drive", "file=fat:rw:.sysroot,media=disk,format=raw",
     });
 
