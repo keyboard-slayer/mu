@@ -9,4 +9,5 @@ typedef struct _Output
     void (*release)(struct _Output *self);
 } Output;
 
+typedef Output (*AcquireOutput)(void);
 size_t generic_puts(Output *self, const char *s, size_t limit);

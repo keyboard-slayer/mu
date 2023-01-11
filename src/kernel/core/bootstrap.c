@@ -1,10 +1,10 @@
 #include <abstract/arch.h>
+#include <debug/debug.h>
 
 int _start()
 {
-    Output serial = abstract_serial_acquire();
-    serial.puts(&serial, "Hello, World !", 14);
-    serial.release(&serial);
+    debug_set_acquire_function(abstract_serial_acquire);
+    debug(DEBUG_INFO, "Hello, world!");
 
     for (;;)
         ;
