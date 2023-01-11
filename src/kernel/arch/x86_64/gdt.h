@@ -4,22 +4,28 @@
 #include <stdint.h>
 #include <macro.h>
 
-struct gdt_entry
+typedef struct packed
 {
-    u16int base_low;
-    u16int limit_low;
-    u8int access_byte;
-    u8int base_middle;
-    u8int base_high;
-}__attribute__((packed));
-typedef struct gdt_entry gdt_entry_t;
+    uint16_t *limitLow;
+    uint16_t *baseLow;
+    uint8_t *baseMiddle;
+    uint8_t *baseHigh;
+    uint8_t *granularity;
+    uint8_t *access;
+    uint8_t *flags;
 
-struct gdt_ptr
+}GDTEntry;
+
+typedef struct packed
 {
-    u16int limit;
-    uintptr_t base;
-}__attribute__((packed));
-typedef struct gdt_ptr gdt_ptr_t;
+    uintptr_t *limit;
+    uint16_t *base;
+}GDTPtr;
+
 
 void gdt_init();
+
+void gdt_load();
+
+
 
