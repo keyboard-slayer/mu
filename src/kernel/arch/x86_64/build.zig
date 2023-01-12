@@ -57,6 +57,11 @@ pub fn import(exe: *LibExeObjStep, flags: []const []const u8, qemu_args: *std.Ar
                 "-enable-kvm", "-cpu", "host"
             });
         },
+        .macos => {
+            try qemu_args.appendSlice(&.{
+                "-cpu", "max"
+            });
+        },
         else => {
             std.log.err("Unknown {}", .{builtin.os.tag});
             std.os.exit(1);
