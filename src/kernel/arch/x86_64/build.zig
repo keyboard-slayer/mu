@@ -76,4 +76,8 @@ pub fn import(exe: *LibExeObjStep, flags: []const []const u8, qemu_args: *std.Ar
 
     exe.setTarget(target);
     exe.addCSourceFiles(try utils.include(dirname, ".c", exe.builder.allocator), flags);
+
+    for (try utils.include(dirname, ".s", exe.builder.allocator)) |as| {
+        exe.addAssemblyFile(as);
+    }
 }
