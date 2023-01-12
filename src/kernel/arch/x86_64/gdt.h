@@ -10,7 +10,7 @@
 #define GDT_ACCESS_PRESENT (1 << 7)
 
 #define GDT_FLAGS_LONG_MODE (1 << 1)
-#define GDT_FLAGS_SIZE_FLAG (1 << 2)
+#define GDT_FLAGS_SIZE (1 << 2)
 #define GDT_FLAGS_GRANULARITY (1 << 3)
 
 #define TSS_FLAGS_PRESENT (1 << 7)
