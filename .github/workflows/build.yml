@@ -1,0 +1,48 @@
+name: Build
+on: [push, pull_request]
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install zig
+        run: brew install zig
+
+      - name: Build Cpcdos
+        run: zig build
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install zig
+        run: choco install zig
+
+      - name: Build Cpcdos
+        run: zig build
+
+  ubuntu:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Snapcraft
+        uses: samuelmeuli/action-snapcraft@v1
+
+      - name: Install zig
+        run: sudo snap install zig --classic --beta
+
+      - name: Build Cpcdos
+        run: zig build
