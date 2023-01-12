@@ -1,5 +1,6 @@
-#include "string.h"
 #include <stddef.h>
+
+#include "string.h"
 
 char *strrchr(const char *s, int c)
 {
