@@ -3,7 +3,7 @@ on: [push, pull_request]
 
 jobs:
   lint:
-      name: Check commit message
+      name: Check commits
       runs-on: ubuntu-latest
       steps:
         - name: Checkout
@@ -14,3 +14,7 @@ jobs:
         - uses: ahmadnassri/action-commit-lint@v1
           with:
             config: conventional
+          
+        - name: clang-format Check
+          uses: jidicula/clang-format-action@v4.10.1
+
