@@ -40,7 +40,13 @@ const Bootloader = enum {
     limine,
 };
 
-const cflags = &.{ "-Wall", "-Wextra", "-Werror", "-Wno-unused-command-line-argument" };
+const cflags = &.{ 
+    "-Wall", 
+    "-Wextra", 
+    "-Werror", 
+    "-Wno-unused-command-line-argument", 
+    if (builtin.os.tag == .windows) "-DHOST_IS_WINDOWS" else "" 
+};
 
 pub fn build(b: *Builder) !void {
     const exe = b.addExecutable("krnl64.elf", null);
