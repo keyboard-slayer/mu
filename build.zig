@@ -5,10 +5,9 @@
 // Build Options
 // =============
 //
-// -Ddebug=[true|false] -> Enable debug mode and if in run step, enable GDB server
-// -Dlegacy=[true|false] -> Enable legacy boot (MBR), if set to false enables UEFI
-// -Dbootloader=[bootloader] -> Set the bootloader you want to use
-// -Dtarget=[arch] -> Set the architecture for the build (default is x86_64)
+// -Ddebug=[true|false] -> Enable debug mode and if in run step, enable GDB server.
+// -Dbootloader=[bootloader] -> Set the bootloader you want to use.
+// -Dtarget=[arch] -> Set the architecture for the build (default is x86_64).
 //
 // Custom Steps
 // ============
@@ -53,7 +52,6 @@ pub fn build(b: *Builder) !void {
 
     const run = b.step("run", "Runs Cpcdos OS3");
     const debug = b.option(bool, "debug", "Enable debug build") orelse false;
-    const legacy = b.option(bool, "legacy", "Enable legacy boot (if false, enables UEFI)") orelse false;
     const bootloader = b.option(Bootloader, "bootloader", "Bootloader") orelse Bootloader.limine;
     const arch = b.option(Arch, "target", "Target architecture") orelse Arch.x86_64;
 
@@ -71,7 +69,7 @@ pub fn build(b: *Builder) !void {
     exe.red_zone = false;
     exe.code_model = .kernel;
 
-    try utils.create_sysroot(exe, legacy);
+    try utils.create_sysroot(exe);
 
     switch (bootloader) {
         Bootloader.limine => {
@@ -82,7 +80,7 @@ pub fn build(b: *Builder) !void {
             try limine.import(exe, cflags);
 
             var boot_run_step = b.allocator.create(limine.RunStep) catch unreachable;
-            boot_run_step.* = limine.RunStep.init(b.allocator, legacy);
+            boot_run_step.* = limine.RunStep.init(b.allocator);
             boot_run_step.step.dependOn(&exe.step);
             run.dependOn(&boot_run_step.step);
         },

@@ -28,7 +28,7 @@ pub fn downloadFile(url: []const u8, out: []const u8, alloc: Allocator) !void {
         _ = try std.ChildProcess.exec(.{ .allocator = alloc, .argv = argv });
 }
 
-pub fn create_sysroot(exe: *LibExeObjStep, legacy: bool) !void {
+pub fn create_sysroot(exe: *LibExeObjStep) !void {
     const boot_dir = try std.fs.path.join(exe.builder.allocator, &.{ ".sysroot", "boot" });
 
     const to_create = [_][]const u8{boot_dir};
@@ -37,9 +37,7 @@ pub fn create_sysroot(exe: *LibExeObjStep, legacy: bool) !void {
         try std.fs.cwd().makePath(dirname);
     }
 
-    if (!legacy) {
-        try std.fs.cwd().makePath(try std.fs.path.join(exe.builder.allocator, &.{ ".sysroot", "EFI", "BOOT" }));
-    }
+    try std.fs.cwd().makePath(try std.fs.path.join(exe.builder.allocator, &.{ ".sysroot", "EFI", "BOOT" }));
 
     exe.setOutputDir(boot_dir);
 }
