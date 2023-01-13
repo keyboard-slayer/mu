@@ -19,5 +19,6 @@ typedef enum
     DEBUG_EVENT_LENGTH
 } DebugEvent;
 
+void debug_raise_exception(void);
 void debug_set_acquire_function(AcquireOutput func);
 void __debug_impl(char const *filename, size_t lineno, DebugEvent event, char const *fmt, ...);

@@ -91,7 +91,7 @@ pub fn build(b: *Builder) !void {
             try x86_64.import(exe, cflags, &qemu_args);
 
             var arch_run_step = b.allocator.create(x86_64.RunStep) catch unreachable;
-            arch_run_step.* = x86_64.RunStep.init(b.allocator, debug);
+            arch_run_step.* = x86_64.RunStep.init(b.allocator);
             arch_run_step.step.dependOn(&exe.step);
             run.dependOn(&arch_run_step.step);
         },

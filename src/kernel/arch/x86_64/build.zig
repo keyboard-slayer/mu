@@ -9,12 +9,10 @@ const Step = std.build.Step;
 pub const RunStep = struct {
     step: Step,
     alloc: Allocator,
-    debug: bool,
 
-    pub fn init(alloc: Allocator, debug: bool) RunStep {
+    pub fn init(alloc: Allocator) RunStep {
         return .{
             .step = Step.init(.run, "Arch runstep", alloc, RunStep.doStep),
-            .debug = debug,
             .alloc = alloc,
         };
     }

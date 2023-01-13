@@ -38,21 +38,20 @@ void __debug_impl(const char *filename, size_t lineno, DebugEvent event, const c
         out.puts(&out, event_colors[event], strlen(event_colors[event]));
         out.puts(&out, event_header[event], strlen(event_header[event]));
         out.putc(&out, ' ');
+        memcpy(buffer, filename, strlen(filename));
+        char *ptr = strrchr(buffer, '.');
+
+        if (ptr)
+        {
+            *ptr = '\0';
+        }
+
+        out.puts(&out, buffer, strlen(buffer));
+
+        stbsp_snprintf(buffer, 256, ":%ld ", lineno);
+        out.puts(&out, buffer, strlen(buffer));
+        out.puts(&out, "\033[0m", 4);
     }
-
-    memcpy(buffer, filename, strlen(filename));
-    char *ptr = strrchr(buffer, '.');
-
-    if (ptr)
-    {
-        *ptr = '\0';
-    }
-
-    out.puts(&out, buffer, strlen(buffer));
-
-    stbsp_snprintf(buffer, 256, ":%ld ", lineno);
-    out.puts(&out, buffer, strlen(buffer));
-    out.puts(&out, "\033[0m", 4);
 
     va_start(ap, fmt);
     stbsp_vsnprintf(buffer, 256, fmt, ap);
