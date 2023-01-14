@@ -1,4 +1,5 @@
 #include <abstract/arch.h>
+#include <lock.h>
 #include <macro.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -7,6 +8,7 @@
 #include "serial.h"
 
 static bool init = false;
+static Spinlock lock = 0;
 
 static void serial_write(int reg, uint8_t value)
 {
@@ -49,11 +51,13 @@ static void serial_putc(unused Output *self, char c)
 
 static void release_serial(Output *self)
 {
+    spinlock_release(&lock);
     *self = (Output){0};
 }
 
 Output abstract_serial_acquire(void)
 {
+    spinlock_acquire(&lock);
     return (Output){
         .putc = serial_putc,
         .puts = generic_puts,

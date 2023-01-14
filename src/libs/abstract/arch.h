@@ -7,5 +7,6 @@ void arch_init(void);
 void arch_cli(void);
 void arch_sti(void);
 void arch_hlt(void);
+void arch_pause(void);
 
 Output abstract_serial_acquire(void);

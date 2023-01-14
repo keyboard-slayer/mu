@@ -24,6 +24,11 @@ void arch_hlt(void)
     __asm__("hlt");
 }
 
+void arch_pause(void)
+{
+    __asm__("pause");
+}
+
 void debug_raise_exception(void)
 {
     __asm__("int $1");
