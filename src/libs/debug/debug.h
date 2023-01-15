@@ -2,6 +2,7 @@
 
 #define STB_SPRINTF_NOFLOAT
 #define STB_SPRINTF_IMPLEMENTATION
+#define STB_SPRINTF_NOUNALIGNED
 
 #include <macro.h>
 #include <traits/output.h>

@@ -1,12 +1,16 @@
 #include <abstract/arch.h>
+#include <pmm.h>
 
 #include "gdt.h"
 #include "idt.h"
+#include "vmm.h"
 
 void arch_init(void)
 {
     gdt_init();
     idt_init();
+    pmm_init();
+    vmm_init();
 }
 
 void arch_cli(void)

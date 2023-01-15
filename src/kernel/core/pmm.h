@@ -15,3 +15,4 @@ typedef struct
 void pmm_init(void);
 Alloc pmm_acquire(void);
 void pmm_release(Alloc *self);
+size_t pmm_available_pages(void);

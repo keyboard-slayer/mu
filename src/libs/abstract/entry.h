@@ -29,5 +29,13 @@ typedef struct
     MmapEntry entries[MMAP_ENTRIES_LIMIT];
 } Mmap;
 
+typedef struct
+{
+    uintptr_t phys;
+    uintptr_t virt;
+} Kaddr;
+
+Kaddr abstract_get_kaddr(void);
 uintptr_t abstract_apply_hhdm(uintptr_t addr);
+uintptr_t abstract_remove_hhdm(uintptr_t addr);
 Mmap abstract_get_mmap(void);

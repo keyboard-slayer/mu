@@ -1,5 +1,6 @@
 zig-cache/
 zig-out/
 .sysroot/
+.gdb_history
 meta/cache
 cpcdos.iso

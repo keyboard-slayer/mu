@@ -69,8 +69,9 @@ pub fn import(exe: *LibExeObjStep, flags: []const []const u8, qemu_args: *std.Ar
     try qemu_args.*.appendSlice(&.{
         "-no-reboot",
         "-no-shutdown",
-        "-d", "guest_errors",
+        "-d", "guest_errors,int",
         "-serial", "mon:stdio",
+        "-m", "1G",
         "-bios", ovmf,
         "-smp", "4",
         "-M", "q35",

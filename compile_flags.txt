@@ -3,3 +3,4 @@
 -Wextra
 -Werror
 -Isrc/libs
+-Isrc/kernel/core
