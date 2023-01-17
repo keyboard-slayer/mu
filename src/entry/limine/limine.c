@@ -18,6 +18,23 @@ volatile static struct limine_hhdm_request hhdm_request = {
     .revision = 0,
 };
 
+volatile static struct limine_kernel_address_request kaddr_req = {
+    .id = LIMINE_KERNEL_ADDRESS_REQUEST,
+    .response = 0,
+    .revision = 0,
+};
+
+uintptr_t abstract_remove_hhdm(uintptr_t addr)
+{
+    if (hhdm_request.response == NULL)
+    {
+        debug(DEBUG_ERROR, "Couldn't get HHDM");
+        debug_raise_exception();
+    }
+
+    return addr - hhdm_request.response->offset;
+}
+
 uintptr_t abstract_apply_hhdm(uintptr_t addr)
 {
     if (hhdm_request.response == NULL)
@@ -27,6 +44,20 @@ uintptr_t abstract_apply_hhdm(uintptr_t addr)
     }
 
     return addr + hhdm_request.response->offset;
+}
+
+Kaddr abstract_get_kaddr(void)
+{
+    if (kaddr_req.response == NULL)
+    {
+        debug(DEBUG_ERROR, "Couldn't get Kernel addresses");
+        debug_raise_exception();
+    }
+
+    return (Kaddr){
+        .phys = kaddr_req.response->physical_base,
+        .virt = kaddr_req.response->virtual_base,
+    };
 }
 
 Mmap abstract_get_mmap(void)

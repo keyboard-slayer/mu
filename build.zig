@@ -5,7 +5,8 @@
 // Build Options
 // =============
 //
-// -Ddebug=[true|false] -> Enable debug mode and if in run step, enable GDB server.
+// -Ddebug=[true|false] -> Enable debug mode and if in run step.
+// -Dgdb=[true|false] -> enable GDB server.
 // -Dbootloader=[bootloader] -> Set the bootloader you want to use.
 // -Dtarget=[arch] -> Set the architecture for the build (default is x86_64).
 //
@@ -39,19 +40,13 @@ const Bootloader = enum {
     limine,
 };
 
-const cflags = &.{ 
-    "-Wall", 
-    "-Wextra", 
-    "-Werror", 
-    "-Wno-unused-command-line-argument", 
-    if (builtin.os.tag == .windows) "-DHOST_IS_WINDOWS" else "" 
-};
 
 pub fn build(b: *Builder) !void {
     const exe = b.addExecutable("krnl64.elf", null);
 
     const run = b.step("run", "Runs Cpcdos OS3");
     const debug = b.option(bool, "debug", "Enable debug build") orelse false;
+    const gdb = b.option(bool, "gdb", "enable GDB server.") orelse false;
     const bootloader = b.option(Bootloader, "bootloader", "Bootloader") orelse Bootloader.limine;
     const arch = b.option(Arch, "target", "Target architecture") orelse Arch.x86_64;
 
@@ -62,10 +57,19 @@ pub fn build(b: *Builder) !void {
     const core = try utils.include(corepath, ".c", b.allocator);
     const libs = try utils.include(libpath, ".c", b.allocator);
 
+    const cflags = &.{ 
+        "-Wall", 
+        "-Wextra", 
+        "-Werror", 
+        "-Wno-unused-command-line-argument",
+        if (builtin.os.tag == .windows) "-DHOST_IS_WINDOWS" else "",
+        if (debug) "-fsanitize=undefined" else ""
+    };
+
     var qemu_args = std.ArrayList([]const u8).init(b.allocator);
     defer qemu_args.deinit();
 
-    exe.want_lto = false;
+    exe.want_lto = true;
     exe.red_zone = false;
     exe.code_model = .kernel;
 
@@ -102,15 +106,20 @@ pub fn build(b: *Builder) !void {
 
     if (debug) {
         exe.setBuildMode(.Debug);
-        try qemu_args.appendSlice(&.{ "-S", "-s" });
     } else {
         exe.setBuildMode(.ReleaseFast);
+    }
+
+    if (gdb) {
+        try qemu_args.appendSlice(&.{ "-S", "-s" });
     }
 
     const qemu_cmd = b.addSystemCommand(qemu_args.toOwnedSlice());
     run.dependOn(&qemu_cmd.step);
 
     exe.addIncludePath(libpath);
+    exe.addIncludePath(corepath);
+
     exe.addCSourceFiles(core, cflags);
     exe.addCSourceFiles(libs, cflags);
 

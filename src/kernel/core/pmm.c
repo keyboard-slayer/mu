@@ -73,8 +73,7 @@ static void *pmm_alloc_page(size_t pages)
 
     if (ret == NULL)
     {
-        debug(DEBUG_ERROR, "Out of memory");
-        debug_raise_exception();
+        return NULL;
     }
 
     return ret;
@@ -133,8 +132,8 @@ void pmm_init(void)
 
 void pmm_release(Alloc *self)
 {
-    spinlock_release(&lock);
     *self = (Alloc){0};
+    spinlock_release(&lock);
 }
 
 Alloc pmm_acquire(void)
@@ -143,7 +142,13 @@ Alloc pmm_acquire(void)
     return (Alloc){
         .malloc = pmm_alloc,
         .free = pmm_free,
-        .calloc = generic_calloc,
+        .release = pmm_release,
+        .calloc = NULL,
         .realloc = NULL,
     };
+}
+
+size_t pmm_available_pages(void)
+{
+    return available_pages;
 }

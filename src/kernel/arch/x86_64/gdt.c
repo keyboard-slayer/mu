@@ -19,9 +19,9 @@ static void gdt_lazy_init(GdtSegment *self, uint8_t access, uint8_t flags)
     self->access = access | GDT_ACCESS_PRESENT | GDT_ACCESS_READ_WRITE | GDT_ACCESS_DESCRIPTOR;
     self->flags = flags | GDT_FLAGS_GRANULARITY;
 
-    self->base_high = 0xff;
-    self->base_mid = 0xff;
-    self->base_low = 0xffff;
+    self->base_high = 0;
+    self->base_mid = 0;
+    self->base_low = 0;
 
     self->limit_low = 0xffff;
     self->limit_high = 0x0f;

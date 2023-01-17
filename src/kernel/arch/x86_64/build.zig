@@ -71,6 +71,7 @@ pub fn import(exe: *LibExeObjStep, flags: []const []const u8, qemu_args: *std.Ar
         "-no-shutdown",
         "-d", "guest_errors",
         "-serial", "mon:stdio",
+        "-m", "1G",
         "-bios", ovmf,
         "-smp", "4",
         "-M", "q35",

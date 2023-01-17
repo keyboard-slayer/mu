@@ -5,9 +5,9 @@
 #define unused __attribute__((unused))
 #define packed __attribute__((packed))
 
-#define kib(x) ((x)*1024)
+#define kib(x) ((uintptr_t)(x)*1024)
 #define mib(x) (kib(x) * 1024)
-#define gib(x) (mib((uint64_t)x) * 1024)
+#define gib(x) (mib(x) * 1024)
 
 #define align_up(x, align) (((x) + (align)-1) & ~((align)-1))
 #define align_down(x, align) ((x) & ~((align)-1))
@@ -19,3 +19,5 @@
 #endif
 
 #define irq(n) (n + 32)
+#define max(a, b) ((a) > (b) ? (a) : (b))
+#define min(a, b) ((a) < (b) ? (a) : (b))

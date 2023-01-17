@@ -8,4 +8,7 @@
 #define asm_write_cr(n, x) __asm__ volatile("mov %0, %%cr" #n ::"r"((x)))
 
 uint8_t asm_in8(uint16_t port);
+uint16_t asm_in16(uint16_t port);
+
 void asm_out8(uint16_t port, uint8_t data);
+void asm_out16(uint16_t port, uint16_t data);
