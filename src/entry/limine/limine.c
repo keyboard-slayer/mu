@@ -24,6 +24,22 @@ volatile static struct limine_kernel_address_request kaddr_req = {
     .revision = 0,
 };
 
+volatile struct limine_rsdp_request rsp_request = {
+    .id = LIMINE_RSDP_REQUEST,
+    .response = 0,
+    .revision = 0,
+};
+
+void *abstract_get_rsdp(void)
+{
+    if (rsp_request.response == NULL)
+    {
+        return NULL;
+    }
+
+    return rsp_request.response->address;
+}
+
 uintptr_t abstract_remove_hhdm(uintptr_t addr)
 {
     if (hhdm_request.response == NULL)
