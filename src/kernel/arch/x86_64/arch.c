@@ -1,6 +1,8 @@
 #include <abstract/arch.h>
 #include <pmm.h>
 
+#include "acpi.h"
+#include "apic.h"
 #include "gdt.h"
 #include "idt.h"
 #include "vmm.h"
@@ -11,6 +13,8 @@ void arch_init(void)
     idt_init();
     pmm_init();
     vmm_init();
+    acpi_init();
+    apic_init();
 }
 
 void arch_cli(void)

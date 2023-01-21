@@ -3,6 +3,7 @@
 #include <macro.h>
 #include <stdint.h>
 
+#include "apic.h"
 #include "asm.h"
 #include "regs.h"
 
@@ -82,6 +83,17 @@ uintptr_t interrupt_handler(uint64_t rsp)
             }
         }
     }
+    else
+    {
+        switch (regs->intno)
+        {
+        case irq(0):
+        {
+            break;
+        }
+        }
+    }
 
+    lapic_eoi();
     return rsp;
 }
