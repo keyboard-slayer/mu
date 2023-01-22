@@ -52,6 +52,16 @@ void lapic_eoi(void)
     lapic_write(LAPIC_EOI, 0);
 }
 
+int lapic_id(void)
+{
+    if (madt == NULL)
+    {
+        return 0;
+    }
+
+    return lapic_read(LAPIC_CPU_ID) >> 24;
+}
+
 /* --- Ioapic --------------------------------------------------------------- */
 
 static void ioapic_write(MadtIoapic *io_apic, uint32_t reg, uint32_t value)

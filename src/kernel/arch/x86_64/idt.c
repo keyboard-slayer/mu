@@ -21,6 +21,11 @@ idt_init_entry(IdtEntry *self, uint64_t base, uint8_t type)
     self->zero = 0;
 }
 
+uintptr_t idt_descriptor(void)
+{
+    return (uintptr_t)&idt_desc;
+}
+
 void idt_init(void)
 {
     for (size_t i = 0; i < IDT_ENTRIES_LENGTH; i++)
@@ -28,5 +33,5 @@ void idt_init(void)
         idt_init_entry(&idt.entries[i], __interrupts_vector[i], IDT_INT_GATE);
     }
 
-    idt_flush((uintptr_t)&idt_desc);
+    idt_flush(idt_descriptor());
 }

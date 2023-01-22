@@ -1,11 +1,14 @@
 #include <abstract/arch.h>
 #include <debug/debug.h>
+#include <lock.h>
 #include <macro.h>
 #include <stdint.h>
 
 #include "apic.h"
 #include "asm.h"
 #include "regs.h"
+
+static Spinlock lock = {0};
 
 static char *exception_messages[32] = {
     "Division By Zero",
@@ -44,6 +47,8 @@ static char *exception_messages[32] = {
 
 static void log_exception(Regs const *regs)
 {
+    spinlock_acquire(&lock);
+
     uint64_t cr0;
     uint64_t cr2;
     uint64_t cr3;
@@ -55,7 +60,7 @@ static void log_exception(Regs const *regs)
     asm_read_cr(4, cr4);
 
     debug(DEBUG_NONE, "\n\n------------------------------------------------------------------------------------\n");
-    debug(DEBUG_NONE, "%s on core 0 (0x%x) Err: %x", exception_messages[regs->intno], regs->intno, regs->err);
+    debug(DEBUG_NONE, "%s on core %d (0x%x) Err: %x", exception_messages[regs->intno], lapic_id(), regs->intno, regs->err);
     debug(DEBUG_NONE, "RAX %p RBX %p RCX %p RDX %p", regs->rax, regs->rbx, regs->rcx, regs->rdx);
     debug(DEBUG_NONE, "RSI %p RDI %p RBP %p RSP %p", regs->rsi, regs->rdi, regs->rbp, regs->rsp);
     debug(DEBUG_NONE, "R8  %p R9  %p R10 %p R11 %p", regs->r8, regs->r9, regs->r10, regs->r11);
@@ -64,6 +69,8 @@ static void log_exception(Regs const *regs)
     debug(DEBUG_NONE, "CS  %p SS  %p FLG %p", regs->cs, regs->ss, regs->rflags);
     debug(DEBUG_NONE, "RIP \033[7m%p\033[0m", regs->rip);
     debug(DEBUG_NONE, "\n------------------------------------------------------------------------------------");
+
+    spinlock_release(&lock);
 }
 
 uintptr_t interrupt_handler(uint64_t rsp)
