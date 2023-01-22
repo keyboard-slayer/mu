@@ -5,6 +5,7 @@
 #include "apic.h"
 #include "gdt.h"
 #include "idt.h"
+#include "smp.h"
 #include "vmm.h"
 
 void arch_init(void)
@@ -15,6 +16,7 @@ void arch_init(void)
     vmm_init();
     acpi_init();
     apic_init();
+    smp_init();
 }
 
 void arch_cli(void)

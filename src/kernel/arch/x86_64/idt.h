@@ -32,5 +32,6 @@ typedef struct packed
 
 void idt_init(void);
 void idt_flush(uintptr_t);
+uintptr_t idt_descriptor(void);
 
 extern uintptr_t __interrupts_vector[];

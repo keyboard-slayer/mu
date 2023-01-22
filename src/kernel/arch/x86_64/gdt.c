@@ -45,6 +45,11 @@ static void gdt_tss_init(GdtTss *self)
     };
 }
 
+uintptr_t gdt_descriptor(void)
+{
+    return (uintptr_t)&gdt_desc;
+}
+
 void gdt_init(void)
 {
     gdt_lazy_init(&gdt.entries[NULL_DESC], 0, 0);
@@ -57,6 +62,6 @@ void gdt_init(void)
 
     gdt_tss_init(&gdt.tss);
 
-    gdt_flush((uintptr_t)&gdt_desc);
+    gdt_flush(gdt_descriptor());
     tss_flush();
 }

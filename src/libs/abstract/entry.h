@@ -35,7 +35,10 @@ typedef struct
     uintptr_t virt;
 } Kaddr;
 
+typedef void (*CpuGoto)(void);
+
 Kaddr abstract_get_kaddr(void);
 uintptr_t abstract_apply_hhdm(uintptr_t addr);
 uintptr_t abstract_remove_hhdm(uintptr_t addr);
 Mmap abstract_get_mmap(void);
+void abstract_core_goto(CpuGoto fn);

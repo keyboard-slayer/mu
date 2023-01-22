@@ -63,6 +63,6 @@ typedef struct packed
 } Gdt;
 
 void gdt_init(void);
-
 void gdt_flush(uintptr_t);
 void tss_flush(void);
+uintptr_t gdt_descriptor(void);

@@ -24,10 +24,17 @@ volatile static struct limine_kernel_address_request kaddr_req = {
     .revision = 0,
 };
 
-volatile struct limine_rsdp_request rsp_request = {
+volatile static struct limine_rsdp_request rsp_request = {
     .id = LIMINE_RSDP_REQUEST,
     .response = 0,
     .revision = 0,
+};
+
+volatile static struct limine_smp_request smp_request = {
+    .id = LIMINE_SMP_REQUEST,
+    .revision = 0,
+    .response = 0,
+    .flags = 0,
 };
 
 void *abstract_get_rsdp(void)
@@ -97,4 +104,18 @@ Mmap abstract_get_mmap(void)
     }
 
     return mmap;
+}
+
+void abstract_core_goto(CpuGoto fn)
+{
+    if (smp_request.response == NULL)
+    {
+        debug(DEBUG_ERROR, "Couldn't get other Cpus");
+        debug_raise_exception();
+    }
+
+    for (size_t i = 1; i < smp_request.response->cpu_count; i++)
+    {
+        smp_request.response->cpus[i]->goto_address = (limine_goto_address)fn;
+    }
 }
