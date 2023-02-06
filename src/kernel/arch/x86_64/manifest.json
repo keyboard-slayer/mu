@@ -1,0 +1,16 @@
+{
+    "id": "arch-x86_64",
+    "type": "lib",
+    "requires": [
+        "libc", 
+        "abstract"
+    ],
+    "enableIf": {
+        "arch": [
+            "x86_64"
+        ]
+    },
+    "provides": [
+        "arch"
+    ]
+}

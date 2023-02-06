@@ -1,0 +1,8 @@
+{
+    "id": "debug",
+    "type": "lib",
+    "requires": [
+        "libc",
+        "traits"
+    ]
+}

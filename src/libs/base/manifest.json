@@ -1,0 +1,7 @@
+{
+    "id": "base",
+    "type": "lib",
+    "requires": [
+        "abstract"
+    ]
+}

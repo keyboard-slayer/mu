@@ -4,3 +4,5 @@ zig-out/
 .gdb_history
 meta/cache
 cpcdos.iso
+.ninja_log
+.osdk

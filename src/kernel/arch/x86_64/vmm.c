@@ -1,7 +1,7 @@
 #include <abstract/entry.h>
 #include <abstract/mem.h>
+#include <core/pmm.h>
 #include <debug/debug.h>
-#include <pmm.h>
 
 #include "asm.h"
 #include "cpuid.h"

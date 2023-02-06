@@ -1,0 +1,7 @@
+{
+    "id": "traits",
+    "type": "lib",
+    "requires": [
+        "libc"
+    ]
+}

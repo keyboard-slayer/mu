@@ -1,0 +1,10 @@
+{
+    "id": "core",
+    "type": "exe",
+    "requires": [
+        "arch",
+        "entry",
+        "debug",
+        "base"
+    ]
+}

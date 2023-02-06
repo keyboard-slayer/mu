@@ -1,0 +1,12 @@
+{
+    "id": "entry-limine",
+    "type": "lib",
+    "enableif": {
+        "loader": [
+            "limine"
+        ]
+    },
+    "provides": [
+        "entry"
+    ]
+}

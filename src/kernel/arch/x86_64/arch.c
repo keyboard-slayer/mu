@@ -1,5 +1,5 @@
 #include <abstract/arch.h>
-#include <pmm.h>
+#include <core/pmm.h>
 
 #include "acpi.h"
 #include "apic.h"

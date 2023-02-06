@@ -2,5 +2,7 @@
 -Wall
 -Wextra
 -Werror
+-Isrc/kernel/arch
+-Isrc/kernel 
+-Isrc/entry 
 -Isrc/libs
--Isrc/kernel/core

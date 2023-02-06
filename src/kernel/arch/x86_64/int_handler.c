@@ -1,7 +1,7 @@
 #include <abstract/arch.h>
 #include <debug/debug.h>
-#include <lock.h>
-#include <macro.h>
+#include <base/lock.h>
+#include <base/macro.h>
 #include <stdint.h>
 
 #include "apic.h"
