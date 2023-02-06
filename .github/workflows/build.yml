@@ -10,25 +10,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install zig
-        run: brew install zig
+      - name: Install Toolchains
+        run: brew install llvm python git ninja &&
+             python3 -m ensurepip && git clone https://github.com/devse-org/osdk && sudo python3 -m pip install -e osdk/
 
-      - name: Build Cpcdos
-        run: zig build
-
-  windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Install zig
-        run: choco install zig
-
-      - name: Build Cpcdos
-        run: zig build
+      - name: Build Cpcdos (Core x86_64)
+        run: osdk b core --target=kernel-x86_64
 
   ubuntu:
     runs-on: ubuntu-latest
@@ -38,11 +25,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v1
+      - name: Install Toolchains 
+        run: sudo apt-get install clang lld llvm python3 git ninja-build &&
+             git clone https://github.com/devse-org/osdk -b rewrite && sudo pip install -r osdk/requirements.txt && sudo pip install -e osdk/
 
-      - name: Install zig
-        run: sudo snap install zig --classic --beta
-
-      - name: Build Cpcdos
-        run: zig build
+      - name: Build Cpcdos (Core x86_64)
+        run: osdk b core --target=kernel-x86_64

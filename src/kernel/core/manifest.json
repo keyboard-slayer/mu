@@ -1,5 +1,6 @@
 {
     "id": "core",
+    "description": "The Microkernel itself",
     "type": "exe",
     "requires": [
         "arch",

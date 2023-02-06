@@ -1,4 +1,5 @@
 {
     "id": "abstract",
+    "manifest": "Abstraction layers library for architectures and bootloaders",
     "type": "lib"
 }

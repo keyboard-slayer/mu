@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ds/either.h>
 #include <base/macro.h>
+#include <ds/either.h>
 #include <stdint.h>
 
 typedef struct packed

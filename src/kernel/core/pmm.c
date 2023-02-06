@@ -1,6 +1,6 @@
 #include <abstract/entry.h>
-#include <debug/debug.h>
 #include <base/lock.h>
+#include <debug/debug.h>
 #include <stdbool.h>
 #include <traits/alloc.h>
 

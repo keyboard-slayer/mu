@@ -1,8 +1,9 @@
 {
     "id": "arch-x86_64",
+    "description": "Glue code and for the x86_64 architecture",
     "type": "lib",
     "requires": [
-        "libc", 
+        "libc",
         "abstract"
     ],
     "enableIf": {
