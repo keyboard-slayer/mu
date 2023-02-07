@@ -12,7 +12,7 @@ jobs:
 
       - name: Install Toolchains
         run: brew install llvm python git ninja &&
-             python3 -m ensurepip && git clone https://github.com/devse-org/osdk && sudo python3 -m pip install -e osdk/
+             python3 -m ensurepip && git clone https://github.com/cute-engineering/osdk && sudo python3 -m pip install -e osdk/
 
       - name: Build Cpcdos (Core x86_64)
         run: osdk b core --target=kernel-x86_64
@@ -27,7 +27,7 @@ jobs:
 
       - name: Install Toolchains 
         run: sudo apt-get install clang lld llvm python3 git ninja-build &&
-             git clone https://github.com/devse-org/osdk -b rewrite && sudo pip install -r osdk/requirements.txt && sudo pip install -e osdk/
+             git clone https://github.com/cute-engineering/osdk -b rewrite && sudo pip install -r osdk/requirements.txt && sudo pip install -e osdk/
 
       - name: Build Cpcdos (Core x86_64)
         run: osdk b core --target=kernel-x86_64
