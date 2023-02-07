@@ -1,11 +1,16 @@
-# Cpcdos OS3
+</br>
+</br>
+</br>
+<div align="center">
 
-This repository is a RFC for the next (micro)kernel for the Cpcdos project.
-Don't exitate to comment on a discussion or on an issue. 
+  <img height=128 src="doc/logo/color-dark.png#gh-dark-mode-only"/>
 
-Feel free to contribute :wink:
+</div>
 
+<div align="center">
 
-## Important things to read
-- [Cpcdos's website](https://cpcdos.net/en)
-- [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) (**VERY IMPORT FOR PR**)
+  <img height=128 src="doc/logo/color-light.png#gh-light-mode-only"/>
+
+</div>
+</br>
+</br>

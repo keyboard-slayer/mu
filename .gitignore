@@ -3,6 +3,6 @@ zig-out/
 .sysroot/
 .gdb_history
 meta/cache
-cpcdos.iso
+munix.iso
 .ninja_log
 .osdk
