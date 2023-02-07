@@ -6,3 +6,4 @@ meta/cache
 munix.iso
 .ninja_log
 .osdk
+__pycache__/
