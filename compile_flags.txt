@@ -6,3 +6,4 @@
 -Isrc/kernel 
 -Isrc/entry 
 -Isrc/libs
+-D__osdk_arch_x86_64__

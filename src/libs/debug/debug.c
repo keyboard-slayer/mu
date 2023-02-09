@@ -29,7 +29,7 @@ void debug_set_acquire_function(AcquireOutput func)
 
 void __debug_impl(const char *filename, size_t lineno, DebugEvent event, const char *fmt, ...)
 {
-    char buffer[256] = {0};
+    char buffer[512] = {0};
     va_list ap;
     Output out = acquire();
 

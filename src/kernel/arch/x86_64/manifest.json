@@ -3,8 +3,7 @@
     "description": "Glue code and for the x86_64 architecture",
     "type": "lib",
     "requires": [
-        "libc",
-        "abstract"
+        "libc"
     ],
     "enableIf": {
         "arch": [

@@ -3,8 +3,6 @@
 #include <base/macro.h>
 #include <traits/alloc.h>
 
-#define PAGE_SIZE (kib(4))
-
 typedef struct
 {
     size_t size;

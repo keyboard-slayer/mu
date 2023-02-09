@@ -1,7 +1,13 @@
-#include "gdt.h"
+#include <abstract/const.h>
+#include <base/lock.h>
+#include <core/heap.h>
 #include <debug/debug.h>
 
-static Gdt gdt;
+#include "gdt.h"
+#include "smp.h"
+
+static Gdt gdt = {0};
+static Spinlock lock = {0};
 static GdtDesc gdt_desc = {
     .len = sizeof(gdt) - 1,
     .offset = (uintptr_t)&gdt,
@@ -27,10 +33,13 @@ static void gdt_lazy_init(GdtSegment *self, uint8_t access, uint8_t flags)
     self->limit_high = 0x0f;
 }
 
-static void gdt_tss_init(GdtTss *self)
+void gdt_load_tss(Tss *tss)
 {
-    uintptr_t tss_ptr = (uintptr_t)self;
-    *self = (GdtTss){
+    uintptr_t tss_ptr = (uintptr_t)tss;
+
+    spinlock_acquire(&lock);
+
+    gdt.tss = (GdtTss){
         .length = sizeof(GdtTss),
 
         .base_low = tss_ptr & 0xffff,
@@ -43,6 +52,8 @@ static void gdt_tss_init(GdtTss *self)
 
         .reserved = 0,
     };
+
+    spinlock_release(&lock);
 }
 
 uintptr_t gdt_descriptor(void)
@@ -59,9 +70,19 @@ void gdt_init(void)
 
     gdt_lazy_init(&gdt.entries[USER_CODE], GDT_ACCESS_USER | GDT_ACCESS_EXE, GDT_FLAGS_LONG_MODE);
     gdt_lazy_init(&gdt.entries[USER_DATA], GDT_ACCESS_USER, GDT_FLAGS_SIZE);
-
-    gdt_tss_init(&gdt.tss);
+    gdt_load_tss(NULL);
 
     gdt_flush(gdt_descriptor());
+    tss_flush();
+}
+void gdt_init_tss(void)
+{
+    Alloc heap = heap_acquire();
+    cpu_impl_self()->tss.ist[0] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
+    cpu_impl_self()->tss.ist[1] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
+    cpu_impl_self()->tss.rsp[0] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
+    heap_release(&heap);
+
+    gdt_load_tss(&cpu_impl_self()->tss);
     tss_flush();
 }

@@ -39,34 +39,17 @@ volatile static struct limine_smp_request smp_request = {
 
 void *abstract_get_rsdp(void)
 {
-    if (rsp_request.response == NULL)
-    {
-        return NULL;
-    }
-
-    return rsp_request.response->address;
+    return non_null$(rsp_request.response->address);
 }
 
 uintptr_t abstract_remove_hhdm(uintptr_t addr)
 {
-    if (hhdm_request.response == NULL)
-    {
-        debug(DEBUG_ERROR, "Couldn't get HHDM");
-        debug_raise_exception();
-    }
-
-    return addr - hhdm_request.response->offset;
+    return addr - non_null$(hhdm_request.response->offset);
 }
 
 uintptr_t abstract_apply_hhdm(uintptr_t addr)
 {
-    if (hhdm_request.response == NULL)
-    {
-        debug(DEBUG_ERROR, "Couldn't get HHDM");
-        debug_raise_exception();
-    }
-
-    return addr + hhdm_request.response->offset;
+    return addr + non_null$(hhdm_request.response->offset);
 }
 
 Kaddr abstract_get_kaddr(void)

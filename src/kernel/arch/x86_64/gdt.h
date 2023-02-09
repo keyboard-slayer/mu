@@ -52,6 +52,18 @@ typedef struct packed
 
 typedef struct packed
 {
+    uint32_t reserved;
+    uint64_t rsp[3];
+    uint64_t reserved0;
+    uint64_t ist[7];
+    uint32_t reserved1;
+    uint32_t reserved2;
+    uint16_t reserved3;
+    uint16_t iopb_offset;
+} Tss;
+
+typedef struct packed
+{
     uint16_t len;
     uintptr_t offset;
 } GdtDesc;
@@ -63,6 +75,8 @@ typedef struct packed
 } Gdt;
 
 void gdt_init(void);
+void gdt_init_tss(void);
+void gdt_load_tss(Tss *self);
 void gdt_flush(uintptr_t);
 void tss_flush(void);
 uintptr_t gdt_descriptor(void);

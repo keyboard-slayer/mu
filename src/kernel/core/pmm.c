@@ -1,3 +1,4 @@
+#include <abstract/const.h>
 #include <abstract/entry.h>
 #include <base/lock.h>
 #include <debug/debug.h>

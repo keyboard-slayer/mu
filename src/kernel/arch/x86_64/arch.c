@@ -16,6 +16,7 @@ void arch_init(void)
     vmm_init();
     acpi_init();
     apic_init();
+    gdt_init_tss();
     smp_init();
 }
 

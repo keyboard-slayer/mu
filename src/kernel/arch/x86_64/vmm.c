@@ -1,3 +1,4 @@
+#include <abstract/const.h>
 #include <abstract/entry.h>
 #include <abstract/mem.h>
 #include <core/pmm.h>

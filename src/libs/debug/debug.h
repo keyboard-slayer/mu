@@ -9,6 +9,15 @@
 
 #define debug(EVENT, ...) __debug_impl(__FILENAME__, __LINE__, EVENT, __VA_ARGS__);
 
+#define non_null$(x) ({                                          \
+    if ((uintptr_t)x == 0)                                       \
+    {                                                            \
+        debug(DEBUG_ERROR, "Assertion failed (" #x " is null)"); \
+        debug_raise_exception();                                 \
+    }                                                            \
+    x;                                                           \
+})
+
 typedef enum
 {
     DEBUG_NONE,
