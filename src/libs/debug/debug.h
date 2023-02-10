@@ -4,7 +4,7 @@
 #define STB_SPRINTF_IMPLEMENTATION
 #define STB_SPRINTF_NOUNALIGNED
 
-#include <base/macro.h>
+#include <misc/macro.h>
 #include <traits/output.h>
 
 #define debug(EVENT, ...) __debug_impl(__FILENAME__, __LINE__, EVENT, __VA_ARGS__);

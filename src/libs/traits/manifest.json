@@ -1,5 +1,6 @@
 {
     "id": "traits",
+    "description": "Definition of set of rules for certain object types",
     "type": "lib",
     "requires": [
         "libc"

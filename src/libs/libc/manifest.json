@@ -1,5 +1,0 @@
-{
-    "id": "libc",
-    "description": "Standard C Library",
-    "type": "lib"
-}

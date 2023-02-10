@@ -6,7 +6,9 @@
         "arch",
         "entry",
         "debug",
-        "base",
-        "libheap"
+        "misc",
+        "libheap",
+        "ds",
+        "traits"
     ]
 }

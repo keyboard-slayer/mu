@@ -1,7 +1,7 @@
 #include <abstract/const.h>
 #include <abstract/entry.h>
-#include <base/lock.h>
 #include <debug/debug.h>
+#include <misc/lock.h>
 #include <stdbool.h>
 #include <traits/alloc.h>
 
@@ -144,7 +144,7 @@ Alloc pmm_acquire(void)
         .malloc = pmm_alloc,
         .free = pmm_free,
         .release = pmm_release,
-        .calloc = NULL,
+        .calloc = generic_calloc,
         .realloc = NULL,
     };
 }

@@ -1,0 +1,8 @@
+{
+    "id": "ds",
+    "type": "lib",
+    "description": "Data structures",
+    "requires": [
+        "libc"
+    ]
+}

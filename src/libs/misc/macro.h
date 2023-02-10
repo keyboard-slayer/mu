@@ -1,6 +1,6 @@
 #pragma once
 
-#include <libc/string.h>
+#include <string.h>
 
 #define unused __attribute__((unused))
 #define packed __attribute__((packed))

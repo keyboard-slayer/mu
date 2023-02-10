@@ -1,6 +1,7 @@
 {
     "id": "debug",
     "type": "lib",
+    "description": "Portable and freestanding debug library",
     "requires": [
         "libc",
         "traits"

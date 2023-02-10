@@ -1,0 +1,13 @@
+{
+    "id": "klibc",
+    "description": "Libc compatibility layer for the kernel (useful for data structures)",
+    "type": "lib",
+    "enableIf": {
+        "freestanding": [
+            true
+        ]
+    },
+    "provides": [
+        "libc"
+    ]
+}

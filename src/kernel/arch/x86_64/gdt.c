@@ -1,7 +1,7 @@
 #include <abstract/const.h>
-#include <base/lock.h>
 #include <core/heap.h>
 #include <debug/debug.h>
+#include <misc/lock.h>
 
 #include "gdt.h"
 #include "smp.h"
@@ -81,7 +81,7 @@ void gdt_init_tss(void)
     cpu_impl_self()->tss.ist[0] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
     cpu_impl_self()->tss.ist[1] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
     cpu_impl_self()->tss.rsp[0] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
-    heap_release(&heap);
+    heap.release(&heap);
 
     gdt_load_tss(&cpu_impl_self()->tss);
     tss_flush();

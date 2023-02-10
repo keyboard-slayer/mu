@@ -1,6 +1,6 @@
 #pragma once
 
-#include <base/macro.h>
+#include <misc/macro.h>
 #include <stdint.h>
 
 #define IDT_ENTRIES_LENGTH (256)

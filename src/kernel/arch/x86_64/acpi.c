@@ -1,5 +1,5 @@
 #include <abstract/entry.h>
-#include <libc/string.h>
+#include <string.h>
 
 #include "acpi.h"
 

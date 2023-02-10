@@ -1,5 +1,5 @@
-#include <base/lock.h>
-#include <base/macro.h>
+#include <misc/lock.h>
+#include <misc/macro.h>
 
 #include "asm.h"
 #include "bochs.h"

@@ -1,6 +1,6 @@
 #include <abstract/arch.h>
-#include <base/lock.h>
-#include <base/macro.h>
+#include <misc/lock.h>
+#include <misc/macro.h>
 #include <stdbool.h>
 #include <stdint.h>
 

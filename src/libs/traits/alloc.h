@@ -12,4 +12,6 @@ typedef struct _Alloc
     void (*release)(struct _Alloc *self);
 } Alloc;
 
+typedef Alloc (*AllocAcquireFn)(void);
+
 void *generic_calloc(Alloc *self, size_t nmemb, size_t size);

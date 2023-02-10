@@ -1,9 +1,9 @@
 #include "heap.h"
 #include <abstract/entry.h>
-#include <base/lock.h>
-#include <base/macro.h>
 #include <debug/debug.h>
 #include <libheap/libheap.h>
+#include <misc/lock.h>
+#include <misc/macro.h>
 
 #include "pmm.h"
 
@@ -59,6 +59,12 @@ static void *_heap_realloc(unused Alloc *self, void *ptr, size_t size)
     return res;
 }
 
+static void _heap_release(Alloc *alloc)
+{
+    spinlock_release(&lock);
+    memset(alloc, 0, sizeof(Alloc));
+}
+
 Alloc heap_acquire(void)
 {
     spinlock_acquire(&lock);
@@ -67,14 +73,6 @@ Alloc heap_acquire(void)
         .realloc = _heap_realloc,
         .calloc = _heap_calloc,
         .free = _heap_free,
+        .release = _heap_release,
     };
-}
-
-void heap_release(Alloc *alloc)
-{
-    spinlock_release(&lock);
-    alloc->malloc = NULL;
-    alloc->realloc = NULL;
-    alloc->calloc = NULL;
-    alloc->free = NULL;
 }
