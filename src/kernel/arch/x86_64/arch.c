@@ -7,6 +7,7 @@
 #include "gdt.h"
 #include "idt.h"
 #include "smp.h"
+#include "syscall.h"
 #include "vmm.h"
 
 void arch_init(void)
@@ -18,6 +19,7 @@ void arch_init(void)
     acpi_init();
     apic_init();
     gdt_init_tss();
+    syscall_init();
     smp_init();
     sched_init();
 }

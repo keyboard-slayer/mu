@@ -1,3 +1,4 @@
+#include "smp.h"
 #include <abstract/const.h>
 #include <abstract/cpu.h>
 #include <abstract/entry.h>
@@ -8,7 +9,7 @@
 #include "asm.h"
 #include "gdt.h"
 #include "idt.h"
-#include "smp.h"
+#include "syscall.h"
 
 static uintptr_t cr3;
 static CpuImpl cpus[MAX_CPU_COUNT] = {};
@@ -26,6 +27,7 @@ static void smp_setup_core(void)
     gdt_flush(gdt_descriptor());
     idt_flush(idt_descriptor());
     gdt_init_tss();
+    syscall_init();
     sched_init();
 
     for (;;)
