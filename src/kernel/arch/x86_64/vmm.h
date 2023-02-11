@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #define PMLX_GET_INDEX(addr, level) (((uint64_t)addr & ((uint64_t)0x1ff << (12 + level * 9))) >> (12 + level * 9))
 #define VMM_GET_ADDR(x) ((x)&0x000ffffffffff000)
 
@@ -11,5 +13,7 @@
 
 #define MMAP_FAILURE (1)
 #define MMAP_SUCCESS (0)
+
+typedef uintptr_t *Space;
 
 void vmm_init(void);

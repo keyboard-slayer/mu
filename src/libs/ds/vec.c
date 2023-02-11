@@ -1,5 +1,6 @@
 #include "vec.h"
 #include <assert.h>
+#include <debug/debug.h>
 #include <stdlib.h>
 
 void vec_expand_(char **data, size_t *length, size_t *capacity, int memsz, AllocAcquireFn alloc_fn)
@@ -13,7 +14,7 @@ void vec_expand_(char **data, size_t *length, size_t *capacity, int memsz, Alloc
         ptr = alloc.realloc(&alloc, *data, n * memsz);
         alloc.release(&alloc);
 
-        assert(ptr != NULL);
+        non_null$(ptr);
 
         *data = ptr;
         *capacity = n;

@@ -1,5 +1,6 @@
 #include "limine.h"
 #include <abstract/arch.h>
+#include <abstract/cpu.h>
 #include <abstract/entry.h>
 #include <debug/debug.h>
 #include <stdint.h>
@@ -96,6 +97,8 @@ void abstract_core_goto(CpuGoto fn)
         debug(DEBUG_ERROR, "Couldn't get other Cpus");
         debug_raise_exception();
     }
+
+    abstract_set_cpu_count(smp_request.response->cpu_count);
 
     for (size_t i = 1; i < smp_request.response->cpu_count; i++)
     {

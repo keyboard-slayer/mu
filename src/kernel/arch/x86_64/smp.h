@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 
+#include "apic.h"
 #include "gdt.h"
 
 typedef struct

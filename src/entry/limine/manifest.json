@@ -2,6 +2,9 @@
     "id": "entry-limine",
     "description": "Glue code for the limine bootloader",
     "type": "lib",
+    "requires": [
+        "abstract"
+    ],
     "enableif": {
         "loader": [
             "limine"

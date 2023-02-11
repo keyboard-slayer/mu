@@ -9,6 +9,7 @@
         "misc",
         "libheap",
         "ds",
-        "traits"
+        "traits",
+        "abstract"
     ]
 }

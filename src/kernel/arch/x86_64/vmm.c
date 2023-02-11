@@ -4,6 +4,7 @@
 #include <core/pmm.h>
 #include <debug/debug.h>
 
+#include "abstract/arch.h"
 #include "asm.h"
 #include "cpuid.h"
 #include "vmm.h"
@@ -204,5 +205,10 @@ void vmm_init(void)
         }
     }
 
-    asm_write_cr(3, abstract_remove_hhdm((uintptr_t)pml4));
+    abstract_switch_space(pml4);
+}
+
+void abstract_switch_space(Space space)
+{
+    asm_write_cr(3, abstract_remove_hhdm((uintptr_t)space));
 }

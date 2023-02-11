@@ -1,5 +1,6 @@
 #include <abstract/arch.h>
 #include <core/pmm.h>
+#include <core/sched.h>
 
 #include "acpi.h"
 #include "apic.h"
@@ -18,6 +19,7 @@ void arch_init(void)
     apic_init();
     gdt_init_tss();
     smp_init();
+    sched_init();
 }
 
 void arch_cli(void)

@@ -5,9 +5,6 @@
 #include <core/pmm.h>
 #include <debug/debug.h>
 
-#include "x86_64/const.h"
-
-#include "apic.h"
 #include "asm.h"
 #include "gdt.h"
 #include "idt.h"
@@ -18,7 +15,7 @@ static CpuImpl cpus[MAX_CPU_COUNT] = {};
 
 CpuImpl *cpu_impl_self(void)
 {
-    return &cpus[lapic_id()];
+    return &cpus[cpu_id()];
 }
 
 static void smp_setup_core(void)
@@ -29,9 +26,15 @@ static void smp_setup_core(void)
     gdt_flush(gdt_descriptor());
     idt_flush(idt_descriptor());
     gdt_init_tss();
+    sched_init();
 
     for (;;)
         ;
+}
+
+size_t cpu_id(void)
+{
+    return lapic_id();
 }
 
 void smp_init(void)

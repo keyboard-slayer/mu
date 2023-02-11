@@ -1,4 +1,5 @@
 #include <abstract/arch.h>
+#include <core/sched.h>
 #include <debug/debug.h>
 #include <misc/lock.h>
 #include <misc/macro.h>
@@ -96,6 +97,7 @@ uintptr_t interrupt_handler(uint64_t rsp)
         {
         case irq(0):
         {
+            sched_yield(regs);
             break;
         }
         }

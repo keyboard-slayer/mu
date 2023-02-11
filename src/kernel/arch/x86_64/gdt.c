@@ -63,13 +63,13 @@ uintptr_t gdt_descriptor(void)
 
 void gdt_init(void)
 {
-    gdt_lazy_init(&gdt.entries[NULL_DESC], 0, 0);
+    gdt_lazy_init(&gdt.entries[GDT_NULL_DESC], 0, 0);
 
-    gdt_lazy_init(&gdt.entries[KERNEL_CODE], GDT_ACCESS_EXE, GDT_FLAGS_LONG_MODE);
-    gdt_lazy_init(&gdt.entries[KERNEL_DATA], 0, GDT_FLAGS_SIZE);
+    gdt_lazy_init(&gdt.entries[GDT_KERNEL_CODE], GDT_ACCESS_EXE, GDT_FLAGS_LONG_MODE);
+    gdt_lazy_init(&gdt.entries[GDT_KERNEL_DATA], 0, GDT_FLAGS_SIZE);
 
-    gdt_lazy_init(&gdt.entries[USER_CODE], GDT_ACCESS_USER | GDT_ACCESS_EXE, GDT_FLAGS_LONG_MODE);
-    gdt_lazy_init(&gdt.entries[USER_DATA], GDT_ACCESS_USER, GDT_FLAGS_SIZE);
+    gdt_lazy_init(&gdt.entries[GDT_USER_CODE], GDT_ACCESS_USER | GDT_ACCESS_EXE, GDT_FLAGS_LONG_MODE);
+    gdt_lazy_init(&gdt.entries[GDT_USER_DATA], GDT_ACCESS_USER, GDT_FLAGS_SIZE);
     gdt_load_tss(NULL);
 
     gdt_flush(gdt_descriptor());

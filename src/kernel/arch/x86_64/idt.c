@@ -16,7 +16,7 @@ idt_init_entry(IdtEntry *self, uint64_t base, uint8_t type)
     self->offset_high = (base >> 32) & 0xFFFFFFFF;
 
     self->ist = 0;
-    self->selector = KERNEL_CODE * 8;
+    self->selector = GDT_KERNEL_CODE * 8;
     self->type_attr = IDT_INT_PRESENT | type;
     self->zero = 0;
 }

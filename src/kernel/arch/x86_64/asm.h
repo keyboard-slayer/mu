@@ -2,6 +2,9 @@
 
 #include <stdint.h>
 
+#define MSR_KERN_GS_BASE (0xc0000102)
+#define MSR_GS_BASE (0xC0000101)
+
 #define asm_read_cr(n, reg) __asm__ volatile("mov %%cr" #n ", %0" \
                                              : "=r"(reg))
 
