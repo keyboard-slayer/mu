@@ -84,7 +84,7 @@ uintptr_t interrupt_handler(uint64_t rsp)
 
         if (regs->intno != 1)
         {
-            for (;;)
+            loop
             {
                 arch_cli();
                 arch_hlt();

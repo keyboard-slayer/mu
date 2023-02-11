@@ -4,6 +4,9 @@
 
 #define unused __attribute__((unused))
 #define packed __attribute__((packed))
+#define unreachable __builtin_unreachable();
+#define noreturn __attribute__((noreturn))
+#define loop for (;;)
 
 #define kib(x) ((uintptr_t)(x)*1024)
 #define mib(x) (kib(x) * 1024)

@@ -1,5 +1,6 @@
 import os
 
+from osdk.context import loadAllComponents
 from osdk import utils, shell, builder
 from osdk.cmds import Cmd, append
 from osdk.args import Args
@@ -19,11 +20,22 @@ def installLimine(bootDir: str, efiBootDir: str) -> None:
     shell.cp(limine, f"{efiBootDir}/BOOTX64.EFI")
     shell.cp(f"src/entry/limine/limine.cfg", f"{bootDir}/limine.cfg")
 
+def buildPkgs(binDir: str) -> None:
+    pkgs = [p for p in loadAllComponents() if "src/pkg" in p.dirname()]
+
+    for pkg in pkgs:
+        bin = builder.build(pkg.id, "munix-x86_64")
+        shell.cp(bin, f"{binDir}/{os.path.basename(bin)}")
+
+
 
 def bootCmd(args: Args) -> None:
     imageDir = shell.mkdir(".osdk/images/efi-x86_64")
     efiBootDir = shell.mkdir(f"{imageDir}/EFI/BOOT")
+    binDir = shell.mkdir(f"{imageDir}/bin")
     bootDir = shell.mkdir(f"{imageDir}/boot")
+
+    buildPkgs(binDir)
 
     ovmf = shell.wget("https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd")
 

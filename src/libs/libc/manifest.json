@@ -1,0 +1,13 @@
+{
+    "id": "libc",
+    "description": "Userspace Libc",
+    "type": "lib",
+    "enableIf": {
+        "freestanding": [
+            false
+        ]
+    },
+    "provides": [
+        "libc"
+    ]
+}

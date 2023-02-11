@@ -29,7 +29,7 @@ void sched_yield(Regs *regs)
     Task *current_task = cpu_self()->sched.tasks.data[cpu_self()->sched.task_index];
     context_save(&current_task->context, regs);
 
-    for (;;)
+    loop
     {
         cpu_self()->sched.task_index++;
 

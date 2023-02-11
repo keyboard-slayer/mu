@@ -29,9 +29,7 @@ static void smp_setup_core(void)
     gdt_init_tss();
     syscall_init();
     sched_init();
-
-    for (;;)
-        ;
+    loop;
 }
 
 size_t cpu_id(void)

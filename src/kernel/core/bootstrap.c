@@ -7,7 +7,5 @@ int _start()
     debug(DEBUG_INFO, "Hello, world!");
 
     arch_init();
-
-    for (;;)
-        ;
+    loop;
 }
