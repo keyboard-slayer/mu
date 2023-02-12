@@ -3,11 +3,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define CPUID_EXTENDED_LEAF (0x80000001)
-#define CPUID_EXFEATURE_PDPE1GB (1 << 26)
-#define CPUID_SSE_SUPPORT (1 << 25)
-#define CPUID_SSE2_SUPPORT (1 << 26)
-#define CPUID_XSAVE_SUPPORT (1 << 26)
+#define CPUID_EXTENDED_LEAF      (0x80000001)
+#define CPUID_EXFEATURE_PDPE1GB  (1 << 26)
+#define CPUID_SSE_SUPPORT        (1 << 25)
+#define CPUID_SSE2_SUPPORT       (1 << 26)
+#define CPUID_XSAVE_SUPPORT      (1 << 26)
 #define CPUID_FEATURE_IDENTIFIER (0x1)
 
 typedef struct

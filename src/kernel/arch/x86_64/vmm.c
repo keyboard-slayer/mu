@@ -212,3 +212,23 @@ void abstract_switch_space(Space space)
 {
     asm_write_cr(3, abstract_remove_hhdm((uintptr_t)space));
 }
+
+Space abstract_create_space(void)
+{
+    Alloc pmm = pmm_acquire();
+    Space space = (Space)abstract_apply_hhdm((uintptr_t)non_null$(pmm.calloc(&pmm, 1, PAGE_SIZE)));
+
+    for (size_t i = 255; i < 512; i++)
+    {
+        space[i] = pml4[i];
+    }
+
+    pmm_release(&pmm);
+
+    return space;
+}
+
+Space abstract_get_kernel_space(void)
+{
+    return pml4;
+}

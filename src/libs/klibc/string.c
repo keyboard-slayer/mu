@@ -1,6 +1,5 @@
+#include <core/heap.h>
 #include <stddef.h>
-
-#include "string.h"
 
 char *strrchr(const char *s, int c)
 {
@@ -65,4 +64,19 @@ int memcmp(const void *s1, const void *s2, size_t n)
     }
 
     return 0;
+}
+
+char *strdup(char const *s)
+{
+    Alloc heap = heap_acquire();
+    char *ret = heap.calloc(&heap, 1, strlen(s));
+    heap.release(&heap);
+
+    if (ret == NULL)
+    {
+        return ret;
+    }
+
+    memcpy(ret, s, strlen(s));
+    return ret;
 }

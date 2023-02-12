@@ -3,17 +3,15 @@
 #include <misc/macro.h>
 #include <stdint.h>
 
-#define GDT_ACCESS_READ_WRITE (1 << 1)
-#define GDT_ACCESS_EXE (1 << 3)
-#define GDT_ACCESS_DESCRIPTOR (1 << 4)
-#define GDT_ACCESS_USER (3 << 5)
-#define GDT_ACCESS_PRESENT (1 << 7)
-
-#define GDT_FLAGS_LONG_MODE (1 << 1)
-#define GDT_FLAGS_SIZE (1 << 2)
-#define GDT_FLAGS_GRANULARITY (1 << 3)
-
-#define TSS_FLAGS_PRESENT (1 << 7)
+#define GDT_ACCESS_READ_WRITE      (1 << 1)
+#define GDT_ACCESS_EXE             (1 << 3)
+#define GDT_ACCESS_DESCRIPTOR      (1 << 4)
+#define GDT_ACCESS_USER            (3 << 5)
+#define GDT_ACCESS_PRESENT         (1 << 7)
+#define GDT_FLAGS_LONG_MODE        (1 << 1)
+#define GDT_FLAGS_SIZE             (1 << 2)
+#define GDT_FLAGS_GRANULARITY      (1 << 3)
+#define TSS_FLAGS_PRESENT          (1 << 7)
 #define TSS_FLAGS_64BITS_AVAILABLE (0x9)
 
 enum _GDT_ENTRY

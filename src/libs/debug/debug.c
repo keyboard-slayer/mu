@@ -1,9 +1,8 @@
 #include "debug.h"
 #include <stdarg.h>
+#include <traits/output.h>
 
 #include "__stb_sprintf.h"
-
-#include "traits/output.h"
 
 static AcquireOutput acquire = NULL;
 static char const *event_header[DEBUG_EVENT_LENGTH] = {
@@ -29,7 +28,7 @@ void debug_set_acquire_function(AcquireOutput func)
 
 void __debug_impl(const char *filename, size_t lineno, DebugEvent event, const char *fmt, ...)
 {
-    char buffer[512] = {0};
+    char buffer[1024] = {0};
     va_list ap;
     Output out = acquire();
 
@@ -48,13 +47,13 @@ void __debug_impl(const char *filename, size_t lineno, DebugEvent event, const c
 
         out.puts(&out, buffer, strlen(buffer));
 
-        stbsp_snprintf(buffer, 256, ":%ld ", lineno);
+        stbsp_snprintf(buffer, 1024, ":%ld ", lineno);
         out.puts(&out, buffer, strlen(buffer));
         out.puts(&out, "\033[0m", 4);
     }
 
     va_start(ap, fmt);
-    stbsp_vsnprintf(buffer, 256, fmt, ap);
+    stbsp_vsnprintf(buffer, 1024, fmt, ap);
     out.puts(&out, buffer, strlen(buffer));
     va_end(ap);
 

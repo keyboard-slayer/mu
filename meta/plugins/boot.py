@@ -18,30 +18,44 @@ def installLimine(bootDir: str, efiBootDir: str) -> None:
     )
 
     shell.cp(limine, f"{efiBootDir}/BOOTX64.EFI")
-    shell.cp(f"src/entry/limine/limine.cfg", f"{bootDir}/limine.cfg")
 
-def buildPkgs(binDir: str) -> None:
-    pkgs = [p for p in loadAllComponents() if "src/pkg" in p.dirname()]
+
+def buildPkgs(binDir: str, debug: bool) -> list[str]:
+    pkgs = [p.id for p in loadAllComponents() if "src/pkg" in p.dirname()]
 
     for pkg in pkgs:
-        bin = builder.build(pkg.id, "munix-x86_64")
-        shell.cp(bin, f"{binDir}/{os.path.basename(bin)}")
+        elf = builder.build(pkg, "munix-x86_64:debug")
+        shell.cp(elf, f"{binDir}/{os.path.basename(elf)[:-4]}")
 
+    return pkgs
+
+
+def limineGenConfig(bootDir: str, pkgs: list[str]) -> None:
+    with open(f"{bootDir}/limine.cfg", "w") as cfg:
+        cfg.write(
+            "TIMEOUT=0\n:Munix\nPROTOCOL=limine\nKERNEL_PATH=boot:///boot/kernel.elf\n"
+        )
+
+        for pkg in pkgs:
+            cfg.write(f"MODULE_PATH=boot:///bin/{pkg}")
 
 
 def bootCmd(args: Args) -> None:
+    debug = "debug" in args.opts
     imageDir = shell.mkdir(".osdk/images/efi-x86_64")
     efiBootDir = shell.mkdir(f"{imageDir}/EFI/BOOT")
     binDir = shell.mkdir(f"{imageDir}/bin")
     bootDir = shell.mkdir(f"{imageDir}/boot")
 
-    buildPkgs(binDir)
-
     ovmf = shell.wget("https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd")
 
-    munix = builder.build("core", "kernel-x86_64")
+    munix = builder.build("core", "kernel-x86_64:debug")
+
     shell.cp(munix, f"{bootDir}/kernel.elf")
+
+    pkgs = buildPkgs(binDir, debug)
     installLimine(bootDir, efiBootDir)
+    limineGenConfig(bootDir, pkgs)
 
     qemuCmd: list[str] = [
         "qemu-system-x86_64",

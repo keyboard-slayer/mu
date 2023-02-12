@@ -11,7 +11,7 @@
 
 static Spinlock lock = {0};
 
-static char *exception_messages[32] = {
+unused static char *exception_messages[32] = {
     "Division By Zero",
     "Debug",
     "Non Maskable Interrupt",
@@ -46,6 +46,29 @@ static char *exception_messages[32] = {
     "Reserved",
 };
 
+struct _StackFrame
+{
+    struct _StackFrame *rbp;
+    uint64_t rip;
+};
+
+static size_t dump_backtrace(uintptr_t rbp)
+{
+    struct _StackFrame *stackframe = (void *)rbp;
+
+    size_t i = 0;
+
+    debug(DEBUG_NONE, "Backtrace: ");
+
+    while (stackframe)
+    {
+        debug(DEBUG_NONE, "* %p", stackframe->rip);
+        stackframe = stackframe->rbp;
+    }
+
+    return i;
+}
+
 static void log_exception(Regs const *regs)
 {
     spinlock_acquire(&lock);
@@ -68,7 +91,8 @@ static void log_exception(Regs const *regs)
     debug(DEBUG_NONE, "R12 %p R13 %p R14 %p R15 %p", regs->r12, regs->r13, regs->r14, regs->r15);
     debug(DEBUG_NONE, "CR0 %p CR2 %p CR3 %p CR4 %p", cr0, cr2, cr3, cr4);
     debug(DEBUG_NONE, "CS  %p SS  %p FLG %p", regs->cs, regs->ss, regs->rflags);
-    debug(DEBUG_NONE, "RIP \033[7m%p\033[0m", regs->rip);
+    debug(DEBUG_NONE, "RIP \033[7m%p\033[0m\n", regs->rip);
+    dump_backtrace(regs->rbp);
     debug(DEBUG_NONE, "\n------------------------------------------------------------------------------------");
 
     spinlock_release(&lock);

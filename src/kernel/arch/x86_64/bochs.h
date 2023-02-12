@@ -4,10 +4,8 @@
 
 #include <traits/output.h>
 
-#define PORT_E9 (0xe9)
-
-#define BOCHS_COMMAND_REG (0x8a00)
-
+#define PORT_E9             (0xe9)
+#define BOCHS_COMMAND_REG   (0x8a00)
 #define BOCHS_ENABLE_DEVICE (0x8a00)
 #define BOCHS_RETURN_PROMPT (0x8ae0)
 

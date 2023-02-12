@@ -1,24 +1,29 @@
 #include "sched.h"
 #include <abstract/arch.h>
 #include <abstract/cpu.h>
+#include <abstract/mem.h>
 #include <debug/debug.h>
 #include <misc/lock.h>
 
 #include "heap.h"
 
 static Spinlock lock = {0};
+static size_t tid = 0;
 
 void sched_init(void)
 {
+    Task *idle = task_init("idle", abstract_get_kernel_space());
+
     cpu_self()->sched.tick = 0;
     cpu_self()->sched.task_index = 0;
     vec_init(&cpu_self()->sched.tasks, heap_acquire);
+    vec_push(&cpu_self()->sched.tasks, idle);
     cpu_self()->sched.is_init = true;
 }
 
 void sched_yield(Regs *regs)
 {
-    if (!cpu_self()->sched.is_init || cpu_self()->sched.tasks.length < 2)
+    if (!cpu_self()->sched.is_init || cpu_self()->sched.tasks.length < 1)
     {
         return;
     }
@@ -49,8 +54,8 @@ void sched_yield(Regs *regs)
     context_switch(&current_task->context, regs);
     abstract_switch_space(current_task->space);
 
-    spinlock_release(&lock);
     arch_sti();
+    spinlock_release(&lock);
 }
 
 void sched_push_task(Task *task)
@@ -68,4 +73,9 @@ void sched_push_task(Task *task)
     }
 
     vec_push(&cpu(cpu_id)->sched.tasks, task);
+}
+
+size_t sched_next_tid(void)
+{
+    return ++tid;
 }

@@ -7,3 +7,5 @@
 -Isrc/entry 
 -Isrc/libs
 -D__osdk_arch_x86_64__
+-D__osdk_bits_64__
+-D__osdk_osdk_debug__

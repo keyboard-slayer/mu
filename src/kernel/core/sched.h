@@ -16,3 +16,5 @@ typedef struct
 
 void sched_yield(Regs *regs);
 void sched_init(void);
+void sched_push_task(Task *task);
+size_t sched_next_tid(void);
