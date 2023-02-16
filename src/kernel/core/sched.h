@@ -14,6 +14,7 @@ typedef struct
     bool is_init;
 } Sched;
 
+void sched_self(void);
 void sched_yield(Regs *regs);
 void sched_init(void);
 void sched_push_task(Task *task);

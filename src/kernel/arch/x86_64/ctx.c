@@ -12,9 +12,7 @@ static Spinlock lock;
 
 void context_init(Context *self, uintptr_t ip, TaskArgs args)
 {
-    // self->regs.cs = (GDT_KERNEL_CODE * 8);
     self->regs.cs = (GDT_USER_CODE * 8) | 3;
-    // self->regs.ss = (GDT_KERNEL_DATA * 8);
     self->regs.ss = (GDT_USER_DATA * 8) | 3;
     self->regs.rip = ip;
     self->regs.rsp = USER_STACK_BASE + STACK_SIZE;
@@ -29,8 +27,7 @@ void context_init(Context *self, uintptr_t ip, TaskArgs args)
 
     Alloc pmm = pmm_acquire();
 
-    self->syscall_kernel_bstack = abstract_apply_hhdm((uintptr_t)non_null$(pmm.calloc(&pmm, 1, PAGE_SIZE)));
-    self->syscall_kernel_stack = self->syscall_kernel_bstack + STACK_SIZE;
+    self->syscall_kernel_stack =  abstract_apply_hhdm((uintptr_t)non_null$(pmm.calloc(&pmm, 1, STACK_SIZE))) + STACK_SIZE;
     pmm.release(&pmm);
 }
 
