@@ -3,7 +3,8 @@
 #include <abstract/cpu.h>
 #include <abstract/entry.h>
 #include <debug/debug.h>
-#include <stdint.h>
+#include <misc/macro.h>
+#include <string.h>
 
 static Mmap mmap = {0};
 
@@ -36,6 +37,12 @@ volatile static struct limine_smp_request smp_request = {
     .revision = 0,
     .response = 0,
     .flags = 0,
+};
+
+volatile struct limine_module_request module_request = {
+    .id = LIMINE_MODULE_REQUEST,
+    .response = 0,
+    .revision = 0,
 };
 
 void *abstract_get_rsdp(void)
@@ -104,4 +111,32 @@ void abstract_core_goto(CpuGoto fn)
     {
         smp_request.response->cpus[i]->goto_address = (limine_goto_address)fn;
     }
+}
+
+Module abstract_get_module(char const *name)
+{
+    if (module_request.response == NULL)
+    {
+        debug(DEBUG_ERROR, "Couldn't get modules");
+        debug_raise_exception();
+    }
+
+    Module mod;
+
+    for (size_t i = 0; i < module_request.response->module_count; i++)
+    {
+        mod = (Module){
+            .name = module_request.response->modules[i]->path,
+            .addr = (uintptr_t)module_request.response->modules[i]->address,
+        };
+
+        if (memcmp(mod.name, name, strlen(name)) == 0)
+        {
+            return mod;
+        }
+    }
+
+    debug(DEBUG_ERROR, "Couldn't find module %s", name);
+    debug_raise_exception();
+    unreachable
 }

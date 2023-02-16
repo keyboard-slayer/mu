@@ -145,12 +145,13 @@ static void kmmap_section(uintptr_t start, uintptr_t end, uint8_t flags)
 int kmmap(Space space, uintptr_t virt, uintptr_t phys, size_t length, uint8_t flags)
 {
     int64_t flags_arch = transform_flags(flags);
+    const size_t map_psize = flags & MMAP_HUGE ? page_size : PAGE_SIZE;
 
-    size_t end = align_up(length, page_size);
-    size_t aligned_virt = align_down(virt, page_size);
-    size_t aligned_phys = align_down(phys, page_size);
+    size_t end = align_up(length, map_psize);
+    size_t aligned_virt = align_down(virt, map_psize);
+    size_t aligned_phys = align_down(phys, map_psize);
 
-    for (size_t i = 0; i < end; i += page_size)
+    for (size_t i = 0; i < end; i += map_psize)
     {
         int ret = kmmap_page(space, aligned_virt + i, aligned_phys + i, flags_arch);
 
@@ -211,4 +212,24 @@ void vmm_init(void)
 void abstract_switch_space(Space space)
 {
     asm_write_cr(3, abstract_remove_hhdm((uintptr_t)space));
+}
+
+Space abstract_create_space(void)
+{
+    Alloc pmm = pmm_acquire();
+    Space space = (Space)abstract_apply_hhdm((uintptr_t)non_null$(pmm.calloc(&pmm, 1, PAGE_SIZE)));
+
+    for (size_t i = 255; i < 512; i++)
+    {
+        space[i] = pml4[i];
+    }
+
+    pmm_release(&pmm);
+
+    return space;
+}
+
+Space abstract_get_kernel_space(void)
+{
+    return pml4;
 }

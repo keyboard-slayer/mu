@@ -4,9 +4,8 @@
 #include <stdint.h>
 
 #define IDT_ENTRIES_LENGTH (256)
-
-#define IDT_INT_PRESENT (1 << 7)
-#define IDT_INT_GATE (0xe)
+#define IDT_INT_PRESENT    (1 << 7)
+#define IDT_INT_GATE       (0xe)
 
 typedef struct packed
 {

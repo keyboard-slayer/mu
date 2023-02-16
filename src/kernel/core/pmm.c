@@ -131,6 +131,18 @@ void pmm_init(void)
     }
 }
 
+void *pmm_calloc(Alloc *self, size_t nmemb, size_t size)
+{
+    void *ptr = self->malloc(self, nmemb * size);
+
+    if (ptr != NULL)
+    {
+        memset((void *)abstract_apply_hhdm((uintptr_t)ptr), 0, nmemb + size);
+    }
+
+    return ptr;
+}
+
 void pmm_release(Alloc *self)
 {
     *self = (Alloc){0};
@@ -144,7 +156,7 @@ Alloc pmm_acquire(void)
         .malloc = pmm_alloc,
         .free = pmm_free,
         .release = pmm_release,
-        .calloc = generic_calloc,
+        .calloc = pmm_calloc,
         .realloc = NULL,
     };
 }

@@ -12,22 +12,20 @@ static Spinlock lock;
 
 void context_init(Context *self, uintptr_t ip, TaskArgs args)
 {
-    Regs regs = {0};
+    // self->regs.cs = (GDT_KERNEL_CODE * 8);
+    self->regs.cs = (GDT_USER_CODE * 8) | 3;
+    // self->regs.ss = (GDT_KERNEL_DATA * 8);
+    self->regs.ss = (GDT_USER_DATA * 8) | 3;
+    self->regs.rip = ip;
+    self->regs.rsp = USER_STACK_BASE + STACK_SIZE;
+    self->regs.rbp = USER_STACK_BASE;
+    self->regs.rflags = 0x202;
 
-    regs.cs = (GDT_USER_CODE * 8) | 3;
-    regs.ss = (GDT_USER_DATA * 8) | 3;
-    regs.rip = ip;
-    regs.rsp = USER_STACK_BASE + STACK_SIZE;
-    regs.rbp = USER_STACK_BASE;
-    regs.rflags = 0x202;
-
-    regs.rdi = args.arg1;
-    regs.rsi = args.arg2;
-    regs.rdx = args.arg3;
-    regs.rcx = args.arg4;
-    regs.r8 = args.arg5;
-
-    self->regs = regs;
+    self->regs.rdi = args.arg1;
+    self->regs.rsi = args.arg2;
+    self->regs.rdx = args.arg3;
+    self->regs.rcx = args.arg4;
+    self->regs.r8 = args.arg5;
 
     Alloc pmm = pmm_acquire();
 
