@@ -8,13 +8,11 @@ static IdtDesc idt_desc = {
     .offset = (uintptr_t)&idt,
 };
 
-static void
-idt_init_entry(IdtEntry *self, uint64_t base, uint8_t type)
+static void idt_init_entry(IdtEntry *self, uint64_t base, uint8_t type)
 {
     self->offset_low = base & 0xFFFF;
     self->offset_mid = (base >> 16) & 0xFFFF;
     self->offset_high = (base >> 32) & 0xFFFFFFFF;
-
     self->ist = 0;
     self->selector = GDT_KERNEL_CODE * 8;
     self->type_attr = IDT_INT_PRESENT | type;

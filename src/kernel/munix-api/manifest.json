@@ -1,0 +1,6 @@
+{
+    "id": "munix-api",
+    "description": "The µnix microkernel API",
+    "type": "lib",
+    "requires": []
+}

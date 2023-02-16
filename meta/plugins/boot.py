@@ -33,7 +33,7 @@ def buildPkgs(binDir: str, debug: bool) -> list[str]:
 def limineGenConfig(bootDir: str, pkgs: list[str]) -> None:
     with open(f"{bootDir}/limine.cfg", "w") as cfg:
         cfg.write(
-            "TIMEOUT=0\n:Munix\nPROTOCOL=limine\nKERNEL_PATH=boot:///boot/kernel.elf\n"
+            "TIMEOUT=3\n:Munix\nPROTOCOL=limine\nKERNEL_PATH=boot:///boot/kernel.elf\n"
         )
 
         for pkg in pkgs:
@@ -47,7 +47,8 @@ def bootCmd(args: Args) -> None:
     binDir = shell.mkdir(f"{imageDir}/bin")
     bootDir = shell.mkdir(f"{imageDir}/boot")
 
-    ovmf = shell.wget("https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd")
+    ovmf = shell.wget(
+        "https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd")
 
     munix = builder.build("core", "kernel-x86_64:debug")
 

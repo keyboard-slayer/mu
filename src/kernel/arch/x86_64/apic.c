@@ -108,8 +108,7 @@ static MadtIso *madt_get_iso_irq(uint8_t irq)
     return NULL;
 }
 
-static size_t
-ioapic_gsi_count(MadtIoapic *ioapic)
+static size_t ioapic_gsi_count(MadtIoapic *ioapic)
 {
     uint32_t val = ioapic_read(ioapic, 1);
     IoapicVer *ver = (IoapicVer *)&val;
@@ -151,19 +150,19 @@ static void ioapic_set_gsi_redirect(uint32_t lapic_id, uint8_t intno, uint8_t gs
         return;
     }
 
-    redirect._redirect.vector = intno;
+    redirect.vector = intno;
 
     if (flags & IOAPIC_ACTIVE_HIGH_LOW)
     {
-        redirect._redirect.polarity = 1;
+        redirect.polarity = 1;
     }
 
     if (flags & IOAPIC_TRIGGER_EDGE_LOW)
     {
-        redirect._redirect.trigger = 1;
+        redirect.trigger = 1;
     }
 
-    redirect._redirect.dest_id = lapic_id;
+    redirect.dest_id = lapic_id;
 
     io_redirect_table = (gsi - ioapic->gsib) * 2 + 16;
     ioapic_write(ioapic, io_redirect_table, (uint32_t)redirect._raw.low_byte);
@@ -188,6 +187,4 @@ void apic_init(void)
     madt = (Madt *)acpi_parse_sdt("APIC");
     lapic_enable();
     ioapic_redirect_legacy();
-
-    arch_sti();
 }

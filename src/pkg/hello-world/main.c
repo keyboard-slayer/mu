@@ -1,9 +1,12 @@
-#include <libc/unistd.h>
 #include <misc/macro.h>
+#include <munix-api/api.h>
 
-static void puts(char *s)
+static void puts(char const *s)
 {
-    syscall(0, (uintptr_t)s);
+    size_t len = 0;
+    while (s[len])
+        len++;
+    mu_log(s, len);
 }
 
 noreturn int _start(void)

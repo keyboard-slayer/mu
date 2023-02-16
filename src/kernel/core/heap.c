@@ -1,10 +1,10 @@
-#include "heap.h"
 #include <abstract/entry.h>
 #include <debug/debug.h>
 #include <libheap/libheap.h>
 #include <misc/lock.h>
 #include <misc/macro.h>
 
+#include "heap.h"
 #include "pmm.h"
 
 static Spinlock lock = {0};

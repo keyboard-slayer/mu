@@ -1,10 +1,8 @@
-#include "syscall.h"
-#include <core/syscall.h>
-#include <debug/debug.h>
+#include <core/core.h>
 
 #include "asm.h"
 #include "gdt.h"
-#include "regs.h"
+#include "syscall.h"
 
 void syscall_init(void)
 {
@@ -14,19 +12,13 @@ void syscall_init(void)
     asm_write_msr(MSR_SYSCALL_FLAG_MASK, 0xfffffffe);
 }
 
-// TODO: Remove this
-int64_t syscall_log(Regs *regs)
+void syscall_set_gs(uintptr_t addr)
 {
-    char const *s = (char const *)regs->rbx;
-    debug(DEBUG_INFO, "syscall_log: %s", s);
-    return 0;
+    asm_write_msr(MSR_GS_BASE, addr);
+    asm_write_msr(MSR_KERN_GS_BASE, addr);
 }
-
-SyscallHandler handlers[] = {
-    [SYSCALL_LOG] = syscall_log,
-};
 
 int64_t syscall_handler(Regs *regs)
 {
-    return handlers[regs->rax](regs);
+    return mu_core_syscall(regs->rax, (MuArgs){regs->rdi, regs->rsi, regs->rdx, regs->r10, regs->r8, regs->r9});
 }

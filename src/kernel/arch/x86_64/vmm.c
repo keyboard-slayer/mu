@@ -170,6 +170,7 @@ void vmm_init(void)
     Mmap mmaps = abstract_get_mmap();
 
     pml4 = pmm.malloc(&pmm, PAGE_SIZE);
+    
     if (pml4 == NULL)
     {
         debug(DEBUG_ERROR, "Couldn't allocate memory for pml4");
