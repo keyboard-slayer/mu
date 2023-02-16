@@ -1,4 +1,3 @@
-#include "elf.h"
 #include <abstract/const.h>
 #include <abstract/entry.h>
 #include <abstract/mem.h>
@@ -6,6 +5,7 @@
 #include <misc/macro.h>
 #include <string.h>
 
+#include "elf.h"
 #include "pmm.h"
 #include "sched.h"
 #include "task.h"

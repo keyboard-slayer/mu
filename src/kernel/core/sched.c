@@ -10,20 +10,25 @@
 static Spinlock lock = {0};
 static size_t tid = 0;
 
+Sched *sched_self(void)
+{
+    return &cpu_self()->sched;
+}
+
 void sched_init(void)
 {
     Task *idle = task_init("idle", abstract_get_kernel_space());
 
-    cpu_self()->sched.tick = 0;
-    cpu_self()->sched.task_index = 0;
-    vec_init(&cpu_self()->sched.tasks, heap_acquire);
-    vec_push(&cpu_self()->sched.tasks, idle);
-    cpu_self()->sched.is_init = true;
+    sched_self()->tick = 0;
+    sched_self()->task_index = 0;
+    vec_init(&sched_self()->tasks, heap_acquire);
+    vec_push(&sched_self()->tasks, idle);
+    sched_self()->is_init = true;
 }
 
 void sched_yield(Regs *regs)
 {
-    if (!cpu_self()->sched.is_init || cpu_self()->sched.tasks.length < 1)
+    if (!sched_self()->is_init || sched_self()->tasks.length < 1)
     {
         return;
     }
@@ -31,25 +36,21 @@ void sched_yield(Regs *regs)
     arch_cli();
     spinlock_acquire(&lock);
 
-    Task *current_task = cpu_self()->sched.tasks.data[cpu_self()->sched.task_index];
+    Task *current_task = sched_self()->tasks.data[sched_self()->task_index];
     context_save(&current_task->context, regs);
 
-    loop
+    do
     {
-        cpu_self()->sched.task_index++;
+        sched_self()->task_index++;
 
-        if (cpu_self()->sched.task_index >= cpu_self()->sched.tasks.length)
+        if (sched_self()->task_index >= sched_self()->tasks.length)
         {
-            cpu_self()->sched.task_index = 0;
+            sched_self()->task_index = 0;
         }
 
-        current_task = cpu_self()->sched.tasks.data[cpu_self()->sched.task_index];
+        current_task = sched_self()->tasks.data[sched_self()->task_index];
 
-        if (current_task->state == TASK_READY)
-        {
-            break;
-        }
-    }
+    } while (current_task->state != TASK_READY);
 
     context_switch(&current_task->context, regs);
     abstract_switch_space(current_task->space);

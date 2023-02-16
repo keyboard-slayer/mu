@@ -68,7 +68,7 @@ typedef union packed
         uint8_t mask : 1;
         uint8_t reserved : 7;
         uint8_t dest_id;
-    } _redirect;
+    };
 
     struct packed
     {

@@ -14,7 +14,7 @@
 #define TSS_FLAGS_PRESENT          (1 << 7)
 #define TSS_FLAGS_64BITS_AVAILABLE (0x9)
 
-enum _GDT_ENTRY
+enum
 {
     GDT_NULL_DESC,
     GDT_KERNEL_CODE,
@@ -73,8 +73,13 @@ typedef struct packed
 } Gdt;
 
 void gdt_init(void);
+
 void gdt_init_tss(void);
+
 void gdt_load_tss(Tss *self);
+
 void gdt_flush(uintptr_t);
+
 void tss_flush(void);
+
 uintptr_t gdt_descriptor(void);
