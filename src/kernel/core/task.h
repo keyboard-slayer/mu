@@ -3,6 +3,8 @@
 #include <abstract/arch.h>
 #include <abstract/ctx.h>
 #include <ds/vec.h>
+#include <ipc/ipc.h>
+#include <misc/macro.h>
 
 typedef enum
 {
@@ -15,6 +17,7 @@ typedef struct
     char const *path;
     Context context;
     TaskState state;
+    IpcBuffer *ipc;
     Space space;
     uintptr_t stack;
 } Task;

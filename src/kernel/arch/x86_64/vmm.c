@@ -1,10 +1,10 @@
+#include <abstract/arch.h>
 #include <abstract/const.h>
 #include <abstract/entry.h>
 #include <abstract/mem.h>
 #include <core/pmm.h>
 #include <debug/debug.h>
 
-#include "abstract/arch.h"
 #include "asm.h"
 #include "cpuid.h"
 #include "vmm.h"

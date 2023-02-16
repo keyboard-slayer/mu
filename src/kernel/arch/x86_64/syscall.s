@@ -43,15 +43,15 @@ syscall_handle:
 
     pushq $0x1b
     pushq %gs:0x8
-    pushq %r11
+    push %r11
     pushq $0x23
-    pushq %rcx
+    push %rcx
 
     cld
     __pusha
 
     mov %rsp, %rdi
-    mov $0, %rbp
+    movl $0, %ebp
     call syscall_handler
 
     __popa

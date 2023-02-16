@@ -8,7 +8,6 @@ typedef struct
 {
     uintptr_t syscall_kernel_stack;
     uintptr_t syscall_user_stack;
-    uintptr_t syscall_kernel_bstack;
 
     Regs regs;
 } Context;

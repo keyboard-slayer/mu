@@ -11,3 +11,8 @@ typedef struct
     uint64_t arg4;
     uint64_t arg5;
 } SyscallArgs;
+
+typedef enum
+{
+    SYSCALL_LOG
+} SyscallId;

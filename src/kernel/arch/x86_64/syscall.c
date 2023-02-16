@@ -1,4 +1,5 @@
 #include "syscall.h"
+#include <core/syscall.h>
 #include <debug/debug.h>
 
 #include "asm.h"
@@ -13,8 +14,19 @@ void syscall_init(void)
     asm_write_msr(MSR_SYSCALL_FLAG_MASK, 0xfffffffe);
 }
 
-int64_t syscall_handler(unused Regs *regs)
+// TODO: Remove this
+int64_t syscall_log(Regs *regs)
 {
-    debug_raise_exception();
+    char const *s = (char const *)regs->rbx;
+    debug(DEBUG_INFO, "syscall_log: %s", s);
     return 0;
+}
+
+SyscallHandler handlers[] = {
+    [SYSCALL_LOG] = syscall_log,
+};
+
+int64_t syscall_handler(Regs *regs)
+{
+    return handlers[regs->rax](regs);
 }
