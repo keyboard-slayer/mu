@@ -1,4 +1,4 @@
-#include <core/core.h>
+#include <munix-core/core.h>
 
 #include "asm.h"
 #include "gdt.h"

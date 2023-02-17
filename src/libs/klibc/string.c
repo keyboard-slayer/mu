@@ -1,4 +1,4 @@
-#include <core/heap.h>
+#include <munix-core/heap.h>
 #include <stddef.h>
 
 char *strrchr(const char *s, int c)

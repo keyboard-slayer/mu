@@ -1,5 +1,5 @@
 {
-    "id": "core",
+    "id": "munix-core",
     "description": "The Microkernel itself",
     "type": "exe",
     "requires": [

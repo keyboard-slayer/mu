@@ -1,6 +1,6 @@
 #include <abstract/arch.h>
-#include <core/pmm.h>
-#include <core/sched.h>
+#include <munix-core/pmm.h>
+#include <munix-core/sched.h>
 
 #include "acpi.h"
 #include "apic.h"
