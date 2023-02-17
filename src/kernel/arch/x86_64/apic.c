@@ -187,4 +187,6 @@ void apic_init(void)
     madt = (Madt *)acpi_parse_sdt("APIC");
     lapic_enable();
     ioapic_redirect_legacy();
+
+    arch_sti();
 }

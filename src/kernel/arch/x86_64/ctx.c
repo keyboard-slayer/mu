@@ -7,6 +7,7 @@
 
 #include "asm.h"
 #include "gdt.h"
+#include "syscall.h"
 
 static Spinlock lock;
 
@@ -27,7 +28,7 @@ void context_init(Context *self, uintptr_t ip, TaskArgs args)
 
     Alloc pmm = pmm_acquire();
 
-    self->syscall_kernel_stack =  abstract_apply_hhdm((uintptr_t)non_null$(pmm.calloc(&pmm, 1, STACK_SIZE))) + STACK_SIZE;
+    self->syscall_kernel_stack = abstract_apply_hhdm((uintptr_t)non_null$(pmm.calloc(&pmm, 1, STACK_SIZE))) + STACK_SIZE;
     pmm.release(&pmm);
 }
 
@@ -40,9 +41,7 @@ void context_switch(Context *ctx, Regs *regs)
 {
     spinlock_acquire(&lock);
 
-    asm_write_msr(MSR_GS_BASE, (uintptr_t)ctx);
-    asm_write_msr(MSR_KERN_GS_BASE, (uintptr_t)ctx);
-
+    syscall_set_gs((uintptr_t)²ctx);
     *regs = ctx->regs;
 
     spinlock_release(&lock);
