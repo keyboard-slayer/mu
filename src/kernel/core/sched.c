@@ -49,7 +49,6 @@ void sched_yield(Regs *regs)
         }
 
         current_task = sched_self()->tasks.data[sched_self()->task_index];
-
     } while (current_task->state != TASK_READY);
 
     context_switch(&current_task->context, regs);

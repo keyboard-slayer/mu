@@ -3,7 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define mu_always_inline __attribute__((always_inline))
+#define mu_always_inline static __attribute__((always_inline, used))
 
 /* --- Types ---------------------------------------------------------------- */
 
@@ -123,7 +123,7 @@ mu_always_inline MuRes __mu_syscall_impl(MuSyscall s, MuArg arg1, MuArg arg2, Mu
     MuRes res;
 
     // s : rax, arg1 : rdi, arg2 : rsi, arg3 : rdx, arg4 : r10, arg5 : r8, arg6 : r9
-    asm volatile(
+    __asm__ volatile(
         "syscall"
         : "=a"(res)
         : "a"(s), "D"(arg1), "S"(arg2), "d"(arg3), "r"(arg4), "r"(arg5), "r"(arg6)

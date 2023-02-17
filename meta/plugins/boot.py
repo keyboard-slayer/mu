@@ -33,7 +33,7 @@ def buildPkgs(binDir: str, debug: bool) -> list[str]:
 def limineGenConfig(bootDir: str, pkgs: list[str]) -> None:
     with open(f"{bootDir}/limine.cfg", "w") as cfg:
         cfg.write(
-            "TIMEOUT=3\n:Munix\nPROTOCOL=limine\nKERNEL_PATH=boot:///boot/kernel.elf\n"
+            "TIMEOUT=0\n:Munix\nPROTOCOL=limine\nKERNEL_PATH=boot:///boot/kernel.elf\n"
         )
 
         for pkg in pkgs:
