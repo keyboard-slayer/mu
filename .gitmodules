@@ -1,3 +1,0 @@
-[submodule "src/libs/libheap"]
-	path = src/libs/libheap
-	url = https://github.com/cute-engineering/libheap

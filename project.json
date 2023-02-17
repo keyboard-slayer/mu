@@ -1,0 +1,11 @@
+{
+    "id": "cute-engineering/munix",
+    "type": "project",
+    "description": "A minimalist micro-kernel",
+    "extern": {
+        "cute-engineering/libheap": {
+            "git": "https://github.com/cute-engineering/libheap.git",
+            "tag": "v1.0.0"
+        }
+    }
+}
