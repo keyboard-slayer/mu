@@ -1,7 +1,7 @@
 #pragma once
 
 #if defined(__x86_64__)
-#    include <x86_64/vmm.h>
+#    include <munix-x86_64/vmm.h>
 #endif
 
 #include <stddef.h>
