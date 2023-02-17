@@ -1,7 +1,7 @@
 #pragma once
 
 #if defined(__x86_64__)
-#    include <x86_64/ctx.h>
+#    include <munix-x86_64/ctx.h>
 #endif
 
 void context_init(Context *self, uintptr_t ip, TaskArgs args);
