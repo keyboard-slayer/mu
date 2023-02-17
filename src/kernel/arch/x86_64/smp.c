@@ -2,9 +2,9 @@
 #include <abstract/const.h>
 #include <abstract/cpu.h>
 #include <abstract/entry.h>
-#include <core/heap.h>
-#include <core/pmm.h>
 #include <debug/debug.h>
+#include <munix-core/heap.h>
+#include <munix-core/pmm.h>
 
 #include "asm.h"
 #include "gdt.h"

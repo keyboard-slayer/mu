@@ -1,9 +1,9 @@
 #include <abstract/const.h>
 #include <abstract/ctx.h>
 #include <abstract/entry.h>
-#include <core/pmm.h>
 #include <debug/debug.h>
 #include <misc/lock.h>
+#include <munix-core/pmm.h>
 
 #include "asm.h"
 #include "gdt.h"
@@ -41,7 +41,7 @@ void context_switch(Context *ctx, Regs *regs)
 {
     spinlock_acquire(&lock);
 
-    syscall_set_gs((uintptr_t)²ctx);
+    syscall_set_gs((uintptr_t)ctx);
     *regs = ctx->regs;
 
     spinlock_release(&lock);

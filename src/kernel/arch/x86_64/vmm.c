@@ -2,8 +2,8 @@
 #include <abstract/const.h>
 #include <abstract/entry.h>
 #include <abstract/mem.h>
-#include <core/pmm.h>
 #include <debug/debug.h>
+#include <munix-core/pmm.h>
 
 #include "asm.h"
 #include "cpuid.h"
@@ -170,7 +170,7 @@ void vmm_init(void)
     Mmap mmaps = abstract_get_mmap();
 
     pml4 = pmm.malloc(&pmm, PAGE_SIZE);
-    
+
     if (pml4 == NULL)
     {
         debug(DEBUG_ERROR, "Couldn't allocate memory for pml4");

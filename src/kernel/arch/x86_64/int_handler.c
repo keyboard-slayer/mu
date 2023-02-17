@@ -1,8 +1,8 @@
 #include <abstract/arch.h>
-#include <core/sched.h>
 #include <debug/debug.h>
 #include <misc/lock.h>
 #include <misc/macro.h>
+#include <munix-core/sched.h>
 #include <stdint.h>
 
 #include "apic.h"

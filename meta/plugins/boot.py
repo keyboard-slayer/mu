@@ -50,7 +50,7 @@ def bootCmd(args: Args) -> None:
     ovmf = shell.wget(
         "https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd")
 
-    munix = builder.build("core", "kernel-x86_64:debug")
+    munix = builder.build("munix-core", "kernel-x86_64:debug")
 
     shell.cp(munix, f"{bootDir}/kernel.elf")
 
