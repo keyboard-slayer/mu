@@ -41,7 +41,7 @@ void elf_load_module(char const *name)
             uintptr_t base = (uintptr_t)non_null$(pmm.malloc(&pmm, size / PAGE_SIZE));
             pmm.release(&pmm);
 
-            if (kmmap(space, phdr->p_vaddr, base, size, PROT_READ | PROT_EXEC | MMAP_USER | MMAP_DEBUG) == MMAP_FAILURE)
+            if (kmmap(space, phdr->p_vaddr, base, size, PROT_READ | PROT_EXEC | MMAP_USER) == MMAP_FAILURE)
             {
                 debug(DEBUG_ERROR, "Couldn't map ELF binary");
                 debug_raise_exception();

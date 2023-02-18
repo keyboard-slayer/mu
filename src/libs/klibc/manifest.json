@@ -2,6 +2,9 @@
     "id": "klibc",
     "description": "Libc compatibility layer for the kernel (useful for data structures)",
     "type": "lib",
+    "props": {
+        "cpp-root-include": true
+    },
     "enableIf": {
         "freestanding": [
             true
