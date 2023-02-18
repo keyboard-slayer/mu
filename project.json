@@ -6,6 +6,10 @@
         "cute-engineering/libheap": {
             "git": "https://github.com/cute-engineering/libheap.git",
             "tag": "v1.0.0"
+        },
+        "cute-engineering/handover": {
+            "git": "https://github.com/cute-engineering/handover.git",
+            "tag": "v1.0.0"
         }
     }
 }

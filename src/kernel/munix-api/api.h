@@ -87,9 +87,11 @@ typedef struct
 
 typedef enum
 {
+    MU_MEM_NONE = 0,
     MU_MEM_READ = 1 << 0,
     MU_MEM_WRITE = 1 << 1,
     MU_MEM_EXEC = 1 << 2,
+    MU_MEM_USER = 1 << 3,
 } MuMapFlags;
 
 typedef enum
