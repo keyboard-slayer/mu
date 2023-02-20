@@ -3,6 +3,7 @@
 #include <munix-hal/hal.h>
 #include <string.h>
 
+#include "const.h"
 #include "heap.h"
 #include "pmm.h"
 #include "sched.h"

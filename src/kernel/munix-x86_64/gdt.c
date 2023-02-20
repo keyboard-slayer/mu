@@ -1,8 +1,10 @@
 #include <debug/debug.h>
 #include <misc/lock.h>
+#include <munix-core/const.h>
 #include <munix-core/heap.h>
 #include <munix-hal/hal.h>
 
+#include "cpu.h"
 #include "gdt.h"
 #include "smp.h"
 
@@ -78,11 +80,11 @@ void gdt_init(void)
 void gdt_init_tss(void)
 {
     Alloc heap = heap_acquire();
-    cpu_impl_self()->tss.ist[0] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
-    cpu_impl_self()->tss.ist[1] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
-    cpu_impl_self()->tss.rsp[0] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
+    hal_cpu_self()->tss.ist[0] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
+    hal_cpu_self()->tss.ist[1] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
+    hal_cpu_self()->tss.rsp[0] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
     heap.release(&heap);
 
-    gdt_load_tss(&cpu_impl_self()->tss);
+    gdt_load_tss(&hal_cpu_self()->tss);
     tss_flush();
 }

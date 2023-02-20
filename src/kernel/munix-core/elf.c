@@ -4,6 +4,7 @@
 #include <munix-hal/hal.h>
 #include <string.h>
 
+#include "const.h"
 #include "elf.h"
 #include "pmm.h"
 #include "sched.h"
@@ -58,8 +59,8 @@ void elf_load_module(char const *name)
         }
     }
 
-    Task *task = task_init(file.start, space);
-    hal_ctx_create(&task->context, (void *)hal_mmap_lower_to_upper(hdr->e_entry), (MuArgs){});
+    Task *task = task_init(name, space);
+    hal_ctx_create(&task->context, hdr->e_entry, task->stack, (MuArgs){});
 
     sched_push_task(task);
 }

@@ -9,7 +9,7 @@ struct _HalCtx
     uintptr_t syscall_kernel_stack;
     uintptr_t syscall_user_stack;
 
-    struct _HalRegs *regs;
+    struct _HalRegs regs;
 };
 
 typedef struct

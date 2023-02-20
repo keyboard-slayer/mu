@@ -10,8 +10,6 @@
 #define VMM_USER                    (1 << 2)
 #define VMM_HUGE                    (1 << 7)
 #define VMM_NOEXE                   ((uint64_t)1 << 63)
-#define MMAP_FAILURE                (1)
-#define MMAP_SUCCESS                (0)
 
 struct _HalSpace
 {
