@@ -1,9 +1,8 @@
 #include "limine.h"
-#include <abstract/arch.h>
-#include <abstract/cpu.h>
 #include <abstract/entry.h>
 #include <debug/debug.h>
 #include <misc/macro.h>
+#include <munix-hal/hal.h>
 #include <string.h>
 
 static Mmap mmap = {0};
@@ -50,17 +49,17 @@ void *abstract_get_rsdp(void)
     return non_null$(rsp_request.response->address);
 }
 
-uintptr_t abstract_remove_hhdm(uintptr_t addr)
+uintptr_t hal_mmap_upper_to_lower(uintptr_t virt)
 {
-    return addr - non_null$(hhdm_request.response->offset);
+    return virt - non_null$(hhdm_request.response->offset);
 }
 
-uintptr_t abstract_apply_hhdm(uintptr_t addr)
+uintptr_t hal_mmap_lower_to_upper(uintptr_t phys)
 {
-    return addr + non_null$(hhdm_request.response->offset);
+    return phys + non_null$(hhdm_request.response->offset);
 }
 
-Kaddr abstract_get_kaddr(void)
+HalAddr hal_mmap_kaddr()
 {
     if (kaddr_req.response == NULL)
     {
@@ -68,7 +67,7 @@ Kaddr abstract_get_kaddr(void)
         debug_raise_exception();
     }
 
-    return (Kaddr){
+    return (HalAddr){
         .phys = kaddr_req.response->physical_base,
         .virt = kaddr_req.response->virtual_base,
     };
@@ -97,15 +96,13 @@ Mmap abstract_get_mmap(void)
     return mmap;
 }
 
-void abstract_core_goto(CpuGoto fn)
+void hal_cpu_goto(void (*fn)(void))
 {
     if (smp_request.response == NULL)
     {
         debug(DEBUG_ERROR, "Couldn't get other Cpus");
         debug_raise_exception();
     }
-
-    abstract_set_cpu_count(smp_request.response->cpu_count);
 
     for (size_t i = 1; i < smp_request.response->cpu_count; i++)
     {

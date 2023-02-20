@@ -1,8 +1,8 @@
-#include <abstract/arch.h>
 #include <debug/debug.h>
 #include <misc/lock.h>
 #include <misc/macro.h>
 #include <munix-core/sched.h>
+#include <munix-hal/hal.h>
 #include <stdint.h>
 
 #include "apic.h"
@@ -69,7 +69,7 @@ static size_t dump_backtrace(uintptr_t rbp)
     return i;
 }
 
-static void log_exception(Regs const *regs)
+static void log_exception(HalRegs const *regs)
 {
     spinlock_acquire(&lock);
 
@@ -100,7 +100,7 @@ static void log_exception(Regs const *regs)
 
 uintptr_t interrupt_handler(uint64_t rsp)
 {
-    Regs *regs = (Regs *)rsp;
+    HalRegs *regs = (HalRegs *)rsp;
 
     if (regs->intno < irq(0))
     {
@@ -110,8 +110,8 @@ uintptr_t interrupt_handler(uint64_t rsp)
         {
             loop
             {
-                arch_cli();
-                arch_hlt();
+                hal_cpu_cli();
+                hal_cpu_relax();
             }
         }
     }

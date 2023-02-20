@@ -1,9 +1,10 @@
 #pragma once
 
+#include <munix-core/task.h>
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "task.h"
+typedef Vec(Task *) VecTask;
 
 typedef struct
 {
@@ -14,7 +15,7 @@ typedef struct
     bool is_init;
 } Sched;
 
-void sched_yield(Regs *regs);
+void sched_yield(HalRegs *regs);
 void sched_init(void);
 void sched_push_task(Task *task);
 size_t sched_next_tid(void);

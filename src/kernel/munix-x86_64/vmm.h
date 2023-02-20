@@ -1,5 +1,6 @@
 #pragma once
 
+#include <misc/macro.h>
 #include <stdint.h>
 
 #define PMLX_GET_INDEX(addr, level) (((uint64_t)addr & ((uint64_t)0x1ff << (12 + level * 9))) >> (12 + level * 9))
@@ -12,6 +13,9 @@
 #define MMAP_FAILURE                (1)
 #define MMAP_SUCCESS                (0)
 
-typedef uintptr_t *Space;
+struct _HalSpace
+{
+    uintptr_t *pml;
+} packed;
 
 void vmm_init(void);

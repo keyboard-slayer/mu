@@ -1,7 +1,7 @@
-#include <abstract/const.h>
 #include <debug/debug.h>
 #include <misc/lock.h>
 #include <munix-core/heap.h>
+#include <munix-hal/hal.h>
 
 #include "gdt.h"
 #include "smp.h"

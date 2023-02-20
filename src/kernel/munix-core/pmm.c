@@ -1,7 +1,7 @@
-#include <abstract/const.h>
 #include <abstract/entry.h>
 #include <debug/debug.h>
 #include <misc/lock.h>
+#include <munix-hal/hal.h>
 #include <stdbool.h>
 #include <traits/alloc.h>
 
@@ -106,7 +106,7 @@ void pmm_init(void)
 
         if (entry->type == MMAP_USABLE && entry->len >= bitmap.size)
         {
-            bitmap.bitmap = (void *)(abstract_apply_hhdm(entry->base));
+            bitmap.bitmap = (void *)(hal_mmap_lower_to_upper(entry->base));
             entry->base += bitmap.size;
             entry->len -= bitmap.size;
         }
@@ -137,7 +137,7 @@ void *pmm_calloc(Alloc *self, size_t nmemb, size_t size)
 
     if (ptr != NULL)
     {
-        memset((void *)abstract_apply_hhdm((uintptr_t)ptr), 0, nmemb + size);
+        memset((void *)hal_mmap_lower_to_upper((uintptr_t)ptr), 0, nmemb + size);
     }
 
     return ptr;

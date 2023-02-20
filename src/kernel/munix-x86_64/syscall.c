@@ -1,8 +1,9 @@
 #include <munix-core/core.h>
+#include <munix-hal/hal.h>
 
-#include "asm.h"
-#include "gdt.h"
-#include "syscall.h"
+#include <munix-x86_64/asm.h>
+#include <munix-x86_64/gdt.h>
+#include <munix-x86_64/syscall.h>
 
 void syscall_init(void)
 {
@@ -18,7 +19,7 @@ void syscall_set_gs(uintptr_t addr)
     asm_write_msr(MSR_KERN_GS_BASE, addr);
 }
 
-int64_t syscall_handler(Regs *regs)
+int64_t syscall_handler(HalRegs *regs)
 {
     return mu_core_syscall(regs->rax, (MuArgs){regs->rdi, regs->rsi, regs->rdx, regs->r10, regs->r8, regs->r9});
 }

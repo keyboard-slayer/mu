@@ -2,15 +2,15 @@
 
 #include <stdint.h>
 
-#include "regs.h"
+#include <munix-x86_64/regs.h>
 
-typedef struct
+struct _HalCtx
 {
     uintptr_t syscall_kernel_stack;
     uintptr_t syscall_user_stack;
 
-    Regs regs;
-} Context;
+    struct _HalRegs *regs;
+};
 
 typedef struct
 {

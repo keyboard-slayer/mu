@@ -58,6 +58,7 @@ typedef enum
     MU_RES_OK,
     MU_RES_BAD_CAP,
     MU_RES_BAD_SYSCALL,
+    MU_RES_NO_MEM,
 
     __MU_RES_LEN,
 } MuRes;
@@ -92,6 +93,7 @@ typedef enum
     MU_MEM_WRITE = 1 << 1,
     MU_MEM_EXEC = 1 << 2,
     MU_MEM_USER = 1 << 3,
+    MU_MEM_HUGE = 1 << 4,
 } MuMapFlags;
 
 typedef enum
