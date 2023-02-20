@@ -4,6 +4,7 @@
 
 #include "acpi.h"
 #include "apic.h"
+#include "debug/debug.h"
 #include "gdt.h"
 #include "idt.h"
 #include "smp.h"
@@ -44,7 +45,7 @@ void hal_cpu_relax(void)
     __asm__("pause");
 }
 
-void hal_cpu_debug(void)
+void debug_raise_exception(void)
 {
     __asm__("int $1");
 }

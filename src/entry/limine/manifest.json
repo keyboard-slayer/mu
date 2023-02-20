@@ -3,7 +3,7 @@
     "description": "Glue code for the limine bootloader",
     "type": "lib",
     "requires": [
-        "abstract",
+        "handover",
         "libc"
     ],
     "enableif": {

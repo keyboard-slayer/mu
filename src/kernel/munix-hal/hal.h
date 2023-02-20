@@ -1,5 +1,6 @@
 #pragma once
 
+#include <handover/handover.h>
 #include <munix-api/api.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -16,6 +17,8 @@
 #endif
 
 typedef struct _HalRegs HalRegs;
+
+void hal_init(void);
 
 /* --- CPU ------------------------------------------------------------------ */
 
@@ -40,8 +43,6 @@ void hal_cpu_sti(void);
 void hal_cpu_relax(void);
 
 void hal_cpu_halt(void);
-
-void hal_cpu_debug(void);
 
 void hal_cpu_goto(void (*fn)(void));
 
@@ -91,4 +92,4 @@ uintptr_t hal_mmap_upper_to_lower(uintptr_t virt);
 
 Output hal_serial_acquire(void);
 
-void hal_init(void);
+HandoverPayload const *hal_get_handover(void);

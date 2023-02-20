@@ -1,11 +1,15 @@
+#define HANDOVER_INCLUDE_UTILITES
+
 #include "limine.h"
-#include <abstract/entry.h>
 #include <debug/debug.h>
+#include <handover/handover.h>
 #include <misc/macro.h>
 #include <munix-hal/hal.h>
 #include <string.h>
 
-static Mmap mmap = {0};
+static uint8_t handover_buffer[16 * 1024] = {};
+static HandoverPayload *handover = (HandoverPayload *)handover_buffer;
+static bool handover_is_init = false;
 
 volatile static struct limine_memmap_request memmap_request = {
     .id = LIMINE_MEMMAP_REQUEST,
@@ -73,29 +77,6 @@ HalAddr hal_mmap_kaddr()
     };
 }
 
-Mmap abstract_get_mmap(void)
-{
-    if (memmap_request.response == NULL)
-    {
-        debug(DEBUG_ERROR, "Couldn't get memory maps");
-        debug_raise_exception();
-    }
-
-    if (mmap.count == 0)
-    {
-        mmap.count = memmap_request.response->entry_count;
-
-        for (size_t i = 0; i < mmap.count; i++)
-        {
-            mmap.entries[i].base = memmap_request.response->entries[i]->base;
-            mmap.entries[i].len = memmap_request.response->entries[i]->length;
-            mmap.entries[i].type = memmap_request.response->entries[i]->type;
-        }
-    }
-
-    return mmap;
-}
-
 void hal_cpu_goto(void (*fn)(void))
 {
     if (smp_request.response == NULL)
@@ -110,7 +91,7 @@ void hal_cpu_goto(void (*fn)(void))
     }
 }
 
-Module abstract_get_module(char const *name)
+void handover_parse_module(void)
 {
     if (module_request.response == NULL)
     {
@@ -118,22 +99,85 @@ Module abstract_get_module(char const *name)
         debug_raise_exception();
     }
 
-    Module mod;
+    HandoverRecord record;
 
     for (size_t i = 0; i < module_request.response->module_count; i++)
     {
-        mod = (Module){
-            .name = module_request.response->modules[i]->path,
-            .addr = (uintptr_t)module_request.response->modules[i]->address,
+        /* FIXME */
+        record = (HandoverRecord){
+            .tag = HANDOVER_FILE,
+            .flags = 0,
+            .start = (uintptr_t)module_request.response->modules[i]->address,
+            .size = module_request.response->modules[i]->size,
+            .file = {
+                .name = module_request.response->modules[i]->path,
+                .meta = 0,
+            },
         };
 
-        if (memcmp(mod.name, name, strlen(name)) == 0)
-        {
-            return mod;
-        }
+        handover_append(handover, record);
+    }
+}
+
+void handover_parse_mmap(void)
+{
+    if (memmap_request.response == NULL)
+    {
+        debug(DEBUG_ERROR, "failed to get memory map");
+        debug_raise_exception();
     }
 
-    debug(DEBUG_ERROR, "Couldn't find module %s", name);
-    debug_raise_exception();
-    unreachable
+    for (size_t i = 0; i < memmap_request.response->entry_count; i++)
+    {
+        struct limine_memmap_entry *entry = memmap_request.response->entries[i];
+        int tag_type = 0;
+
+        switch (entry->type)
+        {
+        case LIMINE_MEMMAP_USABLE:
+            tag_type = HANDOVER_FREE;
+            break;
+
+        case LIMINE_MEMMAP_ACPI_NVS:
+        case LIMINE_MEMMAP_RESERVED:
+        case LIMINE_MEMMAP_BAD_MEMORY:
+            tag_type = HANDOVER_RESERVED;
+            break;
+
+        case LIMINE_MEMMAP_ACPI_RECLAIMABLE:
+        case LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE:
+            tag_type = HANDOVER_LOADER;
+            break;
+
+        case LIMINE_MEMMAP_KERNEL_AND_MODULES:
+            tag_type = HANDOVER_KERNEL;
+            break;
+
+        case LIMINE_MEMMAP_FRAMEBUFFER:
+            break;
+        }
+
+        if (tag_type)
+        {
+            HandoverRecord record = {
+                .tag = tag_type,
+                .flags = 0,
+                .start = entry->base,
+                .size = entry->length,
+            };
+
+            handover_append(handover, record);
+        }
+    }
+}
+
+HandoverPayload const *hal_get_handover(void)
+{
+    if (!handover_is_init)
+    {
+        handover_parse_mmap();
+        handover_parse_module();
+    }
+
+    return handover;
 }
