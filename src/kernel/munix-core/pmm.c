@@ -1,10 +1,11 @@
-#include <abstract/entry.h>
 #include <debug/debug.h>
+#include <handover/utils.h>
 #include <misc/lock.h>
 #include <munix-hal/hal.h>
 #include <stdbool.h>
 #include <traits/alloc.h>
 
+#include "handover/handover.h"
 #include "pmm.h"
 
 static Spinlock lock = {0};
@@ -95,20 +96,20 @@ void pmm_free(unused Alloc *self, void *ptr, size_t size)
 
 void pmm_init(void)
 {
-    Mmap mmap = abstract_get_mmap();
-    MmapEntry last_entry = mmap.entries[mmap.count - 1];
+    HandoverPayload *handover = hal_get_handover();
+    HandoverRecord last_entry = handover->records[handover->count - 1];
+    HandoverRecord record;
 
-    bitmap.size = align_up((last_entry.base + last_entry.len) / (PAGE_SIZE * 8), PAGE_SIZE);
+    bitmap.size = align_up((last_entry.start + last_entry.size) / (PAGE_SIZE * 8), PAGE_SIZE);
 
-    for (size_t i = 0; i < mmap.count; i++)
+    handover_foreach_record(handover, record)
     {
-        MmapEntry *entry = &mmap.entries[i];
-
-        if (entry->type == MMAP_USABLE && entry->len >= bitmap.size)
+        record = handover->records[i];
+        if (record.tag == HANDOVER_FREE && record.size >= bitmap.size)
         {
-            bitmap.bitmap = (void *)(hal_mmap_lower_to_upper(entry->base));
-            entry->base += bitmap.size;
-            entry->len -= bitmap.size;
+            bitmap.bitmap = (void *)(hal_mmap_lower_to_upper(record.start));
+            record.start += bitmap.size;
+            record.size -= bitmap.size;
         }
     }
 
@@ -120,13 +121,13 @@ void pmm_init(void)
 
     memset(bitmap.bitmap, 0xff, bitmap.size);
 
-    for (size_t i = 0; i < mmap.count; i++)
+    handover_foreach_record(handover, record)
     {
-        MmapEntry *entry = &mmap.entries[i];
+        record = handover->records[i];
 
-        if (entry->type == MMAP_USABLE)
+        if (record.tag == HANDOVER_FREE)
         {
-            pmm_unset(align_down(entry->base, PAGE_SIZE) / PAGE_SIZE, align_up(entry->len, PAGE_SIZE) / PAGE_SIZE);
+            pmm_unset(align_down(record.start, PAGE_SIZE) / PAGE_SIZE, align_up(record.size, PAGE_SIZE) / PAGE_SIZE);
         }
     }
 }

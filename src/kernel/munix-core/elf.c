@@ -1,5 +1,5 @@
-#include <abstract/entry.h>
 #include <debug/debug.h>
+#include <handover/utils.h>
 #include <misc/macro.h>
 #include <munix-hal/hal.h>
 #include <string.h>
@@ -11,8 +11,8 @@
 
 void elf_load_module(char const *name)
 {
-    Module elf = abstract_get_module(name);
-    Elf_Ehdr *hdr = (void *)elf.addr;
+    HandoverRecord file = handover_file_find(hal_get_handover(), name);
+    Elf_Ehdr *hdr = (void *)file.start;
 
     if (memcmp(hdr->e_ident, ELFMAG, 4) != 0)
     {
@@ -35,7 +35,7 @@ void elf_load_module(char const *name)
 
     for (size_t i = 0; i < hdr->e_phnum; i++)
     {
-        Elf_Phdr *phdr = (Elf_Phdr *)(elf.addr + hdr->e_phoff + i * hdr->e_phentsize);
+        Elf_Phdr *phdr = (Elf_Phdr *)(file.start + hdr->e_phoff + i * hdr->e_phentsize);
 
         if (phdr->p_type == PT_LOAD)
         {
@@ -51,14 +51,14 @@ void elf_load_module(char const *name)
                 debug_raise_exception();
             }
 
-            memcpy((void *)hal_mmap_lower_to_upper(base), (void *)elf.addr + phdr->p_offset, phdr->p_filesz);
+            memcpy((void *)hal_mmap_lower_to_upper(base), (void *)file.start + phdr->p_offset, phdr->p_filesz);
             memcpy((void *)hal_mmap_lower_to_upper(base) + phdr->p_filesz,
-                   (void *)(elf.addr + phdr->p_offset + phdr->p_filesz),
+                   (void *)(file.start + phdr->p_offset + phdr->p_filesz),
                    phdr->p_memsz - phdr->p_filesz);
         }
     }
 
-    Task *task = task_init(elf.name, space);
+    Task *task = task_init(file.start, space);
     hal_ctx_create(&task->context, (void *)hal_mmap_lower_to_upper(hdr->e_entry), (MuArgs){});
 
     sched_push_task(task);
