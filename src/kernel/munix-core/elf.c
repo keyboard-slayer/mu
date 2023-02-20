@@ -1,8 +1,7 @@
-#include <abstract/const.h>
 #include <abstract/entry.h>
-#include <abstract/mem.h>
 #include <debug/debug.h>
 #include <misc/macro.h>
+#include <munix-hal/hal.h>
 #include <string.h>
 
 #include "elf.h"
@@ -27,7 +26,12 @@ void elf_load_module(char const *name)
         debug_raise_exception();
     }
 
-    Space space = abstract_create_space();
+    HalSpace *space;
+    if (hal_space_create(&space) != MU_RES_OK)
+    {
+        debug(DEBUG_ERROR, "Couldn't create space for ELF binary");
+        debug_raise_exception();
+    }
 
     for (size_t i = 0; i < hdr->e_phnum; i++)
     {
@@ -41,21 +45,21 @@ void elf_load_module(char const *name)
             uintptr_t base = (uintptr_t)non_null$(pmm.malloc(&pmm, size / PAGE_SIZE));
             pmm.release(&pmm);
 
-            if (kmmap(space, phdr->p_vaddr, base, size, PROT_READ | PROT_EXEC | MMAP_USER) == MMAP_FAILURE)
+            if (hal_space_map(space, phdr->p_vaddr, base, size, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_USER | MU_MEM_HUGE) != MU_RES_OK)
             {
                 debug(DEBUG_ERROR, "Couldn't map ELF binary");
                 debug_raise_exception();
             }
 
-            memcpy((void *)abstract_apply_hhdm(base), (void *)elf.addr + phdr->p_offset, phdr->p_filesz);
-            memcpy((void *)abstract_apply_hhdm(base) + phdr->p_filesz,
+            memcpy((void *)hal_mmap_lower_to_upper(base), (void *)elf.addr + phdr->p_offset, phdr->p_filesz);
+            memcpy((void *)hal_mmap_lower_to_upper(base) + phdr->p_filesz,
                    (void *)(elf.addr + phdr->p_offset + phdr->p_filesz),
                    phdr->p_memsz - phdr->p_filesz);
         }
     }
 
     Task *task = task_init(elf.name, space);
-    context_init(&task->context, hdr->e_entry, (TaskArgs){});
+    hal_ctx_create(&task->context, (void *)hal_mmap_lower_to_upper(hdr->e_entry), (MuArgs){});
 
     sched_push_task(task);
 }

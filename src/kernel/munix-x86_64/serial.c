@@ -1,8 +1,8 @@
-#include <abstract/arch.h>
 #include <misc/lock.h>
 #include <misc/macro.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <traits/output.h>
 
 #include "asm.h"
 #include "serial.h"
@@ -55,7 +55,7 @@ static void release_serial(Output *self)
     *self = (Output){0};
 }
 
-Output abstract_serial_acquire(void)
+Output hal_serial_acquire(void)
 {
     spinlock_acquire(&lock);
     return (Output){

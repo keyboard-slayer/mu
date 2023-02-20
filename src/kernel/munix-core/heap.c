@@ -1,8 +1,8 @@
-#include <abstract/entry.h>
 #include <debug/debug.h>
 #include <libheap/libheap.h>
 #include <misc/lock.h>
 #include <misc/macro.h>
+#include <munix-hal/hal.h>
 
 #include "heap.h"
 #include "pmm.h"
@@ -15,7 +15,7 @@ static void *alloc_block(unused void *ctx, size_t size)
     uintptr_t ptr = (uintptr_t)pmm.malloc(&pmm, size);
     pmm_release(&pmm);
 
-    return (void *)abstract_apply_hhdm(ptr);
+    return (void *)hal_mmap_lower_to_upper(ptr);
 }
 
 static void free_block(unused void *ctx, void *ptr, size_t size)

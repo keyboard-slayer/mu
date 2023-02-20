@@ -1,5 +1,4 @@
-#include <abstract/arch.h>
-#include <abstract/entry.h>
+#include <munix-hal/hal.h>
 
 #include "apic.h"
 #include "asm.h"
@@ -11,12 +10,12 @@ static Madt *madt = NULL;
 
 unused static uint32_t lapic_read(uint32_t reg)
 {
-    return *((volatile uint32_t *)(abstract_apply_hhdm(madt->lapic_addr) + reg));
+    return *((volatile uint32_t *)(hal_mmap_lower_to_upper(madt->lapic_addr) + reg));
 }
 
 static void lapic_write(uint32_t reg, uint32_t value)
 {
-    *((volatile uint32_t *)(abstract_apply_hhdm(madt->lapic_addr) + reg)) = value;
+    *((volatile uint32_t *)(hal_mmap_lower_to_upper(madt->lapic_addr) + reg)) = value;
 }
 
 static void lapic_timer_setup(void)
@@ -66,14 +65,14 @@ int lapic_id(void)
 
 static void ioapic_write(MadtIoapic *io_apic, uint32_t reg, uint32_t value)
 {
-    uintptr_t base = (uintptr_t)abstract_apply_hhdm(io_apic->ioapic_addr);
+    uintptr_t base = (uintptr_t)hal_mmap_lower_to_upper(io_apic->ioapic_addr);
     *(volatile uint32_t *)base = reg;
     *(volatile uint32_t *)(base + 16) = value;
 }
 
 static uint32_t ioapic_read(MadtIoapic *ioapic, uint32_t reg)
 {
-    uintptr_t base = (uintptr_t)abstract_apply_hhdm(ioapic->ioapic_addr);
+    uintptr_t base = (uintptr_t)hal_mmap_lower_to_upper(ioapic->ioapic_addr);
     *(volatile uint32_t *)(base) = reg;
     return *(volatile uint32_t *)(base + 0x10);
 }
@@ -188,5 +187,5 @@ void apic_init(void)
     lapic_enable();
     ioapic_redirect_legacy();
 
-    arch_sti();
+    hal_cpu_sti();
 }

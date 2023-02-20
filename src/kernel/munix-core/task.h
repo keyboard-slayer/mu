@@ -1,10 +1,9 @@
 #pragma once
 
-#include <abstract/arch.h>
-#include <abstract/ctx.h>
 #include <ds/vec.h>
 #include <ipc/ipc.h>
 #include <misc/macro.h>
+#include <munix-hal/hal.h>
 
 typedef enum
 {
@@ -15,12 +14,11 @@ typedef struct
 {
     size_t tid;
     char const *path;
-    Context context;
+    HalCtx context;
     TaskState state;
     IpcBuffer *ipc;
-    Space space;
+    HalSpace *space;
     uintptr_t stack;
 } Task;
 
-Task *task_init(char const *path, uintptr_t *space);
-typedef Vec(Task *) VecTask;
+Task *task_init(char const *path, HalSpace *space);

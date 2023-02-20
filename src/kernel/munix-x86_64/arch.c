@@ -1,6 +1,6 @@
-#include <abstract/arch.h>
 #include <munix-core/pmm.h>
 #include <munix-core/sched.h>
+#include <munix-hal/hal.h>
 
 #include "acpi.h"
 #include "apic.h"
@@ -10,7 +10,7 @@
 #include "syscall.h"
 #include "vmm.h"
 
-void arch_init(void)
+void hal_init(void)
 {
     gdt_init();
     idt_init();
@@ -24,27 +24,27 @@ void arch_init(void)
     sched_init();
 }
 
-void arch_cli(void)
+void hal_cpu_cli(void)
 {
     __asm__("cli");
 }
 
-void arch_sti(void)
+void hal_cpu_sti(void)
 {
     __asm__("sti");
 }
 
-void arch_hlt(void)
+void hal_cpu_halt(void)
 {
     __asm__("hlt");
 }
 
-void arch_pause(void)
+void hal_cpu_relax(void)
 {
     __asm__("pause");
 }
 
-void debug_raise_exception(void)
+void hal_cpu_debug(void)
 {
     __asm__("int $1");
 }

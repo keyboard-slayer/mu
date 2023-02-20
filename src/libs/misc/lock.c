@@ -1,14 +1,13 @@
-#include <abstract/arch.h>
+#include <munix-hal/hal.h>
 #include <stdatomic.h>
 
 #include "lock.h"
 
 void spinlock_acquire(Spinlock *self)
 {
-    
     while (!__sync_bool_compare_and_swap(self, 0, 1))
     {
-        arch_pause();
+        hal_cpu_relax();
     }
 }
 

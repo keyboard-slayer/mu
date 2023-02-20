@@ -41,8 +41,7 @@ void asm_write_msr(uint64_t msr, uint64_t value)
     __asm__ volatile("wrmsr" ::"c"((uint64_t)msr), "a"(low), "d"(high));
 }
 
-uint64_t
-asm_read_msr(uint64_t msr)
+uint64_t asm_read_msr(uint64_t msr)
 {
     uint32_t low, high;
     __asm__ volatile("rdmsr"

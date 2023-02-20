@@ -11,11 +11,11 @@ void acpi_init(void)
 
     if (rsdp->revision >= 2 && rsdp->xsdt_addr != 0)
     {
-        sdt = Right(EitherRsdtXsdt, (Xsdt *)abstract_apply_hhdm(rsdp->xsdt_addr));
+        sdt = Right(EitherRsdtXsdt, (Xsdt *)hal_mmap_lower_to_upper(rsdp->xsdt_addr));
     }
     else
     {
-        sdt = Left(EitherRsdtXsdt, (Rsdt *)abstract_apply_hhdm(rsdp->rsdt_addr));
+        sdt = Left(EitherRsdtXsdt, (Rsdt *)hal_mmap_lower_to_upper(rsdp->rsdt_addr));
     }
 }
 
@@ -49,11 +49,11 @@ AcpiSdt *acpi_parse_sdt(char const *tablename)
     {
         if (sdt.is_left)
         {
-            tmp = (AcpiSdt *)(abstract_apply_hhdm(sdt.left->sdtAddr[i]));
+            tmp = (AcpiSdt *)(hal_mmap_lower_to_upper(sdt.left->sdtAddr[i]));
         }
         else
         {
-            tmp = (AcpiSdt *)(abstract_apply_hhdm(sdt.right->sdtAddr[i]));
+            tmp = (AcpiSdt *)(hal_mmap_lower_to_upper(sdt.right->sdtAddr[i]));
         }
 
         if (memcmp(tmp->signature, tablename, 4) == 0 && acpi_checksum(tmp))

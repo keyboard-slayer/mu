@@ -3,7 +3,7 @@
 #include <misc/macro.h>
 #include <stdint.h>
 
-typedef struct packed
+struct _HalRegs
 {
     uint64_t r15;
     uint64_t r14;
@@ -29,4 +29,4 @@ typedef struct packed
     uint64_t rflags;
     uint64_t rsp;
     uint64_t ss;
-} Regs;
+} packed;
