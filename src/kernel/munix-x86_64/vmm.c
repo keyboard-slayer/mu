@@ -1,4 +1,3 @@
-#include <abstract/entry.h>
 #include <debug/debug.h>
 #include <munix-api/api.h>
 #include <munix-core/pmm.h>
@@ -6,6 +5,8 @@
 
 #include "asm.h"
 #include "cpuid.h"
+#include "handover/handover.h"
+#include "handover/utils.h"
 #include "vmm.h"
 
 static size_t page_size = mib(2);
@@ -166,7 +167,8 @@ int kmmap(uintptr_t *space, uintptr_t virt, uintptr_t phys, size_t length, uint8
 void vmm_init(void)
 {
     Alloc pmm = pmm_acquire();
-    Mmap mmaps = abstract_get_mmap();
+    HandoverPayload *handover = hal_get_handover();
+    HandoverRecord record;
 
     pml4 = pmm.malloc(&pmm, PAGE_SIZE);
 
@@ -197,9 +199,9 @@ void vmm_init(void)
         kmmap_page(pml4, hal_mmap_lower_to_upper(i), i, flags);
     }
 
-    for (size_t i = 0; i < mmaps.count; i++)
+    handover_foreach_record(handover, record)
     {
-        if (kmmap(pml4, hal_mmap_lower_to_upper(mmaps.entries[i].base), mmaps.entries[i].base, mmaps.entries[i].len, PROT_READ | PROT_WRITE | MMAP_HUGE) == MMAP_FAILURE)
+        if (kmmap(pml4, hal_mmap_lower_to_upper(record.start), record.start, record.size, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_HUGE) == MMAP_FAILURE)
         {
             debug(DEBUG_ERROR, "Couldn't map kernel properly");
             debug_raise_exception();

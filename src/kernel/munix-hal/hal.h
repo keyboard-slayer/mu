@@ -92,4 +92,4 @@ uintptr_t hal_mmap_upper_to_lower(uintptr_t virt);
 
 Output hal_serial_acquire(void);
 
-HandoverPayload const *hal_get_handover(void);
+HandoverPayload *hal_get_handover(void);

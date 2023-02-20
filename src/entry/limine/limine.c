@@ -2,13 +2,14 @@
 
 #include "limine.h"
 #include <debug/debug.h>
+#include <handover/builder.h>
 #include <handover/handover.h>
 #include <misc/macro.h>
 #include <munix-hal/hal.h>
 #include <string.h>
 
-static uint8_t handover_buffer[16 * 1024] = {};
-static HandoverPayload *handover = (HandoverPayload *)handover_buffer;
+static uint8_t handover_buffer[kib(16)] = {};
+static HandoverBuilder builder;
 static bool handover_is_init = false;
 
 volatile static struct limine_memmap_request memmap_request = {
@@ -91,7 +92,7 @@ void hal_cpu_goto(void (*fn)(void))
     }
 }
 
-void handover_parse_module(void)
+void handover_parse_module(HandoverBuilder *builder)
 {
     if (module_request.response == NULL)
     {
@@ -103,23 +104,24 @@ void handover_parse_module(void)
 
     for (size_t i = 0; i < module_request.response->module_count; i++)
     {
-        /* FIXME */
+        size_t off = handover_builder_append_str(builder, module_request.response->modules[i]->path);
+
         record = (HandoverRecord){
             .tag = HANDOVER_FILE,
             .flags = 0,
             .start = (uintptr_t)module_request.response->modules[i]->address,
             .size = module_request.response->modules[i]->size,
             .file = {
-                .name = module_request.response->modules[i]->path,
+                .name = off,
                 .meta = 0,
             },
         };
 
-        handover_append(handover, record);
+        handover_builder_append(builder, record);
     }
 }
 
-void handover_parse_mmap(void)
+void handover_parse_mmap(HandoverBuilder *builder)
 {
     if (memmap_request.response == NULL)
     {
@@ -165,19 +167,21 @@ void handover_parse_mmap(void)
                 .start = entry->base,
                 .size = entry->length,
             };
-
-            handover_append(handover, record);
+            handover_builder_append(builder, record);
         }
     }
 }
 
-HandoverPayload const *hal_get_handover(void)
+HandoverPayload *hal_get_handover(void)
 {
     if (!handover_is_init)
     {
-        handover_parse_mmap();
-        handover_parse_module();
+        handover_builder_init(&builder, handover_buffer, kib(1024));
+        handover_parse_mmap(&builder);
+        handover_parse_module(&builder);
+
+        handover_is_init = true;
     }
 
-    return handover;
+    return builder.payload;
 }

@@ -1,5 +1,4 @@
 #include "smp.h"
-#include <abstract/entry.h>
 #include <debug/debug.h>
 #include <munix-core/heap.h>
 #include <munix-core/pmm.h>

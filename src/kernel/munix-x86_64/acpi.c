@@ -1,4 +1,4 @@
-#include <abstract/entry.h>
+#include <munix-hal/hal.h>
 #include <string.h>
 
 #include "acpi.h"
