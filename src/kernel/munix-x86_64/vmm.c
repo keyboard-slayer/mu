@@ -1,12 +1,13 @@
 #include <debug/debug.h>
+#include <handover/handover.h>
+#include <handover/utils.h>
 #include <munix-api/api.h>
+#include <munix-core/const.h>
 #include <munix-core/pmm.h>
 #include <munix-hal/hal.h>
 
 #include "asm.h"
 #include "cpuid.h"
-#include "handover/handover.h"
-#include "handover/utils.h"
 #include "vmm.h"
 
 static size_t page_size = mib(2);
@@ -19,7 +20,7 @@ extern char rodata_end_addr[];
 extern char data_start_addr[];
 extern char data_end_addr[];
 
-static int64_t transform_flags(uint8_t flags)
+static int64_t transform_flags(MuMapFlags flags)
 {
     int64_t ret_flags = VMM_NOEXE | VMM_PRESENT;
 
@@ -83,7 +84,7 @@ static uintptr_t *vmm_get_pml_alloc(uintptr_t *pml, size_t index, bool alloc)
     return NULL;
 }
 
-static int kmmap_page(uintptr_t *pml, uint64_t virt, uint64_t phys, int64_t flags)
+static MuRes kmmap_page(uintptr_t *pml, uint64_t virt, uint64_t phys, int64_t flags)
 {
     size_t pml1_entry = PMLX_GET_INDEX(virt, 0);
     size_t pml2_entry = PMLX_GET_INDEX(virt, 1);
@@ -93,35 +94,35 @@ static int kmmap_page(uintptr_t *pml, uint64_t virt, uint64_t phys, int64_t flag
     uintptr_t *pml3 = vmm_get_pml_alloc(pml, pml4_entry, true);
     if (pml3 == NULL)
     {
-        return MMAP_FAILURE;
+        return MU_RES_NO_MEM;
     }
 
     if (cpuid_has_1gb_pages() && flags & VMM_HUGE)
     {
         pml3[pml3_entry] = phys | flags;
-        return MMAP_SUCCESS;
+        return MU_RES_OK;
     }
 
     uintptr_t *pml2 = vmm_get_pml_alloc(pml3, pml3_entry, true);
     if (pml2 == NULL)
     {
-        return MMAP_FAILURE;
+        return MU_RES_NO_MEM;
     }
 
     if (flags & VMM_HUGE)
     {
         pml2[pml2_entry] = phys | flags;
-        return MMAP_SUCCESS;
+        return MU_RES_OK;
     }
 
     uintptr_t *pml1 = vmm_get_pml_alloc(pml2, pml2_entry, true);
     if (pml1 == NULL)
     {
-        return MMAP_FAILURE;
+        return MU_RES_NO_MEM;
     }
 
     pml1[pml1_entry] = phys | flags;
-    return MMAP_SUCCESS;
+    return MU_RES_OK;
 }
 
 static void kmmap_section(uintptr_t start, uintptr_t end, uint8_t flags)
@@ -134,7 +135,7 @@ static void kmmap_section(uintptr_t start, uintptr_t end, uint8_t flags)
     {
         uintptr_t phys = i - kaddr.virt + kaddr.phys;
 
-        if (kmmap_page(pml4, i, phys, flags_arch) == MMAP_FAILURE)
+        if (kmmap_page(pml4, i, phys, flags_arch) != MU_RES_OK)
         {
             debug(DEBUG_ERROR, "Couldn't map kernel sections");
             debug_raise_exception();
@@ -142,26 +143,26 @@ static void kmmap_section(uintptr_t start, uintptr_t end, uint8_t flags)
     }
 }
 
-int kmmap(uintptr_t *space, uintptr_t virt, uintptr_t phys, size_t length, uint8_t flags)
+MuRes hal_space_map(HalSpace *self, uintptr_t virt, uintptr_t phys, size_t len, MuMapFlags flags)
 {
     int64_t flags_arch = transform_flags(flags);
     const size_t map_psize = flags & MU_MEM_HUGE ? page_size : PAGE_SIZE;
 
-    size_t end = align_up(length, map_psize);
+    size_t end = align_up(len, map_psize);
     size_t aligned_virt = align_down(virt, map_psize);
     size_t aligned_phys = align_down(phys, map_psize);
 
     for (size_t i = 0; i < end; i += map_psize)
     {
-        int ret = kmmap_page(space, aligned_virt + i, aligned_phys + i, flags_arch);
+        int ret = kmmap_page((uintptr_t *)self, aligned_virt + i, aligned_phys + i, flags_arch);
 
-        if (ret == MMAP_FAILURE)
+        if (ret != MU_RES_OK)
         {
-            return MMAP_FAILURE;
+            return ret;
         }
     }
 
-    return MMAP_SUCCESS;
+    return MU_RES_OK;
 }
 
 void vmm_init(void)
@@ -201,7 +202,7 @@ void vmm_init(void)
 
     handover_foreach_record(handover, record)
     {
-        if (kmmap(pml4, hal_mmap_lower_to_upper(record.start), record.start, record.size, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_HUGE) == MMAP_FAILURE)
+        if (hal_space_map((HalSpace *)pml4, hal_mmap_lower_to_upper(record.start), record.start, record.size, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_HUGE) != MU_RES_OK)
         {
             debug(DEBUG_ERROR, "Couldn't map kernel properly");
             debug_raise_exception();
@@ -219,16 +220,24 @@ void hal_space_apply(HalSpace *space)
 MuRes hal_space_create(HalSpace **self)
 {
     Alloc pmm = pmm_acquire();
-    uintptr_t *space = (uintptr_t *)hal_mmap_lower_to_upper((uintptr_t)non_null$(pmm.calloc(&pmm, 1, PAGE_SIZE)));
+    void *ptr = pmm.calloc(&pmm, 1, PAGE_SIZE);
+    pmm_release(&pmm);
+
+    if (ptr == NULL)
+    {
+        return MU_RES_NO_MEM;
+    }
+
+    uintptr_t *space = (uintptr_t *)hal_mmap_lower_to_upper((uintptr_t)ptr);
 
     for (size_t i = 255; i < 512; i++)
     {
         space[i] = pml4[i];
     }
 
-    pmm_release(&pmm);
-
     *self = (HalSpace *)space;
+
+    return MU_RES_OK;
 }
 
 HalSpace *hal_space_kernel(void)

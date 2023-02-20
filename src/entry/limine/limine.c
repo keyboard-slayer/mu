@@ -8,7 +8,7 @@
 #include <munix-hal/hal.h>
 #include <string.h>
 
-static uint8_t handover_buffer[kib(16)] = {};
+static uint8_t handover_buffer[kib(16)] = {0};
 static HandoverBuilder builder;
 static bool handover_is_init = false;
 
@@ -176,7 +176,7 @@ HandoverPayload *hal_get_handover(void)
 {
     if (!handover_is_init)
     {
-        handover_builder_init(&builder, handover_buffer, kib(1024));
+        handover_builder_init(&builder, handover_buffer, kib(16));
         handover_parse_mmap(&builder);
         handover_parse_module(&builder);
 

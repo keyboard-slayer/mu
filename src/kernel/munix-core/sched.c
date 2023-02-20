@@ -1,8 +1,15 @@
 #include "sched.h"
 #include <debug/debug.h>
 #include <misc/lock.h>
+#include <munix-hal/hal.h>
 
 #include "heap.h"
+
+#if defined(__x86_64__)
+#    include <munix-x86_64/cpu.h>
+#else
+#    error "Unsupported architecture"
+#endif
 
 static Spinlock lock = {0};
 static size_t tid = 0;

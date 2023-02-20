@@ -6,16 +6,6 @@
 #include <stdint.h>
 #include <traits/output.h>
 
-#if defined(__osdk_arch_x86_64__)
-#    include <munix-x86_64/const.h>
-#    include <munix-x86_64/cpu.h>
-#    include <munix-x86_64/ctx.h>
-#    include <munix-x86_64/regs.h>
-#    include <munix-x86_64/vmm.h>
-#else
-#    error "Unsupported architecture"
-#endif
-
 typedef struct _HalRegs HalRegs;
 
 void hal_init(void);
@@ -50,7 +40,7 @@ void hal_cpu_goto(void (*fn)(void));
 
 typedef struct _HalCtx HalCtx;
 
-MuRes hal_ctx_create(HalCtx **self, uintptr_t ip, uintptr_t sp, MuArgs args);
+MuRes hal_ctx_create(HalCtx *self, uintptr_t ip, uintptr_t sp, MuArgs args);
 
 void hal_ctx_destroy(HalCtx *self);
 
