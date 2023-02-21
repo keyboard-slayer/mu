@@ -97,14 +97,14 @@ void pmm_free(unused Alloc *self, void *ptr, size_t size)
 void pmm_init(void)
 {
     HandoverPayload *handover = hal_get_handover();
-    HandoverRecord last_entry = handover->records[handover->count - 1];
+    HandoverRecord last_entry = handover->records[handover->count - 2];
     HandoverRecord record;
 
     bitmap.size = align_up((last_entry.start + last_entry.size) / (PAGE_SIZE * 8), PAGE_SIZE);
+    debug(DEBUG_INFO, "Bitmap size: 0x%x", bitmap.size);
 
     handover_foreach_record(handover, record)
     {
-        record = handover->records[i];
         if (record.tag == HANDOVER_FREE && record.size >= bitmap.size)
         {
             bitmap.bitmap = (void *)(hal_mmap_lower_to_upper(record.start));
@@ -130,6 +130,9 @@ void pmm_init(void)
             pmm_unset(align_down(record.start, PAGE_SIZE) / PAGE_SIZE, align_up(record.size, PAGE_SIZE) / PAGE_SIZE);
         }
     }
+
+    debug(DEBUG_INFO, "Available pages: 0x%x", available_pages);
+    debug(DEBUG_INFO, "PMM initialized");
 }
 
 void *pmm_calloc(Alloc *self, size_t nmemb, size_t size)

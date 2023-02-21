@@ -12,7 +12,9 @@
 
 void elf_load_module(char const *name)
 {
+    HalSpace *space;
     HandoverRecord file = handover_file_find(hal_get_handover(), name);
+    debug(DEBUG_INFO, "Loading module %s", name);
     Elf_Ehdr *hdr = (void *)file.start;
 
     if (memcmp(hdr->e_ident, ELFMAG, 4) != 0)
@@ -27,7 +29,6 @@ void elf_load_module(char const *name)
         debug_raise_exception();
     }
 
-    HalSpace *space;
     if (hal_space_create(&space) != MU_RES_OK)
     {
         debug(DEBUG_ERROR, "Couldn't create space for ELF binary");
@@ -40,13 +41,16 @@ void elf_load_module(char const *name)
 
         if (phdr->p_type == PT_LOAD)
         {
+            debug(DEBUG_INFO, "Mapping program header start: %x end: %x", phdr->p_vaddr, phdr->p_vaddr + phdr->p_memsz);
             Alloc pmm = pmm_acquire();
 
             size_t size = align_up(phdr->p_memsz, PAGE_SIZE);
             uintptr_t base = (uintptr_t)non_null$(pmm.malloc(&pmm, size / PAGE_SIZE));
             pmm.release(&pmm);
 
-            if (hal_space_map(space, phdr->p_vaddr, base, size, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_USER | MU_MEM_HUGE) != MU_RES_OK)
+            debug(DEBUG_INFO, "Phdr will be copied over 0x%p", base);
+
+            if (hal_space_map(space, phdr->p_vaddr, base, size, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_USER | MU_MEM_EXEC) != MU_RES_OK)
             {
                 debug(DEBUG_ERROR, "Couldn't map ELF binary");
                 debug_raise_exception();
@@ -60,7 +64,7 @@ void elf_load_module(char const *name)
     }
 
     Task *task = task_init(name, space);
-    hal_ctx_create(&task->context, hdr->e_entry, task->stack, (MuArgs){});
+    hal_ctx_create(&task->context, hdr->e_entry, USER_STACK_BASE, (MuArgs){});
 
     sched_push_task(task);
 }

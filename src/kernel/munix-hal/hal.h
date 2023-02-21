@@ -78,8 +78,12 @@ uintptr_t hal_mmap_lower_to_upper(uintptr_t phys);
 
 uintptr_t hal_mmap_upper_to_lower(uintptr_t virt);
 
+/* --- Handover ------------------------------------------------------------- */
+
+HandoverPayload *hal_get_handover(void);
+
+void hal_parse_handover(void);
+
 /* --- Misc ----------------------------------------------------------------- */
 
 Output hal_serial_acquire(void);
-
-HandoverPayload *hal_get_handover(void);

@@ -1,3 +1,4 @@
+#include <debug/debug.h>
 #include <munix-core/core.h>
 #include <munix-hal/hal.h>
 

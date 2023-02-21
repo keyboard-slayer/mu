@@ -1,3 +1,4 @@
+#include <debug/debug.h>
 #include <munix-hal/hal.h>
 
 #include "apic.h"
@@ -48,6 +49,11 @@ static void lapic_enable(void)
 
 void lapic_eoi(void)
 {
+    if (madt == NULL)
+    {
+        return;
+    }
+
     lapic_write(LAPIC_EOI, 0);
 }
 
@@ -185,7 +191,9 @@ void apic_init(void)
 {
     madt = (Madt *)acpi_parse_sdt("APIC");
     lapic_enable();
+    debug(DEBUG_INFO, "LAPIC enabled");
     ioapic_redirect_legacy();
+    debug(DEBUG_INFO, "IOAPIC enabled and interrupts redirected");
 
     hal_cpu_sti();
 }

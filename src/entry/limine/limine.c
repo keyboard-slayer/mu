@@ -92,6 +92,17 @@ void hal_cpu_goto(void (*fn)(void))
     }
 }
 
+size_t hal_cpu_len(void)
+{
+    if (smp_request.response == NULL)
+    {
+        debug(DEBUG_ERROR, "Couldn't get other Cpus");
+        debug_raise_exception();
+    }
+
+    return smp_request.response->cpu_count;
+}
+
 void handover_parse_module(HandoverBuilder *builder)
 {
     if (module_request.response == NULL)
@@ -129,6 +140,10 @@ void handover_parse_mmap(HandoverBuilder *builder)
         debug_raise_exception();
     }
 
+    debug(DEBUG_INFO, "---------------------------------");
+    debug(DEBUG_INFO, "Memory type |  Start   |  Size");
+    debug(DEBUG_INFO, "---------------------------------");
+
     for (size_t i = 0; i < memmap_request.response->entry_count; i++)
     {
         struct limine_memmap_entry *entry = memmap_request.response->entries[i];
@@ -138,49 +153,59 @@ void handover_parse_mmap(HandoverBuilder *builder)
         {
         case LIMINE_MEMMAP_USABLE:
             tag_type = HANDOVER_FREE;
+            debug(DEBUG_INFO, "Free        | %8lx | %8lx", entry->base, entry->length);
             break;
 
         case LIMINE_MEMMAP_ACPI_NVS:
         case LIMINE_MEMMAP_RESERVED:
         case LIMINE_MEMMAP_BAD_MEMORY:
+            debug(DEBUG_INFO, "Reserved    | %8lx | %8lx", entry->base, entry->length);
             tag_type = HANDOVER_RESERVED;
             break;
 
         case LIMINE_MEMMAP_ACPI_RECLAIMABLE:
         case LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE:
+            debug(DEBUG_INFO, "Reclaimable | %8lx | %8lx", entry->base, entry->length);
             tag_type = HANDOVER_LOADER;
             break;
 
         case LIMINE_MEMMAP_KERNEL_AND_MODULES:
+            debug(DEBUG_INFO, "Kernel      | %8lx | %8lx", entry->base, entry->length);
             tag_type = HANDOVER_KERNEL;
             break;
 
         case LIMINE_MEMMAP_FRAMEBUFFER:
+            debug(DEBUG_INFO, "Framebuffer | %8lx | %8lx", entry->base, entry->length);
+            break;
+        default:
+            continue;
             break;
         }
 
-        if (tag_type)
-        {
-            HandoverRecord record = {
-                .tag = tag_type,
-                .flags = 0,
-                .start = entry->base,
-                .size = entry->length,
-            };
-            handover_builder_append(builder, record);
-        }
+        HandoverRecord record = {
+            .tag = tag_type,
+            .flags = 0,
+            .start = entry->base,
+            .size = entry->length,
+        };
+        handover_builder_append(builder, record);
     }
+}
+
+void hal_parse_handover(void)
+{
+    handover_builder_init(&builder, handover_buffer, kib(16));
+    handover_parse_mmap(&builder);
+    handover_parse_module(&builder);
+
+    handover_is_init = true;
 }
 
 HandoverPayload *hal_get_handover(void)
 {
     if (!handover_is_init)
     {
-        handover_builder_init(&builder, handover_buffer, kib(16));
-        handover_parse_mmap(&builder);
-        handover_parse_module(&builder);
-
-        handover_is_init = true;
+        hal_parse_handover();
     }
 
     return builder.payload;

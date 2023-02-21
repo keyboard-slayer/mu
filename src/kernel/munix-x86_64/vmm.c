@@ -179,18 +179,28 @@ void vmm_init(void)
         debug_raise_exception();
     }
 
+    debug(DEBUG_INFO, "PML4: 0x%p", pml4);
+
     pml4 = (uintptr_t *)hal_mmap_lower_to_upper((uintptr_t)pml4);
     memset(pml4, 0, PAGE_SIZE);
     pmm.release(&pmm);
 
     if (cpuid_has_1gb_pages())
     {
+        debug(DEBUG_INFO, "1GB pages are supported");
         page_size = gib(1);
+    }
+    else
+    {
+        debug(DEBUG_INFO, "1GB pages are not supported, defaulting to 2MB pages");
+        page_size = mib(2);
     }
 
     kmmap_section((uintptr_t)text_start_addr, (uintptr_t)text_end_addr, MU_MEM_READ | MU_MEM_EXEC);
     kmmap_section((uintptr_t)rodata_start_addr, (uintptr_t)rodata_end_addr, MU_MEM_READ);
     kmmap_section((uintptr_t)data_start_addr, (uintptr_t)data_end_addr, MU_MEM_READ | MU_MEM_WRITE);
+
+    debug(DEBUG_INFO, "Kernel sections mapped");
 
     size_t end = max(gib(4), pmm_available_pages() * PAGE_SIZE);
     uint64_t flags = transform_flags(MU_MEM_WRITE | MU_MEM_READ | MU_MEM_HUGE);
@@ -209,12 +219,16 @@ void vmm_init(void)
         }
     }
 
+    debug(DEBUG_INFO, "Memory mapped");
+
     hal_space_apply((HalSpace *)pml4);
+
+    debug(DEBUG_INFO, "Space applied");
 }
 
 void hal_space_apply(HalSpace *space)
 {
-    asm_write_cr(3, hal_mmap_upper_to_lower((uintptr_t)space->pml));
+    asm_write_cr(3, hal_mmap_upper_to_lower((uintptr_t)space));
 }
 
 MuRes hal_space_create(HalSpace **self)

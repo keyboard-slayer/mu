@@ -75,7 +75,10 @@ void gdt_init(void)
     gdt_load_tss(NULL);
 
     gdt_flush(gdt_descriptor());
+    debug(DEBUG_INFO, "GDT initialized");
+
     tss_flush();
+    debug(DEBUG_INFO, "TSS flushed");
 }
 void gdt_init_tss(void)
 {
@@ -84,6 +87,8 @@ void gdt_init_tss(void)
     hal_cpu_self()->tss.ist[1] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
     hal_cpu_self()->tss.rsp[0] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
     heap.release(&heap);
+
+    debug(DEBUG_INFO, "TSS initialized (rsp0: %p, ist1: %p, ist2: %p)", hal_cpu_self()->tss.rsp[0], hal_cpu_self()->tss.ist[1], hal_cpu_self()->tss.ist[2]);
 
     gdt_load_tss(&hal_cpu_self()->tss);
     tss_flush();

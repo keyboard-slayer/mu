@@ -1,4 +1,5 @@
 #include "idt.h"
+#include <debug/debug.h>
 
 #include "gdt.h"
 
@@ -32,4 +33,5 @@ void idt_init(void)
     }
 
     idt_flush(idt_descriptor());
+    debug(DEBUG_INFO, "IDT initialized");
 }
