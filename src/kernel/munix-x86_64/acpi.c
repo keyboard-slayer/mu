@@ -1,3 +1,4 @@
+#include <debug/debug.h>
 #include <munix-hal/hal.h>
 #include <string.h>
 
@@ -11,10 +12,12 @@ void acpi_init(void)
 
     if (rsdp->revision >= 2 && rsdp->xsdt_addr != 0)
     {
+        debug(DEBUG_INFO, "ACPI: Using XSDT");
         sdt = Right(EitherRsdtXsdt, (Xsdt *)hal_mmap_lower_to_upper(rsdp->xsdt_addr));
     }
     else
     {
+        debug(DEBUG_INFO, "ACPI: Using RSDT");
         sdt = Left(EitherRsdtXsdt, (Rsdt *)hal_mmap_lower_to_upper(rsdp->rsdt_addr));
     }
 }

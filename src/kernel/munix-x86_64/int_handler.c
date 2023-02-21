@@ -84,7 +84,7 @@ static void log_exception(HalRegs const *regs)
     asm_read_cr(4, cr4);
 
     debug(DEBUG_NONE, "\n\n------------------------------------------------------------------------------------\n");
-    debug(DEBUG_NONE, "%s on core %d (0x%x) Err: %x", exception_messages[regs->intno], lapic_id(), regs->intno, regs->err);
+    debug(DEBUG_NONE, "%s on core %d (0x%x) Err: 0x%x", exception_messages[regs->intno], lapic_id(), regs->intno, regs->err);
     debug(DEBUG_NONE, "RAX %p RBX %p RCX %p RDX %p", regs->rax, regs->rbx, regs->rcx, regs->rdx);
     debug(DEBUG_NONE, "RSI %p RDI %p RBP %p RSP %p", regs->rsi, regs->rdi, regs->rbp, regs->rsp);
     debug(DEBUG_NONE, "R8  %p R9  %p R10 %p R11 %p", regs->r8, regs->r9, regs->r10, regs->r11);
@@ -106,13 +106,10 @@ uintptr_t interrupt_handler(uint64_t rsp)
     {
         log_exception(regs);
 
-        if (regs->intno != 1)
+        loop
         {
-            loop
-            {
-                hal_cpu_cli();
-                hal_cpu_relax();
-            }
+            hal_cpu_cli();
+            hal_cpu_relax();
         }
     }
     else

@@ -27,11 +27,6 @@ HalCpu *hal_cpu_get(size_t id)
     return &cpus[id];
 }
 
-size_t hal_cpu_len()
-{
-    return count;
-}
-
 static void smp_setup_core(void)
 {
     spinlock_acquire(&lock);
@@ -53,4 +48,8 @@ void smp_init(void)
 {
     asm_read_cr(3, cr3);
     hal_cpu_goto(smp_setup_core);
+    while (count + 1 != hal_cpu_len())
+        ;
+
+    debug(DEBUG_INFO, "All cores are up and running!");
 }
