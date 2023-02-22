@@ -45,21 +45,19 @@ void elf_load_module(char const *name)
             Alloc pmm = pmm_acquire();
 
             size_t size = align_up(phdr->p_memsz, PAGE_SIZE);
-            uintptr_t base = (uintptr_t)non_null$(pmm.malloc(&pmm, size / PAGE_SIZE));
+            uintptr_t paddr = (uintptr_t)non_null$(pmm.malloc(&pmm, size / PAGE_SIZE));
             pmm.release(&pmm);
 
-            debug(DEBUG_INFO, "Phdr will be copied over 0x%p", base);
+            debug(DEBUG_INFO, "Phdr will be copied over 0x%p", paddr);
 
-            if (hal_space_map(space, phdr->p_vaddr, base, size, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_USER | MU_MEM_EXEC) != MU_RES_OK)
+            if (hal_space_map(space, phdr->p_vaddr, paddr, size, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_USER | MU_MEM_EXEC) != MU_RES_OK)
             {
                 debug(DEBUG_ERROR, "Couldn't map ELF binary");
                 debug_raise_exception();
             }
 
-            memcpy((void *)hal_mmap_lower_to_upper(base), (void *)file.start + phdr->p_offset, phdr->p_filesz);
-            memcpy((void *)hal_mmap_lower_to_upper(base) + phdr->p_filesz,
-                   (void *)(file.start + phdr->p_offset + phdr->p_filesz),
-                   phdr->p_memsz - phdr->p_filesz);
+            memcpy((void *)hal_mmap_lower_to_upper(paddr), (void *)file.start + phdr->p_offset, phdr->p_filesz);
+            memset((void *)hal_mmap_lower_to_upper(paddr) + phdr->p_filesz, 0, phdr->p_memsz - phdr->p_filesz);
         }
     }
 

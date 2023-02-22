@@ -176,6 +176,7 @@ void handover_parse_mmap(HandoverBuilder *builder)
 
         case LIMINE_MEMMAP_FRAMEBUFFER:
             debug(DEBUG_INFO, "Framebuffer | %8lx | %8lx", entry->base, entry->length);
+            tag_type = HANDOVER_FB;
             break;
         default:
             continue;

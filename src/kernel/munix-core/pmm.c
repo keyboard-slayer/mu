@@ -110,6 +110,7 @@ void pmm_init(void)
             bitmap.bitmap = (void *)(hal_mmap_lower_to_upper(record.start));
             record.start += bitmap.size;
             record.size -= bitmap.size;
+            break;
         }
     }
 
@@ -118,6 +119,8 @@ void pmm_init(void)
         debug(DEBUG_ERROR, "No usable memory for bitmap");
         debug_raise_exception();
     }
+
+    debug(DEBUG_INFO, "Bitmap at: 0x%p", hal_mmap_upper_to_lower((uintptr_t)bitmap.bitmap));
 
     memset(bitmap.bitmap, 0xff, bitmap.size);
 
