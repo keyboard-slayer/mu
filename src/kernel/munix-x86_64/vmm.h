@@ -11,9 +11,4 @@
 #define VMM_HUGE                    (1 << 7)
 #define VMM_NOEXE                   ((uint64_t)1 << 63)
 
-struct _HalSpace
-{
-    uintptr_t *pml;
-} packed;
-
 void vmm_init(void);

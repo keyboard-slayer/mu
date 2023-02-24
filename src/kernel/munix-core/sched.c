@@ -21,12 +21,12 @@ Sched *sched_self(void)
 
 void sched_init(void)
 {
-    Task *idle = task_init("idle", hal_space_kernel());
-
     sched_self()->tick = 0;
     sched_self()->task_index = 0;
+
+    Task *kernel_task = task_kernel();
     vec_init(&sched_self()->tasks, heap_acquire);
-    vec_push(&sched_self()->tasks, idle);
+    vec_push(&sched_self()->tasks, kernel_task);
     sched_self()->is_init = true;
 }
 
@@ -37,7 +37,6 @@ void sched_yield(HalRegs *regs)
         return;
     }
 
-    hal_cpu_cli();
     spinlock_acquire(&lock);
 
     Task *current_task = sched_self()->tasks.data[sched_self()->task_index];
@@ -58,7 +57,6 @@ void sched_yield(HalRegs *regs)
     hal_ctx_restore(&current_task->context, regs);
     hal_space_apply(current_task->space);
 
-    hal_cpu_sti();
     spinlock_release(&lock);
 }
 
@@ -76,6 +74,7 @@ void sched_push_task(Task *task)
         }
     }
 
+    debug(DEBUG_INFO, "Pushing task %s to cpu %d", task->path, cpu_id);
     vec_push(&hal_cpu_get(cpu_id)->sched.tasks, task);
 }
 

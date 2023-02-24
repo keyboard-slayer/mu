@@ -24,3 +24,4 @@ typedef struct
 } Task;
 
 Task *task_init(char const *path, HalSpace *space);
+Task *task_kernel(void);

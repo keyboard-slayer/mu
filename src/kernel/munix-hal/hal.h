@@ -87,3 +87,5 @@ void hal_parse_handover(void);
 /* --- Misc ----------------------------------------------------------------- */
 
 Output hal_serial_acquire(void);
+
+void hal_serial_unlock(void);
