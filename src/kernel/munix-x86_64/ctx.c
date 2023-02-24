@@ -33,9 +33,9 @@ MuRes hal_ctx_create(HalCtx *self, uintptr_t ip, uintptr_t sp, MuArgs args)
     {
         return MU_RES_NO_MEM;
     }
+    pmm.release(&pmm);
 
     self->syscall_kernel_stack = hal_mmap_lower_to_upper((uintptr_t)stack) + STACK_SIZE;
-    pmm.release(&pmm);
 
     return MU_RES_OK;
 }

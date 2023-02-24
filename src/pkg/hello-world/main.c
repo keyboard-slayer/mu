@@ -5,6 +5,7 @@
 
 static void puts(char const *s)
 {
+    (void)s;
     size_t len = 0;
     while (s[len++])
         ;
@@ -13,10 +14,12 @@ static void puts(char const *s)
 
 noreturn int _start(void)
 {
-    (void)puts;
-    // __asm__ volatile("int $1");
-    // puts("Hello, World !");
-    // puts("Hello, World 2 !");
+    for (char c = 'a'; c <= 'z'; c++)
+    {
+        char s[2] = {c, '\0'};
+        puts(s);
+    }
+
     loop;
     unreachable;
 }

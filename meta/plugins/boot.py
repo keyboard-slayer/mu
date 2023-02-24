@@ -48,7 +48,8 @@ def bootCmd(args: Args) -> None:
     bootDir = shell.mkdir(f"{imageDir}/boot")
 
     ovmf = shell.wget(
-        "https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd")
+        "https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd"
+    )
 
     munix = builder.build("munix-core", "kernel-x86_64:debug")
 

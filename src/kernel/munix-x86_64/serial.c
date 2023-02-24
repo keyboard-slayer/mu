@@ -64,3 +64,8 @@ Output hal_serial_acquire(void)
         .release = release_serial,
     };
 }
+
+void hal_serial_unlock(void)
+{
+    spinlock_release(&lock);
+}

@@ -62,7 +62,11 @@ void elf_load_module(char const *name)
     }
 
     Task *task = task_init(name, space);
-    hal_ctx_create(&task->context, hdr->e_entry, USER_STACK_BASE, (MuArgs){});
+    if (hal_ctx_create(&task->context, hdr->e_entry, USER_STACK_BASE, (MuArgs){}) != MU_RES_OK)
+    {
+        debug(DEBUG_ERROR, "Couldn't create context for ELF binary");
+        debug_raise_exception();
+    }
 
     sched_push_task(task);
 }
