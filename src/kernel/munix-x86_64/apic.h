@@ -90,3 +90,5 @@ void apic_init(void);
 void lapic_eoi(void);
 int lapic_id(void);
 void ioapic_redirect_irq(uint32_t lapic_id, uint8_t intno, uint8_t irq);
+void lapic_timer_start(void);
+void lapic_timer_stop(void);

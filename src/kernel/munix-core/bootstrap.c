@@ -11,6 +11,6 @@ int _start()
     hal_parse_handover();
     hal_init();
 
-    // elf_load_module("/bin/hello-world"); FIXME
+    elf_load_module("/bin/hello-world");
     loop;
 }
