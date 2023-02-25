@@ -20,7 +20,7 @@ static void lapic_write(uint32_t reg, uint32_t value)
     *((volatile uint32_t *)(hal_mmap_lower_to_upper(madt->lapic_addr) + reg)) = value;
 }
 
-static void lapic_timer_setup(void)
+void lapic_timer_start(void)
 {
     uint32_t ticks;
 
@@ -45,7 +45,13 @@ static void lapic_enable(void)
     asm_write_msr(MSR_APICBASE, (asm_read_msr(MSR_APICBASE) | LAPIC_ENABLE) & ~((1 << 10)));
     lapic_write(LAPIC_SPURIOUS, lapic_read(LAPIC_SPURIOUS) | 0x1ff);
 
-    lapic_timer_setup();
+    lapic_timer_start();
+}
+
+void lapic_timer_stop(void)
+{
+    lapic_write(LAPIC_INIT, 0);
+    lapic_write(LAPIC_TIMER_REG, 1 << 16);
 }
 
 void lapic_eoi(void)

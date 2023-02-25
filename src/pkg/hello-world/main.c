@@ -13,13 +13,12 @@ static void puts(char const *s)
 
 noreturn int _start(void)
 {
-    (void)puts;
-    // puts("Hello, World !");
-    // for (char c = 'a'; c <= 'z'; c++)
-    // {
-    //     char s[2] = {c, '\0'};
-    //     puts(s);
-    // }
+    puts("Hello, World !");
+    for (char c = 'a'; c <= 'z'; c++)
+    {
+        char s[2] = {c, '\0'};
+        puts(s);
+    }
 
     loop;
     unreachable;

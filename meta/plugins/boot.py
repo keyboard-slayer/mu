@@ -61,6 +61,7 @@ def bootCmd(args: Args) -> None:
 
     qemuCmd: list[str] = [
         "qemu-system-x86_64",
+        # "-d" , "int",
         "-machine",
         "q35",
         "-no-reboot",

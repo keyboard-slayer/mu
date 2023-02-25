@@ -56,10 +56,8 @@ void sched_yield(HalRegs *regs)
 
     } while (task_self()->state != TASK_READY);
 
-    hal_ctx_restore(&task_self()->context, regs);
     hal_space_apply(task_self()->space);
-
-    debug(DEBUG_INFO, "Switching to task %s", task_self()->path);
+    hal_ctx_restore(&task_self()->context, regs);
 
     spinlock_release(&lock);
     return;
