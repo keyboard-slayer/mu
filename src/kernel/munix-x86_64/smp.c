@@ -39,8 +39,10 @@ static void smp_setup_core(void)
     gdt_init_tss();
     syscall_init();
     sched_init();
+
     debug(DEBUG_INFO, "Core %d is up and running!", hal_cpu_self()->id);
     spinlock_release(&lock);
+
     count++;
     loop;
 }

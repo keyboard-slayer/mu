@@ -1,4 +1,5 @@
 #include <debug/debug.h>
+#include <misc/lock.h>
 #include <munix-hal/hal.h>
 
 #include "apic.h"

@@ -30,6 +30,11 @@ void sched_init(void)
     sched_self()->is_init = true;
 }
 
+Task *task_self(void)
+{
+    return sched_self()->tasks.data[sched_self()->task_index];
+}
+
 void sched_yield(HalRegs *regs)
 {
     if (!sched_self()->is_init || sched_self()->tasks.length < 1)
@@ -38,26 +43,26 @@ void sched_yield(HalRegs *regs)
     }
 
     spinlock_acquire(&lock);
-
-    Task *current_task = sched_self()->tasks.data[sched_self()->task_index];
-    hal_ctx_save(&current_task->context, regs);
+    hal_ctx_save(&task_self()->context, regs);
 
     do
     {
         sched_self()->task_index++;
 
-        if (sched_self()->task_index >= sched_self()->tasks.length)
+        if (sched_self()->task_index == sched_self()->tasks.length)
         {
             sched_self()->task_index = 0;
         }
 
-        current_task = sched_self()->tasks.data[sched_self()->task_index];
-    } while (current_task->state != TASK_READY);
+    } while (task_self()->state != TASK_READY);
 
-    hal_ctx_restore(&current_task->context, regs);
-    hal_space_apply(current_task->space);
+    hal_ctx_restore(&task_self()->context, regs);
+    hal_space_apply(task_self()->space);
+
+    debug(DEBUG_INFO, "Switching to task %s", task_self()->path);
 
     spinlock_release(&lock);
+    return;
 }
 
 void sched_push_task(Task *task)
@@ -81,4 +86,12 @@ void sched_push_task(Task *task)
 size_t sched_next_tid(void)
 {
     return ++tid;
+}
+
+void sched_hlt()
+{
+    for (size_t i = 0; i < hal_cpu_len(); i++)
+    {
+        hal_cpu_get(i)->sched.is_init = false;
+    }
 }
