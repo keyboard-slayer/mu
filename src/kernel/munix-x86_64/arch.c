@@ -4,7 +4,6 @@
 
 #include "acpi.h"
 #include "apic.h"
-#include "debug/debug.h"
 #include "gdt.h"
 #include "idt.h"
 #include "smp.h"
