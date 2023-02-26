@@ -24,7 +24,7 @@ def buildPkgs(binDir: str, debug: bool) -> list[str]:
     pkgs = [p.id for p in loadAllComponents() if "src/servers" in p.dirname()]
 
     for pkg in pkgs:
-        elf = builder.build(pkg, "munix-x86_64:debug")
+        elf = builder.build(pkg, "mu-x86_64:debug")
         shell.cp(elf, f"{binDir}/{os.path.basename(elf)[:-4]}")
 
     return pkgs
@@ -33,7 +33,7 @@ def buildPkgs(binDir: str, debug: bool) -> list[str]:
 def limineGenConfig(bootDir: str, pkgs: list[str]) -> None:
     with open(f"{bootDir}/limine.cfg", "w") as cfg:
         cfg.write(
-            "TIMEOUT=0\n:Munix\nPROTOCOL=limine\nKERNEL_PATH=boot:///boot/kernel.elf\n"
+            "TIMEOUT=0\n:Mu\nPROTOCOL=limine\nKERNEL_PATH=boot:///boot/kernel.elf\n"
         )
 
         for pkg in pkgs:
@@ -42,7 +42,7 @@ def limineGenConfig(bootDir: str, pkgs: list[str]) -> None:
 
 def bootCmd(args: Args) -> None:
     debug = "debug" in args.opts
-    imageDir = shell.mkdir(".osdk/images/munix-x86_64")
+    imageDir = shell.mkdir(".osdk/images/mu-x86_64")
     efiBootDir = shell.mkdir(f"{imageDir}/EFI/BOOT")
     binDir = shell.mkdir(f"{imageDir}/bin")
     bootDir = shell.mkdir(f"{imageDir}/boot")
@@ -51,9 +51,9 @@ def bootCmd(args: Args) -> None:
         "https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd"
     )
 
-    munix = builder.build("munix-core", "kernel-x86_64:debug")
+    mu = builder.build("mu-core", "kernel-x86_64:debug")
 
-    shell.cp(munix, f"{bootDir}/kernel.elf")
+    shell.cp(mu, f"{bootDir}/kernel.elf")
 
     pkgs = buildPkgs(binDir, debug)
     installLimine(bootDir, efiBootDir)

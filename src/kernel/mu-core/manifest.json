@@ -1,0 +1,15 @@
+{
+    "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
+    "id": "mu-core",
+    "description": "The Microkernel itself",
+    "type": "exe",
+    "requires": [
+        "arch",
+        "entry",
+        "debug",
+        "misc",
+        "libheap",
+        "ds",
+        "traits"
+    ]
+}

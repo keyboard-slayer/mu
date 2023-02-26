@@ -5,7 +5,7 @@
 #include <handover/builder.h>
 #include <handover/handover.h>
 #include <misc/macro.h>
-#include <munix-hal/hal.h>
+#include <mu-hal/hal.h>
 #include <string.h>
 
 static uint8_t handover_buffer[kib(16)] = {0};

@@ -1,4 +1,4 @@
-#include <munix-api/api.h>
+#include <mu-api/api.h>
 
 void puts(char const *str)
 {

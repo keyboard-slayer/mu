@@ -1,6 +1,6 @@
 {
     "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
-    "id": "kernel-x86_64",
+    "id": "mu-x86_64",
     "type": "target",
     "props": {
         "toolchain": "clang",
@@ -9,7 +9,7 @@
         "sys": "mu",
         "abi": "sysv",
         "encoding": "utf8",
-        "freestanding": true,
+        "freestanding": false,
         "host": false
     },
     "tools": {
@@ -22,14 +22,11 @@
                 "-target",
                 "x86_64-none-elf",
                 "-ffreestanding",
-                "-fno-stack-protector",
                 "-mno-80387",
                 "-mno-mmx",
                 "-mno-3dnow",
                 "-mno-sse",
-                "-mno-sse2",
-                "-mno-red-zone",
-                "-mcmodel=kernel"
+                "-mno-sse2"
             ]
         },
         "cxx": {
@@ -41,14 +38,11 @@
                 "-target",
                 "x86_64-none-elf",
                 "-ffreestanding",
-                "-fno-stack-protector",
                 "-mno-80387",
                 "-mno-mmx",
                 "-mno-3dnow",
                 "-mno-sse",
-                "-mno-sse2",
-                "-mno-red-zone",
-                "-mcmodel=kernel"
+                "-mno-sse2"
             ]
         },
         "ld": {
@@ -59,12 +53,12 @@
             "args": [
                 "-m",
                 "elf_x86_64",
-                "-Tmeta/targets/kernel-x86_64.ld",
+                "-Tmeta/targets/mu-x86_64.ld",
                 "-z",
                 "max-page-size=0x1000"
             ],
             "files": [
-                "meta/targets/kernel-x86_64.ld"
+                "meta/targets/mu-x86_64.ld"
             ]
         },
         "ar": {
@@ -81,8 +75,7 @@
             "args": [
                 "-target",
                 "x86_64-none-elf",
-                "-c",
-                "-g"
+                "-c"
             ]
         }
     }
