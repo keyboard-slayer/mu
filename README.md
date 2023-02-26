@@ -1,16 +1,6 @@
-</br>
-</br>
-</br>
 <div align="center">
-
-  <img height=128 src="doc/logo/color-dark.png#gh-dark-mode-only"/>
-
+  <img height=256 src="doc/mumu.png"/>
 </div>
 
-<div align="center">
+# The µ Micro Kernel
 
-  <img height=128 src="doc/logo/color-light.png#gh-light-mode-only"/>
-
-</div>
-</br>
-</br>
