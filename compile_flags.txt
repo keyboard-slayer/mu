@@ -6,6 +6,7 @@
 -Isrc/kernel 
 -Isrc/entry 
 -Isrc/libs
+-Isrc/servers
 -I.osdk/extern/cute-engineering
 -D__osdk_arch_x86_64__
 -D__osdk_bits_64__

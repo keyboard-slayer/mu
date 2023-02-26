@@ -10,7 +10,7 @@
 #include "sched.h"
 #include "task.h"
 
-void elf_load_module(char const *name)
+void elf_load_module(char const *name, MuArgs args)
 {
     HalSpace *space;
     HandoverRecord file = handover_file_find(hal_get_handover(), name);
@@ -58,7 +58,7 @@ void elf_load_module(char const *name)
     }
 
     Task *task = task_init(name, space);
-    if (hal_ctx_create(&task->context, hdr->e_entry, USER_STACK_BASE, (MuArgs){}) != MU_RES_OK)
+    if (hal_ctx_create(&task->context, hdr->e_entry, USER_STACK_BASE, args) != MU_RES_OK)
     {
         panic("Couldn't create context for ELF binary");
     }

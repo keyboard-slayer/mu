@@ -1,8 +1,0 @@
-{
-    "id": "hello-world",
-    "description": "An hello world application to test syscalls and IPC",
-    "type": "exe",
-    "requires": [
-        "munix-api"
-    ]
-}

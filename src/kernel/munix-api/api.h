@@ -118,6 +118,24 @@ typedef enum
     MU_IO_64 = 1 << 3,
 } MuIoFlags;
 
+/* --- IPC ------------------------------------------------------------------ */
+
+#define mu_msg(label, ...) __mu_msg(label, __VA_ARGS__, 0, 0, 0, 0, 0, 0)
+
+#define __mu_msg(l, a1, a2, a3, a4, a5, a6, ...) \
+    (MuMsg)                                      \
+    {                                            \
+        .label = (MuArg)l,                       \
+        .args = {                                \
+            .arg1 = (MuArg)a1,                   \
+            .arg2 = (MuArg)a2,                   \
+            .arg3 = (MuArg)a3,                   \
+            .arg4 = (MuArg)a4,                   \
+            .arg5 = (MuArg)a5,                   \
+            .arg6 = (MuArg)a6,                   \
+        },                                       \
+    }
+
 /* --- Syscall -------------------------------------------------------------- */
 
 #ifdef __osdk_arch_x86_64__
@@ -235,6 +253,11 @@ mu_always_inline MuRes mu_dup(MuCap cap, MuCap *new_cap)
 mu_always_inline MuRes mu_ipc(MuCap *port, MuMsg *msg, MuIpcFlags flags)
 {
     return mu_syscall(MU_SYS_IPC, (MuArg)port, (MuArg)msg, (MuArg)flags);
+}
+
+mu_always_inline MuRes mu_call(MuCap port, MuMsg *msg)
+{
+    return mu_ipc(&port, msg, MU_IPC_SEND | MU_IPC_RECV | MU_IPC_SEND);
 }
 
 mu_always_inline MuRes mu_bind(MuCap event, MuCap port, MuArg sel)

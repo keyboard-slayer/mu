@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ds/vec.h>
-#include <ipc/ipc.h>
 #include <misc/macro.h>
 #include <munix-hal/hal.h>
 
@@ -18,7 +17,6 @@ typedef struct
     char const *path;
     HalCtx context;
     TaskState state;
-    IpcBuffer *ipc;
     HalSpace *space;
     uintptr_t stack;
 } Task;

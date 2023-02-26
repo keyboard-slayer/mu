@@ -25,6 +25,7 @@ MuRes hal_ctx_create(HalCtx *self, uintptr_t ip, uintptr_t sp, MuArgs args)
     self->regs.rdx = args.arg3;
     self->regs.rcx = args.arg4;
     self->regs.r8 = args.arg5;
+    self->regs.r9 = args.arg6;
 
     Alloc pmm = pmm_acquire();
 

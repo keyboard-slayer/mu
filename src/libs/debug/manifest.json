@@ -1,4 +1,5 @@
 {
+    "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
     "id": "debug",
     "type": "lib",
     "description": "Portable and freestanding debug library",

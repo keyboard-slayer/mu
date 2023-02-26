@@ -1,5 +1,6 @@
 #pragma once
 
+#include <munix-api/api.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -86,4 +87,4 @@ typedef struct
     Elf_Half e_shstrndx;
 } Elf_Ehdr;
 
-void elf_load_module(char const *name);
+void elf_load_module(char const *name, MuArgs args);

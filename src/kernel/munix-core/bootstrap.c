@@ -9,6 +9,6 @@ int _start()
     hal_parse_handover();
     hal_init();
 
-    elf_load_module("/bin/hello-world");
+    elf_load_module("/bin/hello-world", (MuArgs){.arg1 = 0xb00b1e5});
     loop;
 }
