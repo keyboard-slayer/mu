@@ -1,4 +1,4 @@
-#include <munix-hal/hal.h>
+#include <mu-hal/hal.h>
 #include <stdatomic.h>
 
 #include "lock.h"

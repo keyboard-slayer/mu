@@ -1,9 +1,7 @@
-zig-cache/
-zig-out/
 .sysroot/
 .gdb_history
 meta/cache
-munix.iso
+mu.iso
 .ninja_log
 .osdk
 __pycache__/

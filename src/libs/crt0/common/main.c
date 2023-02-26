@@ -1,5 +1,5 @@
 #include <misc/macro.h>
-#include <munix-api/api.h>
+#include <mu-api/api.h>
 #include <stdint.h>
 
 weak int mu_main(unused MuArgs const args)

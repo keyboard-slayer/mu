@@ -1,6 +1,6 @@
 {
     "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
-    "id": "cute-engineering/munix",
+    "id": "cute-engineering/mu",
     "type": "project",
     "description": "A minimalist micro-kernel",
     "extern": {
