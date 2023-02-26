@@ -44,7 +44,11 @@ void hal_cpu_relax(void)
     __asm__("pause");
 }
 
-void debug_raise_exception(void)
+void hal_cpu_stop(void)
 {
-    __asm__("int $1");
+    while (true)
+    {
+        __asm__("cli");
+        __asm__("hlt");
+    }
 }

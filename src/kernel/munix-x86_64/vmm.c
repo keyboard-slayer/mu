@@ -137,8 +137,7 @@ static void kmmap_section(uintptr_t start, uintptr_t end, uint8_t flags)
 
         if (kmmap_page(pml4, i, phys, flags_arch) != MU_RES_OK)
         {
-            debug(DEBUG_ERROR, "Couldn't map kernel sections");
-            debug_raise_exception();
+            panic("Couldn't map kernel sections");
         }
     }
 }
@@ -175,8 +174,7 @@ void vmm_init(void)
 
     if (pml4 == NULL)
     {
-        debug(DEBUG_ERROR, "Couldn't allocate memory for pml4");
-        debug_raise_exception();
+        panic("Couldn't allocate memory for pml4");
     }
 
     debug(DEBUG_INFO, "PML4: 0x%p", pml4);
@@ -214,8 +212,7 @@ void vmm_init(void)
     {
         if (hal_space_map((HalSpace *)pml4, hal_mmap_lower_to_upper(record.start), record.start, record.size, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_HUGE) != MU_RES_OK)
         {
-            debug(DEBUG_ERROR, "Couldn't map kernel properly");
-            debug_raise_exception();
+            panic("Couldn't map kernel properly");
         }
     }
 

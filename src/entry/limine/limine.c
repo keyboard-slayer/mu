@@ -68,8 +68,7 @@ HalAddr hal_mmap_kaddr()
 {
     if (kaddr_req.response == NULL)
     {
-        debug(DEBUG_ERROR, "Couldn't get Kernel addresses");
-        debug_raise_exception();
+        panic("Couldn't get Kernel addresses");
     }
 
     return (HalAddr){
@@ -82,8 +81,7 @@ void hal_cpu_goto(void (*fn)(void))
 {
     if (smp_request.response == NULL)
     {
-        debug(DEBUG_ERROR, "Couldn't get other Cpus");
-        debug_raise_exception();
+        panic("Couldn't get other Cpus");
     }
 
     for (size_t i = 1; i < smp_request.response->cpu_count; i++)
@@ -96,8 +94,7 @@ size_t hal_cpu_len(void)
 {
     if (smp_request.response == NULL)
     {
-        debug(DEBUG_ERROR, "Couldn't get other Cpus");
-        debug_raise_exception();
+        panic("Couldn't get other Cpus");
     }
 
     return smp_request.response->cpu_count;
@@ -107,8 +104,7 @@ void handover_parse_module(HandoverBuilder *builder)
 {
     if (module_request.response == NULL)
     {
-        debug(DEBUG_ERROR, "Couldn't get modules");
-        debug_raise_exception();
+        panic("Couldn't get modules");
     }
 
     HandoverRecord record;
@@ -136,8 +132,7 @@ void handover_parse_mmap(HandoverBuilder *builder)
 {
     if (memmap_request.response == NULL)
     {
-        debug(DEBUG_ERROR, "failed to get memory map");
-        debug_raise_exception();
+        panic("failed to get memory map");
     }
 
     debug(DEBUG_INFO, "---------------------------------");

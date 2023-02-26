@@ -4,7 +4,6 @@
 #include <munix-api/api.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <traits/output.h>
 
 typedef struct _HalRegs HalRegs;
 
@@ -33,6 +32,8 @@ void hal_cpu_sti(void);
 void hal_cpu_relax(void);
 
 void hal_cpu_halt(void);
+
+void hal_cpu_stop(void);
 
 void hal_cpu_goto(void (*fn)(void));
 
@@ -86,6 +87,8 @@ void hal_parse_handover(void);
 
 /* --- Misc ----------------------------------------------------------------- */
 
-Output hal_serial_acquire(void);
+void hal_serial_acquire(void);
 
-void hal_serial_unlock(void);
+void hal_serial_release(void);
+
+void hal_serial_write(char const *str, size_t len);
