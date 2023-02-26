@@ -1,4 +1,5 @@
 {
+    "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
     "id": "entry-limine",
     "description": "Glue code for the limine bootloader",
     "type": "lib",
@@ -9,6 +10,9 @@
     "enableif": {
         "loader": [
             "limine"
+        ],
+        "freestanding": [
+            true
         ]
     },
     "provides": [

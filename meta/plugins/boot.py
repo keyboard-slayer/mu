@@ -21,7 +21,7 @@ def installLimine(bootDir: str, efiBootDir: str) -> None:
 
 
 def buildPkgs(binDir: str, debug: bool) -> list[str]:
-    pkgs = [p.id for p in loadAllComponents() if "src/pkg" in p.dirname()]
+    pkgs = [p.id for p in loadAllComponents() if "src/servers" in p.dirname()]
 
     for pkg in pkgs:
         elf = builder.build(pkg, "munix-x86_64:debug")
@@ -42,7 +42,7 @@ def limineGenConfig(bootDir: str, pkgs: list[str]) -> None:
 
 def bootCmd(args: Args) -> None:
     debug = "debug" in args.opts
-    imageDir = shell.mkdir(".osdk/images/efi-x86_64")
+    imageDir = shell.mkdir(".osdk/images/munix-x86_64")
     efiBootDir = shell.mkdir(f"{imageDir}/EFI/BOOT")
     binDir = shell.mkdir(f"{imageDir}/bin")
     bootDir = shell.mkdir(f"{imageDir}/boot")

@@ -112,13 +112,7 @@ uintptr_t interrupt_handler(uint64_t rsp)
         {
         case irq(0):
         {
-            hal_cpu_cli();
-            lapic_timer_stop();
-
             sched_yield(regs);
-
-            lapic_timer_start();
-            hal_cpu_sti();
             break;
         }
         }

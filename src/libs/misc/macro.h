@@ -6,6 +6,7 @@
 #define packed      __attribute__((packed))
 #define unreachable __builtin_unreachable();
 #define noreturn    __attribute__((noreturn))
+#define weak        __attribute__((weak))
 #define loop        for (;;)
 
 #define kib(x) ((uintptr_t)(x)*1024)

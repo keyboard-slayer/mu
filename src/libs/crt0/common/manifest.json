@@ -1,0 +1,6 @@
+{
+    "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
+    "id": "crt0-common",
+    "description": "Common crt0 code for all platforms",
+    "type": "lib"
+}
