@@ -116,8 +116,7 @@ void pmm_init(void)
 
     if (bitmap.bitmap == NULL)
     {
-        debug(DEBUG_ERROR, "No usable memory for bitmap");
-        debug_raise_exception();
+        panic("No usable memory for bitmap");
     }
 
     debug(DEBUG_INFO, "Bitmap at: 0x%p", hal_mmap_upper_to_lower((uintptr_t)bitmap.bitmap));

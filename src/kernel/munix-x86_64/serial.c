@@ -2,7 +2,6 @@
 #include <misc/macro.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <traits/output.h>
 
 #include "asm.h"
 #include "serial.h"
@@ -13,11 +12,6 @@ static Spinlock lock = 0;
 static void serial_write(int reg, uint8_t value)
 {
     asm_out8(SERIAL_PORT + reg, value);
-}
-
-static uint8_t serial_read(int reg)
-{
-    return asm_in8(SERIAL_PORT + reg);
 }
 
 static void serial_init(void)
@@ -36,36 +30,25 @@ static void serial_init(void)
     init = true;
 }
 
-static void serial_putc(unused Output *self, char c)
+void hal_serial_acquire(void)
+{
+    spinlock_acquire(&lock);
+}
+
+void hal_serial_release(void)
+{
+    spinlock_release(&lock);
+}
+
+void hal_serial_write(char const *str, size_t len)
 {
     if (!init)
     {
         serial_init();
     }
 
-    while ((serial_read(COM_REGS_LINE_STATUS) & 0x20) == 0)
-        ;
-
-    serial_write(COM_REGS_DATA, c);
-}
-
-static void release_serial(Output *self)
-{
-    spinlock_release(&lock);
-    *self = (Output){0};
-}
-
-Output hal_serial_acquire(void)
-{
-    spinlock_acquire(&lock);
-    return (Output){
-        .putc = serial_putc,
-        .puts = generic_puts,
-        .release = release_serial,
-    };
-}
-
-void hal_serial_unlock(void)
-{
-    spinlock_release(&lock);
+    for (size_t i = 0; i < len; i++)
+    {
+        serial_write(COM_REGS_DATA, str[i]);
+    }
 }

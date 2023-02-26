@@ -79,8 +79,6 @@ static void log_exception(HalRegs const *regs)
     asm_read_cr(3, cr3);
     asm_read_cr(4, cr4);
 
-    hal_serial_unlock();
-
     debug(DEBUG_NONE, "\n\n------------------------------------------------------------------------------------\n");
     debug(DEBUG_NONE, "%s on core %d (0x%x) Err: 0x%x", exception_messages[regs->intno], lapic_id(), regs->intno, regs->err);
     debug(DEBUG_NONE, "RAX %p RBX %p RCX %p RDX %p", regs->rax, regs->rbx, regs->rcx, regs->rdx);
