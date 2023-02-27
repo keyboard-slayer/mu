@@ -10,14 +10,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Toolchains
+      - name: Setup Toolchains
         run: brew install llvm python git ninja &&
-             python3 -m ensurepip && git clone https://github.com/cute-engineering/osdk && sudo python3 -m pip install -e osdk/
+          python3 -m ensurepip && git clone https://github.com/cute-engineering/osdk && sudo python3 -m pip install -e osdk/
 
-      - name: Build Core (x86_64)
-        run: |
-          osdk i
-          osdk b mu-core --target=kernel-x86_64
+      - name: Install Packages
+        run: sh .github/workflows/darwin-wrapper.sh osdk i
+
+      - name: Build Mu (x86_64)
+        run: sh .github/workflows/darwin-wrapper.sh osdk b --target=kernel-x86_64
 
   ubuntu:
     runs-on: ubuntu-latest
@@ -27,11 +28,12 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install Toolchains 
+      - name: Setup Toolchains
         run: sudo apt-get install clang lld llvm python3 git ninja-build &&
-             git clone https://github.com/cute-engineering/osdk && sudo pip install -r osdk/requirements.txt && sudo pip install -e osdk/
+          git clone https://github.com/cute-engineering/osdk && sudo pip install -e osdk/
 
-      - name: Build Core (x86_64)
-        run: |
-          osdk i
-          osdk b mu-core --target=kernel-x86_64
+      - name: Install Packages
+        run: osdk i
+
+      - name: Build Mu (x86_64)
+        run: osdk b --target=kernel-x86_64
