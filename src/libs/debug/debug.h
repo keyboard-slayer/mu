@@ -1,5 +1,6 @@
 #pragma once
 
+#include <string.h>
 #include <misc/macro.h>
 
 #define non_null$(x) ({                             \
@@ -30,4 +31,4 @@ void __debug_impl(char const *filename, size_t lineno, DebugEvent event, char co
 
 #define panic(...) \
     ({__debug_impl(__FILENAME__, __LINE__, DEBUG_PANIC, __VA_ARGS__); \
-    unreachable })
+    unreachable(); })
