@@ -1,10 +1,10 @@
 #pragma once
 
-#include <string.h>
-
 #define unused      __attribute__((unused))
 #define packed      __attribute__((packed))
-#define unreachable __builtin_unreachable();
+#ifndef unreachable
+#define unreachable() __builtin_unreachable();
+#endif /* !unreachable */
 #define noreturn    __attribute__((noreturn))
 #define weak        __attribute__((weak))
 #define loop        for (;;)

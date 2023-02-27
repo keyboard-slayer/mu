@@ -1,6 +1,7 @@
 #include <misc/lock.h>
 #include <misc/macro.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "asm.h"

@@ -19,5 +19,5 @@ noreturn void _entry(uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4,
     };
 
     mu_exit(mu_main(args));
-    unreachable;
+    unreachable();
 }
