@@ -1,18 +1,17 @@
 #pragma once
 
-#include <stddef.h>
+#include <mu-traits/alloc.h>
 #include <string.h>
-#include <traits/alloc.h>
 
-void vec_expand_(char **data, size_t *length, size_t *capacity, int memsz, AllocAcquireFn alloc_fn);
+void vec_expand_(char **data, usize *length, usize *capacity, int memsz, AllocAcquireFn alloc_fn);
 
 #define Vec(T)                \
     struct                    \
     {                         \
         T *data;              \
-        size_t length;        \
-        size_t capacity;      \
-        size_t iter;          \
+        usize length;         \
+        usize capacity;       \
+        usize iter;           \
         AllocAcquireFn alloc; \
     }
 

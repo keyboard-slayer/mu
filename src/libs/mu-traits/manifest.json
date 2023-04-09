@@ -1,6 +1,6 @@
 {
     "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
-    "id": "traits",
+    "id": "mu-traits",
     "description": "Definition of set of rules for certain object types",
     "type": "lib",
     "requires": [

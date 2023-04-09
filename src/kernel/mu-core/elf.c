@@ -1,6 +1,5 @@
-#include <debug/debug.h>
 #include <handover/utils.h>
-#include <misc/macro.h>
+#include <mu-base/std.h>
 #include <mu-hal/hal.h>
 #include <string.h>
 
@@ -14,7 +13,7 @@ void elf_load_module(char const *name, MuArgs args)
 {
     HalSpace *space;
     HandoverRecord file = handover_file_find(hal_get_handover(), name);
-    debug(DEBUG_INFO, "Loading module %s", name);
+    debugInfo("Loading module %s", name);
     Elf_Ehdr *hdr = (void *)file.start;
 
     if (memcmp(hdr->e_ident, ELFMAG, 4) != 0)
@@ -32,20 +31,20 @@ void elf_load_module(char const *name, MuArgs args)
         panic("Couldn't create space for ELF binary");
     }
 
-    for (size_t i = 0; i < hdr->e_phnum; i++)
+    for (usize i = 0; i < hdr->e_phnum; i++)
     {
         Elf_Phdr *phdr = (Elf_Phdr *)(file.start + hdr->e_phoff + i * hdr->e_phentsize);
 
         if (phdr->p_type == PT_LOAD)
         {
-            debug(DEBUG_INFO, "Mapping program header start: %x end: %x", phdr->p_vaddr, phdr->p_vaddr + phdr->p_memsz);
+            debugInfo("Mapping program header start: %x end: %x", phdr->p_vaddr, phdr->p_vaddr + phdr->p_memsz);
             Alloc pmm = pmm_acquire();
 
-            size_t size = align_up(phdr->p_memsz, PAGE_SIZE);
+            usize size = align_up(phdr->p_memsz, PAGE_SIZE);
             uintptr_t paddr = (uintptr_t)non_null$(pmm.malloc(&pmm, size / PAGE_SIZE));
             pmm.release(&pmm);
 
-            debug(DEBUG_INFO, "Phdr will be copied over 0x%p", paddr);
+            debugInfo("Phdr will be copied over 0x%p", paddr);
 
             if (hal_space_map(space, phdr->p_vaddr, paddr, size, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_USER | MU_MEM_EXEC) != MU_RES_OK)
             {

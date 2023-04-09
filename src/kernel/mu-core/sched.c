@@ -1,7 +1,7 @@
 #include "sched.h"
-#include <debug/debug.h>
-#include <misc/lock.h>
+#include <mu-base/std.h>
 #include <mu-hal/hal.h>
+#include <mu-misc/lock.h>
 
 #include "heap.h"
 
@@ -12,7 +12,7 @@
 #endif
 
 static Spinlock lock = {0};
-static size_t tid = 0;
+static usize tid = 0;
 
 Sched *sched_self(void)
 {
@@ -65,10 +65,10 @@ void sched_yield(HalRegs *regs)
 
 void sched_push_task(Task *task)
 {
-    size_t smallest = hal_cpu_get(0)->sched.tasks.length;
+    usize smallest = hal_cpu_get(0)->sched.tasks.length;
     int cpu_id = 0;
 
-    for (size_t i = 1; i < hal_cpu_len(); i++)
+    for (usize i = 1; i < hal_cpu_len(); i++)
     {
         if (smallest < hal_cpu_get(i)->sched.tasks.length)
         {
@@ -77,18 +77,17 @@ void sched_push_task(Task *task)
         }
     }
 
-    debug(DEBUG_INFO, "Pushing task %s to cpu %d", task->path, cpu_id);
     vec_push(&hal_cpu_get(cpu_id)->sched.tasks, task);
 }
 
-size_t sched_next_tid(void)
+usize sched_next_tid(void)
 {
     return ++tid;
 }
 
 void sched_hlt()
 {
-    for (size_t i = 0; i < hal_cpu_len(); i++)
+    for (usize i = 0; i < hal_cpu_len(); i++)
     {
         hal_cpu_get(i)->sched.is_init = false;
     }

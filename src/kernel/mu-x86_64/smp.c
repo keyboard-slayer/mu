@@ -1,9 +1,9 @@
 #include "smp.h"
-#include <debug/debug.h>
-#include <misc/lock.h>
+#include <mu-base/std.h>
 #include <mu-core/heap.h>
 #include <mu-core/pmm.h>
 #include <mu-hal/hal.h>
+#include <mu-misc/lock.h>
 
 #include "apic.h"
 #include "asm.h"
@@ -14,7 +14,7 @@
 
 static uintptr_t cr3;
 static HalCpu cpus[HAL_CPU_MAX_LEN] = {};
-static size_t count = 0;
+static usize count = 0;
 static Spinlock lock = {0};
 
 HalCpu *hal_cpu_self(void)
@@ -22,7 +22,7 @@ HalCpu *hal_cpu_self(void)
     return hal_cpu_get(lapic_id());
 }
 
-HalCpu *hal_cpu_get(size_t id)
+HalCpu *hal_cpu_get(usize id)
 {
     return &cpus[id];
 }
@@ -40,7 +40,7 @@ static void smp_setup_core(void)
     syscall_init();
     sched_init();
 
-    debug(DEBUG_INFO, "Core %d is up and running!", hal_cpu_self()->id);
+    debugInfo("Core %d is up and running!", hal_cpu_self()->id);
     spinlock_release(&lock);
 
     count++;
@@ -56,5 +56,5 @@ void smp_init(void)
     hal_cpu_goto(smp_setup_core);
     while (count != hal_cpu_len() - 1)
         ;
-    debug(DEBUG_INFO, "All cores are up and running!");
+    debugInfo("All cores are up and running!");
 }

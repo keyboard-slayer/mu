@@ -37,7 +37,7 @@ def limineGenConfig(bootDir: str, pkgs: list[str]) -> None:
         )
 
         for pkg in pkgs:
-            cfg.write(f"MODULE_PATH=boot:///bin/{pkg}")
+            cfg.write(f"MODULE_PATH=boot:///bin/{pkg}\n")
 
 
 def bootCmd(args: Args) -> None:

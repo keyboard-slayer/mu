@@ -7,7 +7,7 @@
 struct _HalCpu
 {
     bool present;
-    size_t id;
+    usize id;
     Sched sched;
     Tss tss;
 };

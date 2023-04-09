@@ -1,5 +1,5 @@
 #pragma once
 
-#include <traits/alloc.h>
+#include <mu-traits/alloc.h>
 
 Alloc heap_acquire(void);

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stdint.h>
-
 #include <mu-x86_64/regs.h>
 
 struct _HalCtx
@@ -14,9 +12,9 @@ struct _HalCtx
 
 typedef struct
 {
-    uint64_t arg1;
-    uint64_t arg2;
-    uint64_t arg3;
-    uint64_t arg4;
-    uint64_t arg5;
+    u64 arg1;
+    u64 arg2;
+    u64 arg3;
+    u64 arg4;
+    u64 arg5;
 } TaskArgs;

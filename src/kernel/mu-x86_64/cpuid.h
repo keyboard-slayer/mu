@@ -1,7 +1,6 @@
 #pragma once
 
-#include <stdbool.h>
-#include <stdint.h>
+#include <mu-base/std.h>
 
 #define CPUID_EXTENDED_LEAF      (0x80000001)
 #define CPUID_EXFEATURE_PDPE1GB  (1 << 26)
@@ -12,15 +11,15 @@
 
 typedef struct
 {
-    uint32_t eax;
-    uint32_t ebx;
-    uint32_t ecx;
-    uint32_t edx;
+    u32 eax;
+    u32 ebx;
+    u32 ecx;
+    u32 edx;
 
     bool success;
 } CpuidResult;
 
-CpuidResult cpuid(uint32_t leaf, uint32_t subleaf);
+CpuidResult cpuid(u32 leaf, u32 subleaf);
 
 bool cpuid_has_1gb_pages(void);
 bool cpuid_has_sse(void);

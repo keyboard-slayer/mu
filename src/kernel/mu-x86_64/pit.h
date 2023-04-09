@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stdint.h>
+#include <mu-base/std.h>
 
 void pit_init(void);
-void pit_sleep(uint16_t);
-void pit_set_reload_value(uint16_t);
+void pit_sleep(u16);
+void pit_set_reload_value(u16);

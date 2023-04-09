@@ -2,8 +2,6 @@
 
 #include <handover/handover.h>
 #include <mu-api/api.h>
-#include <stddef.h>
-#include <stdint.h>
 
 typedef struct _HalRegs HalRegs;
 
@@ -21,9 +19,9 @@ HalCpu *hal_cpu_begin(void);
 
 HalCpu *hal_cpu_end(void);
 
-HalCpu *hal_cpu_get(size_t id);
+HalCpu *hal_cpu_get(usize id);
 
-size_t hal_cpu_len(void);
+usize hal_cpu_len(void);
 
 void hal_cpu_cli(void);
 
@@ -59,9 +57,9 @@ void hal_space_destroy(HalSpace *self);
 
 void hal_space_apply(HalSpace *self);
 
-MuRes hal_space_map(HalSpace *self, uintptr_t virt, uintptr_t phys, size_t len, MuMapFlags flags);
+MuRes hal_space_map(HalSpace *self, uintptr_t virt, uintptr_t phys, usize len, MuMapFlags flags);
 
-MuRes hal_space_unmap(HalSpace *self, uintptr_t virt, size_t len);
+MuRes hal_space_unmap(HalSpace *self, uintptr_t virt, usize len);
 
 HalSpace *hal_space_kernel(void);
 
@@ -91,4 +89,4 @@ void hal_serial_acquire(void);
 
 void hal_serial_release(void);
 
-void hal_serial_write(char const *str, size_t len);
+void hal_serial_write(char const *str, usize len);

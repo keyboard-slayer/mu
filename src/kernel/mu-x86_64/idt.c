@@ -1,5 +1,4 @@
 #include "idt.h"
-#include <debug/debug.h>
 
 #include "gdt.h"
 
@@ -9,7 +8,7 @@ static IdtDesc idt_desc = {
     .offset = (uintptr_t)&idt,
 };
 
-static void idt_init_entry(IdtEntry *self, uint64_t base, uint8_t type)
+static void idt_init_entry(IdtEntry *self, u64 base, u8 type)
 {
     self->offset_low = base & 0xFFFF;
     self->offset_mid = (base >> 16) & 0xFFFF;
@@ -27,11 +26,11 @@ uintptr_t idt_descriptor(void)
 
 void idt_init(void)
 {
-    for (size_t i = 0; i < IDT_ENTRIES_LENGTH; i++)
+    for (usize i = 0; i < IDT_ENTRIES_LENGTH; i++)
     {
         idt_init_entry(&idt.entries[i], __interrupts_vector[i], IDT_INT_GATE);
     }
 
     idt_flush(idt_descriptor());
-    debug(DEBUG_INFO, "IDT initialized");
+    debugInfo("IDT initialized");
 }

@@ -4,12 +4,12 @@
     "description": "The Microkernel itself",
     "type": "exe",
     "requires": [
+        "mu-ds",
+        "mu-base",
+        "mu-misc",
+        "mu-traits",
         "arch",
         "entry",
-        "debug",
-        "misc",
-        "libheap",
-        "ds",
-        "traits"
+        "libheap"
     ]
 }

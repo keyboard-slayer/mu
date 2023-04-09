@@ -1,13 +1,12 @@
-#include <misc/macro.h>
 #include <mu-api/api.h>
-#include <stdint.h>
+#include <mu-base/std.h>
 
 weak int mu_main(unused MuArgs const args)
 {
     return 0;
 }
 
-noreturn void _entry(uint64_t arg1, uint64_t arg2, uint64_t arg3, uint64_t arg4, uint64_t arg5, uint64_t arg6)
+noreturn void _entry(u64 arg1, u64 arg2, u64 arg3, u64 arg4, u64 arg5, u64 arg6)
 {
     MuArgs args = {
         .arg1 = arg1,

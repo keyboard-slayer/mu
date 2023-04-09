@@ -3,7 +3,7 @@
 
 #include "lock.h"
 
-static size_t retain_count = 0;
+static usize retain_count = 0;
 
 static void retain_interrupts()
 {

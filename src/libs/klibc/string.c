@@ -1,5 +1,4 @@
 #include <mu-core/heap.h>
-#include <stddef.h>
 
 char *strrchr(const char *s, int c)
 {
@@ -16,9 +15,9 @@ char *strrchr(const char *s, int c)
     return p;
 }
 
-size_t strlen(const char *s)
+usize strlen(const char *s)
 {
-    size_t len = 0;
+    usize len = 0;
 
     while (*s++)
     {
@@ -28,7 +27,7 @@ size_t strlen(const char *s)
     return len;
 }
 
-void *memset(void *s, int c, size_t n)
+void *memset(void *s, int c, usize n)
 {
     char *p = s;
 
@@ -40,7 +39,7 @@ void *memset(void *s, int c, size_t n)
     return s;
 }
 
-void *memcpy(void *dest, const void *src, size_t n)
+void *memcpy(void *dest, const void *src, usize n)
 {
     char *d = dest;
     const char *s = src;
@@ -53,9 +52,9 @@ void *memcpy(void *dest, const void *src, size_t n)
     return dest;
 }
 
-int memcmp(const void *s1, const void *s2, size_t n)
+int memcmp(const void *s1, const void *s2, usize n)
 {
-    for (size_t i = 0; i < n; i++)
+    for (usize i = 0; i < n; i++)
     {
         if (((char *)s1)[i] != ((char *)s2)[i])
         {
@@ -68,8 +67,13 @@ int memcmp(const void *s1, const void *s2, size_t n)
 
 char *strdup(char const *s)
 {
+    return strndup(s, strlen(s));
+}
+
+char *strndup(char const *s, usize n)
+{
     Alloc heap = heap_acquire();
-    char *ret = heap.calloc(&heap, 1, strlen(s));
+    char *ret = heap.calloc(&heap, 1, n);
     heap.release(&heap);
 
     if (ret == NULL)
@@ -77,6 +81,6 @@ char *strdup(char const *s)
         return ret;
     }
 
-    memcpy(ret, s, strlen(s));
+    memcpy(ret, s, n);
     return ret;
 }

@@ -2,9 +2,9 @@
 
 #include "asm.h"
 
-uint32_t pit_read_count(void)
+u32 pit_read_count(void)
 {
-    uint32_t counter;
+    u32 counter;
 
     asm_out8(0x43, 0);
     counter = asm_in8(0x40);
@@ -22,7 +22,7 @@ void pit_init(void)
     asm_out8(0x40, (divisor >> 8) & 0xFF);
 }
 
-void pit_sleep(uint16_t ms)
+void pit_sleep(u16 ms)
 {
     asm_out8(0x43, 0x30);
     asm_out8(0x40, ms & 0xff);

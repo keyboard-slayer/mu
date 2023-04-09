@@ -1,7 +1,6 @@
 #pragma once
 
-#include <misc/macro.h>
-#include <stdint.h>
+#include <mu-base/std.h>
 
 #define IDT_ENTRIES_LENGTH (256)
 #define IDT_INT_PRESENT    (1 << 7)
@@ -9,19 +8,19 @@
 
 typedef struct packed
 {
-    uint16_t len;
+    u16 len;
     uintptr_t offset;
 } IdtDesc;
 
 typedef struct packed
 {
-    uint16_t offset_low;
-    uint16_t selector;
-    uint8_t ist;
-    uint8_t type_attr;
-    uint16_t offset_mid;
-    uint32_t offset_high;
-    uint32_t zero;
+    u16 offset_low;
+    u16 selector;
+    u8 ist;
+    u8 type_attr;
+    u16 offset_mid;
+    u32 offset_high;
+    u32 zero;
 } IdtEntry;
 
 typedef struct packed

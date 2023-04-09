@@ -1,14 +1,13 @@
 #define HANDOVER_INCLUDE_UTILITES
 
 #include "limine.h"
-#include <debug/debug.h>
 #include <handover/builder.h>
 #include <handover/handover.h>
-#include <misc/macro.h>
+#include <mu-base/std.h>
 #include <mu-hal/hal.h>
 #include <string.h>
 
-static uint8_t handover_buffer[kib(16)] = {0};
+static u8 handover_buffer[kib(16)] = {0};
 static HandoverBuilder builder;
 static bool handover_is_init = false;
 
@@ -84,13 +83,13 @@ void hal_cpu_goto(void (*fn)(void))
         panic("Couldn't get other Cpus");
     }
 
-    for (size_t i = 1; i < smp_request.response->cpu_count; i++)
+    for (usize i = 1; i < smp_request.response->cpu_count; i++)
     {
         smp_request.response->cpus[i]->goto_address = (limine_goto_address)fn;
     }
 }
 
-size_t hal_cpu_len(void)
+usize hal_cpu_len(void)
 {
     if (smp_request.response == NULL)
     {
@@ -109,9 +108,9 @@ void handover_parse_module(HandoverBuilder *builder)
 
     HandoverRecord record;
 
-    for (size_t i = 0; i < module_request.response->module_count; i++)
+    for (usize i = 0; i < module_request.response->module_count; i++)
     {
-        size_t off = handover_builder_append_str(builder, module_request.response->modules[i]->path);
+        usize off = handover_builder_append_str(builder, module_request.response->modules[i]->path);
 
         record = (HandoverRecord){
             .tag = HANDOVER_FILE,
@@ -135,11 +134,11 @@ void handover_parse_mmap(HandoverBuilder *builder)
         panic("failed to get memory map");
     }
 
-    debug(DEBUG_INFO, "---------------------------------");
-    debug(DEBUG_INFO, "Memory type |  Start   |  Size");
-    debug(DEBUG_INFO, "---------------------------------");
+    debugInfo("---------------------------------");
+    debugInfo("Memory type |  Start   |  Size");
+    debugInfo("---------------------------------");
 
-    for (size_t i = 0; i < memmap_request.response->entry_count; i++)
+    for (usize i = 0; i < memmap_request.response->entry_count; i++)
     {
         struct limine_memmap_entry *entry = memmap_request.response->entries[i];
         int tag_type = 0;
@@ -148,33 +147,34 @@ void handover_parse_mmap(HandoverBuilder *builder)
         {
         case LIMINE_MEMMAP_USABLE:
             tag_type = HANDOVER_FREE;
-            debug(DEBUG_INFO, "Free        | %8lx | %8lx", entry->base, entry->length);
+            debugInfo("Free        | %8lx | %8lx", entry->base, entry->length);
             break;
 
         case LIMINE_MEMMAP_ACPI_NVS:
         case LIMINE_MEMMAP_RESERVED:
         case LIMINE_MEMMAP_BAD_MEMORY:
-            debug(DEBUG_INFO, "Reserved    | %8lx | %8lx", entry->base, entry->length);
+            debugInfo("Reserved    | %8lx | %8lx", entry->base, entry->length);
             tag_type = HANDOVER_RESERVED;
             break;
 
         case LIMINE_MEMMAP_ACPI_RECLAIMABLE:
         case LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE:
-            debug(DEBUG_INFO, "Reclaimable | %8lx | %8lx", entry->base, entry->length);
+            debugInfo("Reclaimable | %8lx | %8lx", entry->base, entry->length);
             tag_type = HANDOVER_LOADER;
             break;
 
         case LIMINE_MEMMAP_KERNEL_AND_MODULES:
-            debug(DEBUG_INFO, "Kernel      | %8lx | %8lx", entry->base, entry->length);
+            debugInfo("Kernel      | %8lx | %8lx", entry->base, entry->length);
             tag_type = HANDOVER_KERNEL;
             break;
 
         case LIMINE_MEMMAP_FRAMEBUFFER:
-            debug(DEBUG_INFO, "Framebuffer | %8lx | %8lx", entry->base, entry->length);
+            debugInfo("Framebuffer | %8lx | %8lx", entry->base, entry->length);
             tag_type = HANDOVER_FB;
             break;
+
         default:
-            continue;
+            panic("Unknown memory type %d", entry->type);
             break;
         }
 
@@ -184,6 +184,7 @@ void handover_parse_mmap(HandoverBuilder *builder)
             .start = entry->base,
             .size = entry->length,
         };
+
         handover_builder_append(builder, record);
     }
 }
@@ -191,8 +192,8 @@ void handover_parse_mmap(HandoverBuilder *builder)
 void hal_parse_handover(void)
 {
     handover_builder_init(&builder, handover_buffer, kib(16));
-    handover_parse_mmap(&builder);
     handover_parse_module(&builder);
+    handover_parse_mmap(&builder);
 
     handover_is_init = true;
 }

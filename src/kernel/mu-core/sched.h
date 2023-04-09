@@ -2,14 +2,13 @@
 
 #include <mu-core/task.h>
 #include <stdbool.h>
-#include <stddef.h>
 
 typedef Vec(Task *) VecTask;
 
 typedef struct
 {
-    size_t task_index;
-    size_t tick;
+    usize task_index;
+    usize tick;
     VecTask tasks;
 
     bool is_init;
@@ -25,6 +24,6 @@ void sched_hlt(void);
 
 Task *task_self(void);
 
-size_t sched_next_tid(void);
+usize sched_next_tid(void);
 
 Sched *sched_self(void);

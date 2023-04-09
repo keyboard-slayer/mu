@@ -22,7 +22,7 @@ static char const *event_colors[DEBUG_EVENT_LENGTH] = {
     "\033[31m",
 };
 
-void __debug_impl(const char *filename, size_t lineno, DebugEvent event, const char *fmt, ...)
+void __debug_impl(const char *filename, usize lineno, DebugEvent event, const char *fmt, ...)
 {
     va_list ap;
 

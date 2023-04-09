@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdint.h>
+#include <mu-base/std.h>
 
 #define MSR_EFER              (0xC0000080)
 #define MSR_STAR              (0xC0000081)
@@ -17,11 +17,11 @@
 
 #define asm_write_cr(n, x) __asm__ volatile("mov %0, %%cr" #n ::"r"((x)))
 
-uint8_t asm_in8(uint16_t port);
-uint16_t asm_in16(uint16_t port);
+u8 asm_in8(u16 port);
+u16 asm_in16(u16 port);
 
-void asm_out8(uint16_t port, uint8_t data);
-void asm_out16(uint16_t port, uint16_t data);
+void asm_out8(u16 port, u8 data);
+void asm_out16(u16 port, u16 data);
 
-void asm_write_msr(uint64_t msr, uint64_t value);
-uint64_t asm_read_msr(uint64_t msr);
+void asm_write_msr(u64 msr, u64 value);
+u64 asm_read_msr(u64 msr);

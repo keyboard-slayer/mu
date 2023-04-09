@@ -1,6 +1,6 @@
 {
     "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
-    "id": "misc",
+    "id": "mu-misc",
     "type": "lib",
     "description": "Miscellaneous tools and helpers"
 }

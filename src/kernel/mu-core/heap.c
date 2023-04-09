@@ -1,15 +1,14 @@
-#include <debug/debug.h>
 #include <libheap/libheap.h>
-#include <misc/lock.h>
-#include <misc/macro.h>
+#include <mu-base/std.h>
 #include <mu-hal/hal.h>
+#include <mu-misc/lock.h>
 
 #include "heap.h"
 #include "pmm.h"
 
 static Spinlock lock = {0};
 
-static void *alloc_block(unused void *ctx, size_t size)
+static void *alloc_block(unused void *ctx, usize size)
 {
     Alloc pmm = pmm_acquire();
     uintptr_t ptr = (uintptr_t)pmm.malloc(&pmm, size);
@@ -18,7 +17,7 @@ static void *alloc_block(unused void *ctx, size_t size)
     return (void *)hal_mmap_lower_to_upper(ptr);
 }
 
-static void free_block(unused void *ctx, void *ptr, size_t size)
+static void free_block(unused void *ctx, void *ptr, usize size)
 {
     Alloc pmm = pmm_acquire();
     pmm.free(&pmm, ptr, size);
@@ -36,24 +35,24 @@ static struct Heap heap_impl = (struct Heap){
     .log = hook_log,
 };
 
-static void *_heap_alloc(unused Alloc *self, size_t size)
+static void *_heap_alloc(unused Alloc *self, usize size)
 {
     void *res = heap_alloc(&heap_impl, size);
     return res;
 }
 
-static void _heap_free(unused Alloc *self, void *ptr, unused size_t size)
+static void _heap_free(unused Alloc *self, void *ptr, unused usize size)
 {
     heap_free(&heap_impl, ptr);
 }
 
-static void *_heap_calloc(unused Alloc *self, size_t nmemb, size_t size)
+static void *_heap_calloc(unused Alloc *self, usize nmemb, usize size)
 {
     void *res = heap_calloc(&heap_impl, nmemb, size);
     return res;
 }
 
-static void *_heap_realloc(unused Alloc *self, void *ptr, size_t size)
+static void *_heap_realloc(unused Alloc *self, void *ptr, usize size)
 {
     void *res = heap_realloc(&heap_impl, ptr, size);
     return res;

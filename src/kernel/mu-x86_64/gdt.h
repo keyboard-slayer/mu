@@ -1,7 +1,6 @@
 #pragma once
 
-#include <misc/macro.h>
-#include <stdint.h>
+#include <mu-base/std.h>
 
 #define GDT_ACCESS_READ_WRITE      (1 << 1)
 #define GDT_ACCESS_EXE             (1 << 3)
@@ -27,42 +26,42 @@ enum
 
 typedef struct packed
 {
-    uint16_t limit_low;
-    uint16_t base_low;
-    uint8_t base_mid;
-    uint8_t access;
-    uint8_t limit_high : 4;
-    uint8_t flags : 4;
-    uint8_t base_high;
+    u16 limit_low;
+    u16 base_low;
+    u8 base_mid;
+    u8 access;
+    u8 limit_high : 4;
+    u8 flags : 4;
+    u8 base_high;
 } GdtSegment;
 
 typedef struct packed
 {
-    uint16_t length;
-    uint16_t base_low;
-    uint8_t base_mid;
-    uint8_t flags1;
-    uint8_t flags2;
-    uint8_t base_high;
-    uint32_t base_upper;
-    uint32_t reserved;
+    u16 length;
+    u16 base_low;
+    u8 base_mid;
+    u8 flags1;
+    u8 flags2;
+    u8 base_high;
+    u32 base_upper;
+    u32 reserved;
 } GdtTss;
 
 typedef struct packed
 {
-    uint32_t reserved;
-    uint64_t rsp[3];
-    uint64_t reserved0;
-    uint64_t ist[7];
-    uint32_t reserved1;
-    uint32_t reserved2;
-    uint16_t reserved3;
-    uint16_t iopb_offset;
+    u32 reserved;
+    u64 rsp[3];
+    u64 reserved0;
+    u64 ist[7];
+    u32 reserved1;
+    u32 reserved2;
+    u16 reserved3;
+    u16 iopb_offset;
 } Tss;
 
 typedef struct packed
 {
-    uint16_t len;
+    u16 len;
     uintptr_t offset;
 } GdtDesc;
 

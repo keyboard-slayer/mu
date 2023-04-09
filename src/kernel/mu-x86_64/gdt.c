@@ -1,8 +1,8 @@
-#include <debug/debug.h>
-#include <misc/lock.h>
+#include <mu-base/std.h>
 #include <mu-core/const.h>
 #include <mu-core/heap.h>
 #include <mu-hal/hal.h>
+#include <mu-misc/lock.h>
 
 #include "cpu.h"
 #include "gdt.h"
@@ -15,7 +15,7 @@ static GdtDesc gdt_desc = {
     .offset = (uintptr_t)&gdt,
 };
 
-static void gdt_lazy_init(GdtSegment *self, uint8_t access, uint8_t flags)
+static void gdt_lazy_init(GdtSegment *self, u8 access, u8 flags)
 {
     memset(self, 0, sizeof(GdtSegment));
 
@@ -75,10 +75,10 @@ void gdt_init(void)
     gdt_load_tss(NULL);
 
     gdt_flush(gdt_descriptor());
-    debug(DEBUG_INFO, "GDT initialized");
+    debugInfo("GDT initialized");
 
     tss_flush();
-    debug(DEBUG_INFO, "TSS flushed");
+    debugInfo("TSS flushed");
 }
 void gdt_init_tss(void)
 {
@@ -88,7 +88,7 @@ void gdt_init_tss(void)
     hal_cpu_self()->tss.rsp[0] = (uintptr_t)non_null$((heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
     heap.release(&heap);
 
-    debug(DEBUG_INFO, "TSS initialized (rsp0: %p, ist1: %p, ist2: %p)", hal_cpu_self()->tss.rsp[0], hal_cpu_self()->tss.ist[1], hal_cpu_self()->tss.ist[2]);
+    debugInfo("TSS initialized (rsp0: %p, ist1: %p, ist2: %p)", hal_cpu_self()->tss.rsp[0], hal_cpu_self()->tss.ist[1], hal_cpu_self()->tss.ist[2]);
 
     gdt_load_tss(&hal_cpu_self()->tss);
     tss_flush();

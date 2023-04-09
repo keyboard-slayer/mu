@@ -1,8 +1,5 @@
-#include <misc/lock.h>
-#include <misc/macro.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
+#include <mu-base/std.h>
+#include <mu-misc/lock.h>
 
 #include "asm.h"
 #include "serial.h"
@@ -10,15 +7,15 @@
 static bool init = false;
 static Spinlock lock = 0;
 
-static void serial_write(int reg, uint8_t value)
+static void serial_write(int reg, u8 value)
 {
     asm_out8(SERIAL_PORT + reg, value);
 }
 
 static void serial_init(void)
 {
-    const uint8_t div_low = COM_BAUD_DIV & 0xff;
-    const uint8_t div_high = COM_BAUD_DIV >> 8;
+    const u8 div_low = COM_BAUD_DIV & 0xff;
+    const u8 div_high = COM_BAUD_DIV >> 8;
 
     serial_write(COM_REGS_LINE_CONTROL, 0x80);
     serial_write(COM_REGS_INTERRUPT, 0x00);
@@ -41,14 +38,14 @@ void hal_serial_release(void)
     spinlock_release(&lock);
 }
 
-void hal_serial_write(char const *str, size_t len)
+void hal_serial_write(char const *str, usize len)
 {
     if (!init)
     {
         serial_init();
     }
 
-    for (size_t i = 0; i < len; i++)
+    for (usize i = 0; i < len; i++)
     {
         serial_write(COM_REGS_DATA, str[i]);
     }

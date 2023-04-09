@@ -1,18 +1,17 @@
-#include <stdint.h>
-
 #include "debug.h"
+#include "types.h"
 
 struct tu_source_location
 {
     const char *file;
-    uint32_t line;
-    uint32_t column;
+    u32 line;
+    u32 column;
 };
 
 struct tu_type_descriptor
 {
-    uint16_t kind;
-    uint16_t info;
+    u16 kind;
+    u16 info;
     char name[];
 };
 

@@ -1,6 +1,6 @@
 {
     "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
-    "id": "hello-world",
+    "id": "echo",
     "type": "exe",
     "requires": [
         "crt0"

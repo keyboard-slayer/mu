@@ -1,4 +1,4 @@
-#include <debug/debug.h>
+#include <mu-base/std.h>
 #include <mu-hal/hal.h>
 #include <string.h>
 
@@ -12,21 +12,21 @@ void acpi_init(void)
 
     if (rsdp->revision >= 2 && rsdp->xsdt_addr != 0)
     {
-        debug(DEBUG_INFO, "ACPI: Using XSDT");
+        debugInfo("ACPI: Using XSDT");
         sdt = Right(EitherRsdtXsdt, (Xsdt *)hal_mmap_lower_to_upper(rsdp->xsdt_addr));
     }
     else
     {
-        debug(DEBUG_INFO, "ACPI: Using RSDT");
+        debugInfo("ACPI: Using RSDT");
         sdt = Left(EitherRsdtXsdt, (Rsdt *)hal_mmap_lower_to_upper(rsdp->rsdt_addr));
     }
 }
 
 static int acpi_checksum(AcpiSdt *table)
 {
-    uint8_t sum = 0;
+    u8 sum = 0;
 
-    for (size_t i = 0; i < table->length; i++)
+    for (usize i = 0; i < table->length; i++)
     {
         sum += ((char *)table)[i];
     }
@@ -36,7 +36,7 @@ static int acpi_checksum(AcpiSdt *table)
 
 AcpiSdt *acpi_parse_sdt(char const *tablename)
 {
-    size_t entry_count = 0;
+    usize entry_count = 0;
     AcpiSdt *tmp;
 
     if (sdt.is_left)
@@ -48,7 +48,7 @@ AcpiSdt *acpi_parse_sdt(char const *tablename)
         entry_count = sdt.right->header.length - sizeof(sdt.right->header) / 8;
     }
 
-    for (size_t i = 0; i < entry_count; i++)
+    for (usize i = 0; i < entry_count; i++)
     {
         if (sdt.is_left)
         {

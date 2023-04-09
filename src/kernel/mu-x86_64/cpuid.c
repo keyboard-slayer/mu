@@ -1,8 +1,8 @@
 #include "cpuid.h"
 
-CpuidResult cpuid(uint32_t leaf, uint32_t subleaf)
+CpuidResult cpuid(u32 leaf, u32 subleaf)
 {
-    uint32_t cpuid_max;
+    u32 cpuid_max;
     CpuidResult result;
 
     __asm__ volatile(

@@ -102,7 +102,7 @@ and you'll save 4K of code space.
 ============
 This library also supports 64-bit integers and you can use MSVC style or
 GCC style indicators (%I64d or %lld).  It supports the C99 specifiers
-for size_t and ptr_diff_t (%jd %zd) as well.
+for usize and ptr_diff_t (%jd %zd) as well.
 
 EXTRAS:
 =======
@@ -194,7 +194,7 @@ PERFORMANCE vs MSVC 2008 32-/64-bit (GCC is even slower than MSVC):
 #    endif
 
 #    include <stdarg.h> // for va_arg(), va_list()
-#    include <stddef.h> // size_t, ptrdiff_t
+#    include <stddef.h> // usize, ptrdiff_t
 
 #    ifndef STB_SPRINTF_MIN
 #        define STB_SPRINTF_MIN 512 // how many characters per callback
@@ -218,14 +218,14 @@ STBSP__PUBLICDEC void STB_SPRINTF_DECORATE(set_separators)(char comma, char peri
 #ifdef STB_SPRINTF_IMPLEMENTATION
 
 #    define stbsp__uint32 unsigned int
-#    define stbsp__int32 signed int
+#    define stbsp__int32  signed int
 
 #    ifdef _MSC_VER
 #        define stbsp__uint64 unsigned __int64
-#        define stbsp__int64 signed __int64
+#        define stbsp__int64  signed __int64
 #    else
 #        define stbsp__uint64 unsigned long long
-#        define stbsp__int64 signed long long
+#        define stbsp__int64  signed long long
 #    endif
 #    define stbsp__uint16 unsigned short
 
@@ -276,19 +276,19 @@ STBSP__PUBLICDEF void STB_SPRINTF_DECORATE(set_separators)(char pcomma, char ppe
     stbsp__comma = pcomma;
 }
 
-#    define STBSP__LEFTJUST 1
-#    define STBSP__LEADINGPLUS 2
-#    define STBSP__LEADINGSPACE 4
-#    define STBSP__LEADING_0X 8
-#    define STBSP__LEADINGZERO 16
-#    define STBSP__INTMAX 32
-#    define STBSP__TRIPLET_COMMA 64
-#    define STBSP__NEGATIVE 128
-#    define STBSP__METRIC_SUFFIX 256
-#    define STBSP__HALFWIDTH 512
+#    define STBSP__LEFTJUST       1
+#    define STBSP__LEADINGPLUS    2
+#    define STBSP__LEADINGSPACE   4
+#    define STBSP__LEADING_0X     8
+#    define STBSP__LEADINGZERO    16
+#    define STBSP__INTMAX         32
+#    define STBSP__TRIPLET_COMMA  64
+#    define STBSP__NEGATIVE       128
+#    define STBSP__METRIC_SUFFIX  256
+#    define STBSP__HALFWIDTH      512
 #    define STBSP__METRIC_NOSPACE 1024
-#    define STBSP__METRIC_1024 2048
-#    define STBSP__METRIC_JEDEC 4096
+#    define STBSP__METRIC_1024    2048
+#    define STBSP__METRIC_JEDEC   4096
 
 static void stbsp__lead_sign(stbsp__uint32 fl, char *sign)
 {
@@ -577,10 +577,10 @@ STBSP__PUBLICDEF int STB_SPRINTF_DECORATE(vsprintfcb)(STBSP_SPRINTFCB *callback,
             break;
         // are we 64-bit on intmax? (c99)
         case 'j':
-            fl |= (sizeof(size_t) == 8) ? STBSP__INTMAX : 0;
+            fl |= (sizeof(usize) == 8) ? STBSP__INTMAX : 0;
             ++f;
             break;
-        // are we 64-bit on size_t or ptrdiff_t? (c99)
+        // are we 64-bit on usize or ptrdiff_t? (c99)
         case 'z':
             fl |= (sizeof(ptrdiff_t) == 8) ? STBSP__INTMAX : 0;
             ++f;

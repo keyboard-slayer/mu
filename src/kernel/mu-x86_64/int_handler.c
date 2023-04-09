@@ -1,9 +1,7 @@
-#include <debug/debug.h>
-#include <misc/lock.h>
-#include <misc/macro.h>
+#include <mu-base/std.h>
 #include <mu-core/sched.h>
 #include <mu-hal/hal.h>
-#include <stdint.h>
+#include <mu-misc/lock.h>
 
 #include "apic.h"
 #include "asm.h"
@@ -47,14 +45,14 @@ unused static char *exception_messages[32] = {
 struct _StackFrame
 {
     struct _StackFrame *rbp;
-    uint64_t rip;
+    u64 rip;
 };
 
-static size_t dump_backtrace(uintptr_t rbp)
+static usize dump_backtrace(uintptr_t rbp)
 {
     struct _StackFrame *stackframe = (void *)rbp;
 
-    size_t i = 0;
+    usize i = 0;
 
     debug(DEBUG_NONE, "Backtrace: ");
 
@@ -69,10 +67,10 @@ static size_t dump_backtrace(uintptr_t rbp)
 
 static void log_exception(HalRegs const *regs)
 {
-    uint64_t cr0;
-    uint64_t cr2;
-    uint64_t cr3;
-    uint64_t cr4;
+    u64 cr0;
+    u64 cr2;
+    u64 cr3;
+    u64 cr4;
 
     asm_read_cr(0, cr0);
     asm_read_cr(2, cr2);
@@ -92,7 +90,7 @@ static void log_exception(HalRegs const *regs)
     debug(DEBUG_NONE, "\n------------------------------------------------------------------------------------");
 }
 
-uintptr_t interrupt_handler(uint64_t rsp)
+uintptr_t interrupt_handler(u64 rsp)
 {
     HalRegs *regs = (HalRegs *)rsp;
 

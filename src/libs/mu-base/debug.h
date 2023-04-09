@@ -1,7 +1,9 @@
 #pragma once
 
 #include <string.h>
-#include <misc/macro.h>
+
+#include "macro.h"
+#include "types.h"
 
 #define non_null$(x) ({                             \
     if ((uintptr_t)x == 0)                          \
@@ -21,7 +23,7 @@ typedef enum
     DEBUG_EVENT_LENGTH
 } DebugEvent;
 
-void __debug_impl(char const *filename, size_t lineno, DebugEvent event, char const *fmt, ...);
+void __debug_impl(char const *filename, usize lineno, DebugEvent event, char const *fmt, ...);
 
 #define debug(EVENT, ...) __debug_impl(__FILENAME__, __LINE__, EVENT, __VA_ARGS__);
 

@@ -1,8 +1,8 @@
-#include <debug/debug.h>
-#include <misc/lock.h>
+#include <mu-base/std.h>
 #include <mu-core/const.h>
 #include <mu-core/pmm.h>
 #include <mu-hal/hal.h>
+#include <mu-misc/lock.h>
 
 #include "asm.h"
 #include "ctx.h"

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <ds/vec.h>
-#include <misc/macro.h>
+#include <mu-ds/vec.h>
 #include <mu-hal/hal.h>
 
 #include <mu-x86_64/ctx.h>
@@ -13,7 +12,7 @@ typedef enum
 
 typedef struct
 {
-    size_t tid;
+    usize tid;
     char const *path;
     HalCtx context;
     TaskState state;

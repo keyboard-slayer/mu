@@ -1,6 +1,6 @@
-#include <debug/debug.h>
-#include <misc/lock.h>
+#include <mu-base/std.h>
 #include <mu-hal/hal.h>
+#include <mu-misc/lock.h>
 
 #include "apic.h"
 #include "asm.h"
@@ -10,19 +10,19 @@ static Madt *madt = NULL;
 
 /* --- Lapic ---------------------------------------------------------------- */
 
-unused static uint32_t lapic_read(uint32_t reg)
+unused static u32 lapic_read(u32 reg)
 {
-    return *((volatile uint32_t *)(hal_mmap_lower_to_upper(madt->lapic_addr) + reg));
+    return *((volatile u32 *)(hal_mmap_lower_to_upper(madt->lapic_addr) + reg));
 }
 
-static void lapic_write(uint32_t reg, uint32_t value)
+static void lapic_write(u32 reg, u32 value)
 {
-    *((volatile uint32_t *)(hal_mmap_lower_to_upper(madt->lapic_addr) + reg)) = value;
+    *((volatile u32 *)(hal_mmap_lower_to_upper(madt->lapic_addr) + reg)) = value;
 }
 
 void lapic_timer_start(void)
 {
-    uint32_t ticks;
+    u32 ticks;
 
     lapic_write(LAPIC_TPR, 0);
 
@@ -76,31 +76,31 @@ int lapic_id(void)
 
 /* --- Ioapic --------------------------------------------------------------- */
 
-static void ioapic_write(MadtIoapic *io_apic, uint32_t reg, uint32_t value)
+static void ioapic_write(MadtIoapic *io_apic, u32 reg, u32 value)
 {
     uintptr_t base = (uintptr_t)hal_mmap_lower_to_upper(io_apic->ioapic_addr);
-    *(volatile uint32_t *)base = reg;
-    *(volatile uint32_t *)(base + 16) = value;
+    *(volatile u32 *)base = reg;
+    *(volatile u32 *)(base + 16) = value;
 }
 
-static uint32_t ioapic_read(MadtIoapic *ioapic, uint32_t reg)
+static u32 ioapic_read(MadtIoapic *ioapic, u32 reg)
 {
     uintptr_t base = (uintptr_t)hal_mmap_lower_to_upper(ioapic->ioapic_addr);
-    *(volatile uint32_t *)(base) = reg;
-    return *(volatile uint32_t *)(base + 0x10);
+    *(volatile u32 *)(base) = reg;
+    return *(volatile u32 *)(base + 0x10);
 }
 
 static void ioapic_redirect_legacy(void)
 {
-    for (size_t i = 0; i < 16; i++)
+    for (usize i = 0; i < 16; i++)
     {
         ioapic_redirect_irq(0, irq(i), i);
     }
 }
 
-static MadtIso *madt_get_iso_irq(uint8_t irq)
+static MadtIso *madt_get_iso_irq(u8 irq)
 {
-    size_t i = 0;
+    usize i = 0;
     while (i < madt->header.length - sizeof(Madt))
     {
         MadtEntry *entry = (MadtEntry *)madt->entries + i;
@@ -120,16 +120,16 @@ static MadtIso *madt_get_iso_irq(uint8_t irq)
     return NULL;
 }
 
-static size_t ioapic_gsi_count(MadtIoapic *ioapic)
+static usize ioapic_gsi_count(MadtIoapic *ioapic)
 {
-    uint32_t val = ioapic_read(ioapic, 1);
+    u32 val = ioapic_read(ioapic, 1);
     IoapicVer *ver = (IoapicVer *)&val;
     return ver->max_redirect;
 }
 
-MadtIoapic *madt_get_ioapic_from_gsi(uint32_t gsi)
+MadtIoapic *madt_get_ioapic_from_gsi(u32 gsi)
 {
-    size_t i = 0;
+    usize i = 0;
     MadtEntry *entry;
     while (i < madt->header.length - sizeof(Madt))
     {
@@ -151,9 +151,9 @@ MadtIoapic *madt_get_ioapic_from_gsi(uint32_t gsi)
     return NULL;
 }
 
-static void ioapic_set_gsi_redirect(uint32_t lapic_id, uint8_t intno, uint8_t gsi, uint16_t flags)
+static void ioapic_set_gsi_redirect(u32 lapic_id, u8 intno, u8 gsi, u16 flags)
 {
-    uint32_t io_redirect_table;
+    u32 io_redirect_table;
     IoapicRedirect redirect = {0};
     MadtIoapic *ioapic = madt_get_ioapic_from_gsi(gsi);
 
@@ -177,11 +177,11 @@ static void ioapic_set_gsi_redirect(uint32_t lapic_id, uint8_t intno, uint8_t gs
     redirect.dest_id = lapic_id;
 
     io_redirect_table = (gsi - ioapic->gsib) * 2 + 16;
-    ioapic_write(ioapic, io_redirect_table, (uint32_t)redirect._raw.low_byte);
-    ioapic_write(ioapic, io_redirect_table + 1, (uint32_t)redirect._raw.high_byte);
+    ioapic_write(ioapic, io_redirect_table, (u32)redirect._raw.low_byte);
+    ioapic_write(ioapic, io_redirect_table + 1, (u32)redirect._raw.high_byte);
 }
 
-void ioapic_redirect_irq(uint32_t lapic_id, uint8_t intno, uint8_t irq)
+void ioapic_redirect_irq(u32 lapic_id, u8 intno, u8 irq)
 {
     MadtIso *iso = madt_get_iso_irq(irq);
     if (iso != NULL)
@@ -198,9 +198,9 @@ void apic_init(void)
 {
     madt = (Madt *)acpi_parse_sdt("APIC");
     lapic_enable();
-    debug(DEBUG_INFO, "LAPIC enabled");
+    debugInfo("LAPIC enabled");
     ioapic_redirect_legacy();
-    debug(DEBUG_INFO, "IOAPIC enabled and interrupts redirected");
+    debugInfo("IOAPIC enabled and interrupts redirected");
 
     hal_cpu_sti();
 }

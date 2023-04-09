@@ -1,10 +1,9 @@
 {
     "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
-    "id": "debug",
+    "id": "mu-ds",
     "type": "lib",
-    "description": "Portable and freestanding debug library",
+    "description": "Data structures",
     "requires": [
-        "libc",
-        "traits"
+        "libc"
     ]
 }

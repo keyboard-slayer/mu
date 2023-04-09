@@ -1,7 +1,6 @@
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
+#include <mu-base/std.h>
 
 #define mu_always_inline static __attribute__((always_inline, used))
 

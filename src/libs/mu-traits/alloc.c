@@ -2,7 +2,7 @@
 
 #include "alloc.h"
 
-void *generic_calloc(Alloc *self, size_t nmemb, size_t size)
+void *generic_calloc(Alloc *self, usize nmemb, usize size)
 {
     void *ptr = self->malloc(self, nmemb * size);
 

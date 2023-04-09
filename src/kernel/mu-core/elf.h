@@ -1,8 +1,7 @@
 #pragma once
 
 #include <mu-api/api.h>
-#include <stddef.h>
-#include <stdint.h>
+#include <mu-base/std.h>
 
 #define EI_NIDENT (16)
 
@@ -20,19 +19,19 @@
 #define ELFCLASS64 (2)
 #define PT_LOAD    (1)
 
-typedef size_t Elf_Size;
+typedef usize Elf_Size;
 
 #if defined(__osdk_bits_64__)
 #    define elf_is_correct_class$(e) (e->e_ident[EI_CLASS] == ELFCLASS64)
 
-typedef uint64_t Elf_Addr;
-typedef uint16_t Elf_Half;
-typedef int16_t Elf_SHalf;
-typedef uint64_t Elf_Off;
-typedef int32_t Elf_Sword;
-typedef uint32_t Elf_Word;
-typedef uint64_t Elf_Xword;
-typedef int64_t Elf_Sxword;
+typedef u64 Elf_Addr;
+typedef u16 Elf_Half;
+typedef i16 Elf_SHalf;
+typedef u64 Elf_Off;
+typedef i32 Elf_Sword;
+typedef u32 Elf_Word;
+typedef u64 Elf_Xword;
+typedef i64 Elf_Sxword;
 
 typedef struct elf64_phdr
 {
@@ -49,11 +48,11 @@ typedef struct elf64_phdr
 #elif defined(__osdk_bits_32__)
 #    define elf_is_correct_class$(e) (e.e_ident[EI_CLASS] == ELFCLASS32)
 
-typedef uint32_t Elf32_Addr;
-typedef uint16_t Elf32_Half;
-typedef uint32_t Elf32_Off;
-typedef int32_t Elf32_Sword;
-typedef uint32_t Elf32_Word;
+typedef u32 Elf32_Addr;
+typedef u16 Elf32_Half;
+typedef u32 Elf32_Off;
+typedef i32 Elf32_Sword;
+typedef u32 Elf32_Word;
 
 typedef struct
 {

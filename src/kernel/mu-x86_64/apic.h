@@ -1,7 +1,5 @@
 #pragma once
 
-#include <misc/macro.h>
-
 #include "acpi.h"
 
 #define LAPIC_EOI               (0x0b0)
@@ -26,69 +24,69 @@
 typedef struct packed
 {
     AcpiSdt header;
-    uint32_t lapic_addr;
-    uint32_t flags;
-    uint8_t entries[];
+    u32 lapic_addr;
+    u32 flags;
+    u8 entries[];
 } Madt;
 
 typedef struct packed
 {
-    uint8_t type;
-    uint8_t length;
+    u8 type;
+    u8 length;
 } MadtEntry;
 
 typedef struct packed
 {
     MadtEntry header;
-    uint8_t ioapic_id;
-    uint8_t _reserved;
-    uint32_t ioapic_addr;
-    uint32_t gsib;
+    u8 ioapic_id;
+    u8 _reserved;
+    u32 ioapic_addr;
+    u32 gsib;
 } MadtIoapic;
 
 typedef struct packed
 {
-    uint8_t version;
-    uint8_t reserved;
-    uint8_t max_redirect;
-    uint8_t reserved2;
+    u8 version;
+    u8 reserved;
+    u8 max_redirect;
+    u8 reserved2;
 } IoapicVer;
 
 typedef union packed
 {
     struct packed
     {
-        uint8_t vector;
-        uint8_t delivery_mode : 3;
-        uint8_t dest_mode : 1;
-        uint8_t delivery_status : 1;
-        uint8_t polarity : 1;
-        uint8_t remote_irr : 1;
-        uint8_t trigger : 1;
-        uint8_t mask : 1;
-        uint8_t reserved : 7;
-        uint8_t dest_id;
+        u8 vector;
+        u8 delivery_mode : 3;
+        u8 dest_mode : 1;
+        u8 delivery_status : 1;
+        u8 polarity : 1;
+        u8 remote_irr : 1;
+        u8 trigger : 1;
+        u8 mask : 1;
+        u8 reserved : 7;
+        u8 dest_id;
     };
 
     struct packed
     {
-        uint32_t low_byte;
-        uint32_t high_byte;
+        u32 low_byte;
+        u32 high_byte;
     } _raw;
 } IoapicRedirect;
 
 typedef struct packed
 {
     MadtEntry header;
-    uint8_t bus_src;
-    uint8_t irq_src;
-    uint32_t gsi;
-    uint16_t flags;
+    u8 bus_src;
+    u8 irq_src;
+    u32 gsi;
+    u16 flags;
 } MadtIso;
 
 void apic_init(void);
 void lapic_eoi(void);
 int lapic_id(void);
-void ioapic_redirect_irq(uint32_t lapic_id, uint8_t intno, uint8_t irq);
+void ioapic_redirect_irq(u32 lapic_id, u8 intno, u8 irq);
 void lapic_timer_start(void);
 void lapic_timer_stop(void);
