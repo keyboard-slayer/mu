@@ -1,13 +1,15 @@
 #pragma once
 
-#define unused      __attribute__((unused))
-#define packed      __attribute__((packed))
+#define unused __attribute__((unused))
+#define packed __attribute__((packed))
+
 #ifndef unreachable
-#define unreachable() __builtin_unreachable();
+#    define unreachable() __builtin_unreachable();
 #endif /* !unreachable */
-#define noreturn    __attribute__((noreturn))
-#define weak        __attribute__((weak))
-#define loop        for (;;)
+
+#define noreturn __attribute__((noreturn))
+#define weak     __attribute__((weak))
+#define loop     for (;;)
 
 #define kib(x) ((uintptr_t)(x)*1024)
 #define mib(x) (kib(x) * 1024)

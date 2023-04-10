@@ -31,10 +31,11 @@ void vec_expand_(char **data, usize *length, usize *capacity, int memsz, AllocAc
 #define vec_clear(v) \
     ((v)->length = 0)
 
-#define vec_free(v) ({             \
-    Alloc alloc = (v)->alloc();    \
-    alloc.free(&alloc, (v)->data); \
-    alloc.release(&alloc);         \
+#define vec_free(v) ({                                                 \
+    auto alloc = (v)->alloc();                                         \
+    alloc.free(&alloc, (v)->data, sizeof((v)->data[0]) * (v)->length); \
+    alloc.release(&alloc);                                             \
+    vec_clear(v);                                                      \
 })
 
 typedef Vec(char) VecChar;

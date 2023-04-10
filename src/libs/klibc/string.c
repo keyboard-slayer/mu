@@ -73,7 +73,7 @@ char *strdup(char const *s)
 char *strndup(char const *s, usize n)
 {
     Alloc heap = heap_acquire();
-    char *ret = heap.calloc(&heap, 1, n);
+    char *ret = unwrap_or(heap.calloc(&heap, 1, n), NULL);
     heap.release(&heap);
 
     if (ret == NULL)

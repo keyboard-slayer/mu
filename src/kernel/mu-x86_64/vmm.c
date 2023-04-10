@@ -55,21 +55,17 @@ static i64 transform_flags(MuMapFlags flags)
     return ret_flags;
 }
 
-static uintptr_t *vmm_get_pml_alloc(uintptr_t *pml, usize index, bool alloc)
+static MaybePtr vmm_get_pml_alloc(uintptr_t *pml, usize index, bool alloc)
 {
     if ((pml[index] & VMM_PRESENT) != 0)
     {
-        return (void *)(hal_mmap_lower_to_upper(VMM_GET_ADDR(pml[index])));
+        return Just(MaybePtr, (void *)(hal_mmap_lower_to_upper(VMM_GET_ADDR(pml[index]))));
     }
     else if (alloc)
     {
         Alloc pmm = pmm_acquire();
 
-        void *ptr = (void *)pmm.malloc(&pmm, PAGE_SIZE);
-        if (ptr == NULL)
-        {
-            return NULL;
-        }
+        uintptr_t *ptr = Try(MaybePtr, pmm.malloc(&pmm, PAGE_SIZE));
 
         uintptr_t ptr_hhdm = hal_mmap_lower_to_upper((uintptr_t)ptr);
 
@@ -77,10 +73,10 @@ static uintptr_t *vmm_get_pml_alloc(uintptr_t *pml, usize index, bool alloc)
         pml[index] = (uintptr_t)ptr | VMM_PRESENT | VMM_WRITE | VMM_USER;
         pmm_release(&pmm);
 
-        return (uintptr_t *)ptr_hhdm;
+        return Just(MaybePtr, (void *)ptr_hhdm);
     }
 
-    return NULL;
+    return None(MaybePtr);
 }
 
 static MuRes kmmap_page(uintptr_t *pml, u64 virt, u64 phys, i64 flags)
@@ -90,7 +86,7 @@ static MuRes kmmap_page(uintptr_t *pml, u64 virt, u64 phys, i64 flags)
     usize pml3_entry = PMLX_GET_INDEX(virt, 2);
     usize pml4_entry = PMLX_GET_INDEX(virt, 3);
 
-    uintptr_t *pml3 = vmm_get_pml_alloc(pml, pml4_entry, true);
+    uintptr_t *pml3 = unwrap_or(vmm_get_pml_alloc(pml, pml4_entry, true), NULL);
     if (pml3 == NULL)
     {
         return MU_RES_NO_MEM;
@@ -102,7 +98,7 @@ static MuRes kmmap_page(uintptr_t *pml, u64 virt, u64 phys, i64 flags)
         return MU_RES_OK;
     }
 
-    uintptr_t *pml2 = vmm_get_pml_alloc(pml3, pml3_entry, true);
+    uintptr_t *pml2 = unwrap_or(vmm_get_pml_alloc(pml3, pml3_entry, true), NULL);
     if (pml2 == NULL)
     {
         return MU_RES_NO_MEM;
@@ -114,7 +110,7 @@ static MuRes kmmap_page(uintptr_t *pml, u64 virt, u64 phys, i64 flags)
         return MU_RES_OK;
     }
 
-    uintptr_t *pml1 = vmm_get_pml_alloc(pml2, pml2_entry, true);
+    uintptr_t *pml1 = unwrap_or(vmm_get_pml_alloc(pml2, pml2_entry, true), NULL);
     if (pml1 == NULL)
     {
         return MU_RES_NO_MEM;
@@ -169,12 +165,14 @@ void vmm_init(void)
     HandoverPayload *handover = hal_get_handover();
     HandoverRecord record;
 
-    pml4 = pmm.malloc(&pmm, PAGE_SIZE);
+    auto alloc = pmm.malloc(&pmm, PAGE_SIZE);
 
-    if (pml4 == NULL)
+    if (!alloc.isJust)
     {
         panic("Couldn't allocate memory for pml4");
     }
+
+    pml4 = (uintptr_t *)alloc.value;
 
     debugInfo("PML4: 0x%p", pml4);
 
@@ -230,15 +228,15 @@ void hal_space_apply(HalSpace *space)
 MuRes hal_space_create(HalSpace **self)
 {
     Alloc pmm = pmm_acquire();
-    void *ptr = pmm.calloc(&pmm, 1, PAGE_SIZE);
+    auto ptr = pmm.calloc(&pmm, 1, PAGE_SIZE);
     pmm_release(&pmm);
 
-    if (ptr == NULL)
+    if (!ptr.isJust)
     {
         return MU_RES_NO_MEM;
     }
 
-    uintptr_t *space = (uintptr_t *)hal_mmap_lower_to_upper((uintptr_t)ptr);
+    uintptr_t *space = (uintptr_t *)hal_mmap_lower_to_upper((uintptr_t)ptr.value);
 
     for (usize i = 255; i < 512; i++)
     {

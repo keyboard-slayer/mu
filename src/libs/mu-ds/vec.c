@@ -10,10 +10,8 @@ void vec_expand_(char **data, usize *length, usize *capacity, int memsz, AllocAc
         usize n = (*capacity == 0) ? 1 : *capacity << 1;
 
         Alloc alloc = alloc_fn();
-        ptr = alloc.realloc(&alloc, *data, n * memsz);
+        ptr = unwrap(alloc.realloc(&alloc, *data, n * memsz));
         alloc.release(&alloc);
-
-        non_null$(ptr);
 
         *data = ptr;
         *capacity = n;

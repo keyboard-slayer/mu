@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mu-base/std.h>
 #include <mu-ds/vec.h>
 #include <mu-hal/hal.h>
 
@@ -13,12 +14,12 @@ typedef enum
 typedef struct
 {
     usize tid;
-    char const *path;
+    Str path;
     HalCtx context;
     TaskState state;
     HalSpace *space;
     uintptr_t stack;
-} Task;
+} Maybe$(Task);
 
-Task *task_init(char const *path, HalSpace *space);
-Task *task_kernel(void);
+MaybeTaskPtr task_init(Str path, HalSpace *space);
+MaybeTaskPtr task_kernel(void);

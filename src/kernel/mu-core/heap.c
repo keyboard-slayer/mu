@@ -11,7 +11,7 @@ static Spinlock lock = {0};
 static void *alloc_block(unused void *ctx, usize size)
 {
     Alloc pmm = pmm_acquire();
-    uintptr_t ptr = (uintptr_t)pmm.malloc(&pmm, size);
+    uintptr_t ptr = (uintptr_t)unwrap(pmm.malloc(&pmm, size));
     pmm_release(&pmm);
 
     return (void *)hal_mmap_lower_to_upper(ptr);
@@ -35,10 +35,16 @@ static struct Heap heap_impl = (struct Heap){
     .log = hook_log,
 };
 
-static void *_heap_alloc(unused Alloc *self, usize size)
+static MaybePtr _heap_alloc(unused Alloc *self, usize size)
 {
     void *res = heap_alloc(&heap_impl, size);
-    return res;
+
+    if (!res)
+    {
+        return None(MaybePtr);
+    }
+
+    return Just(MaybePtr, res);
 }
 
 static void _heap_free(unused Alloc *self, void *ptr, unused usize size)
@@ -46,16 +52,28 @@ static void _heap_free(unused Alloc *self, void *ptr, unused usize size)
     heap_free(&heap_impl, ptr);
 }
 
-static void *_heap_calloc(unused Alloc *self, usize nmemb, usize size)
+static MaybePtr _heap_calloc(unused Alloc *self, usize nmemb, usize size)
 {
     void *res = heap_calloc(&heap_impl, nmemb, size);
-    return res;
+
+    if (!res)
+    {
+        return None(MaybePtr);
+    }
+
+    return Just(MaybePtr, res);
 }
 
-static void *_heap_realloc(unused Alloc *self, void *ptr, usize size)
+static MaybePtr _heap_realloc(unused Alloc *self, void *ptr, usize size)
 {
     void *res = heap_realloc(&heap_impl, ptr, size);
-    return res;
+
+    if (!res)
+    {
+        return None(MaybePtr);
+    }
+
+    return Just(MaybePtr, res);
 }
 
 static void _heap_release(Alloc *alloc)
