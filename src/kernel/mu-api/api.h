@@ -1,6 +1,6 @@
 #pragma once
 
-#include <mu-base/std.h>
+#include <mu-base/types.h>
 
 #define mu_always_inline static __attribute__((always_inline, used))
 
@@ -82,7 +82,7 @@ typedef struct
 
 typedef struct
 {
-    uint64_t _raw;
+    u64 _raw;
 } MuCap;
 
 typedef enum
@@ -163,7 +163,7 @@ mu_always_inline MuRes __mu_syscall_impl(MuSyscall s, MuArg arg1, MuArg arg2, Mu
 
 /* --- Syscalls -------------------------------------------------------------- */
 
-mu_always_inline MuRes mu_log(char const *str, size_t len)
+mu_always_inline MuRes mu_log(char const *str, usize len)
 {
     return mu_syscall(MU_SYS_LOG, (MuArg)str, (MuArg)len);
 }
@@ -183,18 +183,18 @@ mu_always_inline MuRes mu_exit(MuArg res)
     return mu_syscall(MU_SYS_EXIT, res);
 }
 
-mu_always_inline MuRes mu_panic(char const *str, size_t len)
+mu_always_inline MuRes mu_panic(char const *str, usize len)
 {
     mu_log(str, len);
     return mu_exit(1);
 }
 
-mu_always_inline MuRes mu_map(MuCap space, MuCap vmo, uintptr_t virt, uintptr_t off, size_t len, MuMapFlags flags)
+mu_always_inline MuRes mu_map(MuCap space, MuCap vmo, uintptr_t virt, uintptr_t off, usize len, MuMapFlags flags)
 {
     return mu_syscall(MU_SYS_MAP, space._raw, vmo._raw, virt, off, len, (MuArg)flags);
 }
 
-mu_always_inline MuRes mu_unmap(MuCap space, uintptr_t virt, size_t len)
+mu_always_inline MuRes mu_unmap(MuCap space, uintptr_t virt, usize len)
 {
     return mu_syscall(MU_SYS_UNMAP, space._raw, virt, len);
 }
@@ -214,7 +214,7 @@ mu_always_inline MuRes mu_create_vspace(MuCap *cap)
     return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_VSPACE, (MuArg)cap);
 }
 
-mu_always_inline MuRes mu_create_vmo(MuCap *cap, uintptr_t phys, size_t size, MuMemFlags flags)
+mu_always_inline MuRes mu_create_vmo(MuCap *cap, uintptr_t phys, usize size, MuMemFlags flags)
 {
     return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_VMO, (MuArg)cap, phys, size, (MuArg)flags);
 }
@@ -224,12 +224,12 @@ mu_always_inline MuRes mu_create_event(MuCap *cap, MuEvent type, MuArg sel)
     return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_EVENT, (MuArg)cap, (MuArg)type, sel);
 }
 
-mu_always_inline MuRes mu_create_iospace(MuCap *cap, uintptr_t base, size_t len)
+mu_always_inline MuRes mu_create_iospace(MuCap *cap, uintptr_t base, usize len)
 {
     return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_IOSPACE, (MuArg)cap, base, len);
 }
 
-mu_always_inline MuRes mu_create_cnode(MuCap *cap, size_t len)
+mu_always_inline MuRes mu_create_cnode(MuCap *cap, usize len)
 {
     return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_CNODE, (MuArg)cap, len);
 }

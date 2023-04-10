@@ -24,7 +24,7 @@ void sched_init(void)
     sched_self()->tick = 0;
     sched_self()->task_index = 0;
 
-    Task *kernel_task = task_kernel();
+    Task *kernel_task = unwrap(task_kernel());
     vec_init(&sched_self()->tasks, heap_acquire);
     vec_push(&sched_self()->tasks, kernel_task);
     sched_self()->is_init = true;

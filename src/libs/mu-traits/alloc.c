@@ -2,13 +2,13 @@
 
 #include "alloc.h"
 
-void *generic_calloc(Alloc *self, usize nmemb, usize size)
+MaybePtr generic_calloc(Alloc *self, usize nmemb, usize size)
 {
-    void *ptr = self->malloc(self, nmemb * size);
+    auto ptr = self->malloc(self, nmemb * size);
 
-    if (ptr != NULL)
+    if (ptr.isJust)
     {
-        memset(ptr, 0, nmemb + size);
+        memset(ptr.value, 0, nmemb + size);
     }
 
     return ptr;

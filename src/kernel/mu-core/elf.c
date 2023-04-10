@@ -41,7 +41,7 @@ void elf_load_module(char const *name, MuArgs args)
             Alloc pmm = pmm_acquire();
 
             usize size = align_up(phdr->p_memsz, PAGE_SIZE);
-            uintptr_t paddr = (uintptr_t)non_null$(pmm.malloc(&pmm, size / PAGE_SIZE));
+            uintptr_t paddr = (uintptr_t)unwrap(pmm.malloc(&pmm, size / PAGE_SIZE));
             pmm.release(&pmm);
 
             debugInfo("Phdr will be copied over 0x%p", paddr);
@@ -56,7 +56,7 @@ void elf_load_module(char const *name, MuArgs args)
         }
     }
 
-    Task *task = task_init(name, space);
+    Task *task = unwrap(task_init(str$(name), space));
     if (hal_ctx_create(&task->context, hdr->e_entry, USER_STACK_BASE, args) != MU_RES_OK)
     {
         panic("Couldn't create context for ELF binary");

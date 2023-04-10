@@ -81,10 +81,17 @@ static void *pmm_alloc_page(usize pages)
     return ret;
 }
 
-void *pmm_alloc(unused Alloc *self, usize size)
+MaybePtr pmm_alloc(unused Alloc *self, usize size)
 {
     usize pages = align_up(size, PAGE_SIZE) / PAGE_SIZE;
-    return pmm_alloc_page(pages);
+    void *res = pmm_alloc_page(pages);
+
+    if (!res)
+    {
+        return None(MaybePtr);
+    }
+
+    return Just(MaybePtr, res);
 }
 
 void pmm_free(unused Alloc *self, void *ptr, usize size)
@@ -137,16 +144,12 @@ void pmm_init(void)
     debugInfo("PMM initialized");
 }
 
-void *pmm_calloc(Alloc *self, usize nmemb, usize size)
+MaybePtr pmm_calloc(Alloc *self, usize nmemb, usize size)
 {
-    void *ptr = self->malloc(self, nmemb * size);
+    void *ptr = Try(MaybePtr, self->malloc(self, nmemb * size));
+    memset((void *)hal_mmap_lower_to_upper((uintptr_t)ptr), 0, nmemb + size);
 
-    if (ptr != NULL)
-    {
-        memset((void *)hal_mmap_lower_to_upper((uintptr_t)ptr), 0, nmemb + size);
-    }
-
-    return ptr;
+    return Just(MaybePtr, ptr);
 }
 
 void pmm_release(Alloc *self)
