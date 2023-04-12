@@ -1,8 +1,8 @@
 #include "smp.h"
 #include <mu-base/std.h>
-#include <mu-core/heap.h>
 #include <mu-core/pmm.h>
 #include <mu-hal/hal.h>
+#include <mu-mem/heap.h>
 #include <mu-misc/lock.h>
 
 #include "apic.h"
@@ -40,7 +40,7 @@ static void smp_setup_core(void)
     syscall_init();
     sched_init();
 
-    debugInfo("Core %d is up and running!", hal_cpu_self()->id);
+    debug_info("Core {} is up and running!", hal_cpu_self()->id);
     spinlock_release(&lock);
 
     count++;
@@ -56,5 +56,5 @@ void smp_init(void)
     hal_cpu_goto(smp_setup_core);
     while (count != hal_cpu_len() - 1)
         ;
-    debugInfo("All cores are up and running!");
+    debug_info("All cores are up and running!");
 }

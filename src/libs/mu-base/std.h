@@ -4,6 +4,7 @@
 
 #include "debug.h"
 #include "either.h"
+#include "fmt.h"
 #include "macro.h"
 #include "maybe.h"
 #include "str.h"

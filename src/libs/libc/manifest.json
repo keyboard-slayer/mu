@@ -1,0 +1,17 @@
+{
+    "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
+    "id": "libc",
+    "description": "Libc for userspace",
+    "type": "lib",
+    "props": {
+        "cpp-root-include": true
+    },
+    "enableIf": {
+        "freestanding": [
+            false
+        ]
+    },
+    "provides": [
+        "libc"
+    ]
+}

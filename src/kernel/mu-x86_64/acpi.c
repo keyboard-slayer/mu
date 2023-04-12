@@ -12,12 +12,12 @@ void acpi_init(void)
 
     if (rsdp->revision >= 2 && rsdp->xsdt_addr != 0)
     {
-        debugInfo("ACPI: Using XSDT");
+        debug_info("ACPI: Using XSDT");
         sdt = Right(EitherRsdtXsdt, (Xsdt *)hal_mmap_lower_to_upper(rsdp->xsdt_addr));
     }
     else
     {
-        debugInfo("ACPI: Using RSDT");
+        debug_info("ACPI: Using RSDT");
         sdt = Left(EitherRsdtXsdt, (Rsdt *)hal_mmap_lower_to_upper(rsdp->rsdt_addr));
     }
 }
@@ -34,7 +34,7 @@ static int acpi_checksum(AcpiSdt *table)
     return sum == 0;
 }
 
-AcpiSdt *acpi_parse_sdt(char const *tablename)
+AcpiSdt *acpi_parse_sdt(cstr tablename)
 {
     usize entry_count = 0;
     AcpiSdt *tmp;

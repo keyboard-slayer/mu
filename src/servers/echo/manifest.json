@@ -4,5 +4,8 @@
     "type": "exe",
     "requires": [
         "crt0"
-    ]
+    ],
+    "props": {
+        "cpp-root-include": true
+    }
 }

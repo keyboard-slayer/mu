@@ -3,7 +3,10 @@
     "id": "bootstrap",
     "type": "exe",
     "requires": [
-        "crt0"
+        "crt0",
+        "tiny-json",
+        "libc",
+        "mu-base"
     ],
     "props": {
         "cpp-root-include": true

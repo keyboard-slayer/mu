@@ -1,0 +1,14 @@
+{
+    "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
+    "id": "mu-embed-kernel",
+    "type": "lib",
+    "description": "Embed for the kernel",
+    "enableIf": {
+        "freestanding": [
+            true
+        ]
+    },
+    "provides": [
+        "mu-embed"
+    ]
+}

@@ -17,3 +17,4 @@ typedef __int128_t i128;
 
 typedef size_t usize;
 typedef ptrdiff_t isize;
+typedef char const *cstr;

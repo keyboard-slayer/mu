@@ -1,6 +1,4 @@
-#include <handover/handover.h>
 #include <handover/utils.h>
-#include <mu-api/api.h>
 #include <mu-core/const.h>
 #include <mu-core/pmm.h>
 #include <mu-hal/hal.h>
@@ -57,19 +55,16 @@ static i64 transform_flags(MuMapFlags flags)
 
 static MaybePtr vmm_get_pml_alloc(uintptr_t *pml, usize index, bool alloc)
 {
-    if ((pml[index] & VMM_PRESENT) != 0)
+    if ((pml[index] & VMM_PRESENT))
     {
         return Just(MaybePtr, (void *)(hal_mmap_lower_to_upper(VMM_GET_ADDR(pml[index]))));
     }
     else if (alloc)
     {
         Alloc pmm = pmm_acquire();
-
-        uintptr_t *ptr = Try(MaybePtr, pmm.malloc(&pmm, PAGE_SIZE));
-
+        uintptr_t *ptr = Try(MaybePtr, pmm.calloc(&pmm, 1, PAGE_SIZE));
         uintptr_t ptr_hhdm = hal_mmap_lower_to_upper((uintptr_t)ptr);
 
-        memset((void *)ptr_hhdm, 0, PAGE_SIZE);
         pml[index] = (uintptr_t)ptr | VMM_PRESENT | VMM_WRITE | VMM_USER;
         pmm_release(&pmm);
 
@@ -81,6 +76,9 @@ static MaybePtr vmm_get_pml_alloc(uintptr_t *pml, usize index, bool alloc)
 
 static MuRes kmmap_page(uintptr_t *pml, u64 virt, u64 phys, i64 flags)
 {
+    assert(phys % PAGE_SIZE == 0, "phys is not page aligned");
+    assert(virt % PAGE_SIZE == 0, "virt is not page aligned");
+
     usize pml1_entry = PMLX_GET_INDEX(virt, 0);
     usize pml2_entry = PMLX_GET_INDEX(virt, 1);
     usize pml3_entry = PMLX_GET_INDEX(virt, 2);
@@ -139,6 +137,10 @@ static void kmmap_section(uintptr_t start, uintptr_t end, u8 flags)
 
 MuRes hal_space_map(HalSpace *self, uintptr_t virt, uintptr_t phys, usize len, MuMapFlags flags)
 {
+    assert(phys % PAGE_SIZE == 0, "phys is not page aligned");
+    assert(virt % PAGE_SIZE == 0, "virt is not page aligned");
+    assert(len % PAGE_SIZE == 0, "len is not page aligned");
+
     i64 flags_arch = transform_flags(flags);
     const usize map_psize = flags & MU_MEM_HUGE ? page_size : PAGE_SIZE;
 
@@ -165,7 +167,7 @@ void vmm_init(void)
     HandoverPayload *handover = hal_get_handover();
     HandoverRecord record;
 
-    auto alloc = pmm.malloc(&pmm, PAGE_SIZE);
+    auto alloc = pmm.calloc(&pmm, 1, PAGE_SIZE);
 
     if (!alloc.isJust)
     {
@@ -174,20 +176,19 @@ void vmm_init(void)
 
     pml4 = (uintptr_t *)alloc.value;
 
-    debugInfo("PML4: 0x%p", pml4);
+    debug_info("PML4: 0x{a}", (uintptr_t)pml4);
 
     pml4 = (uintptr_t *)hal_mmap_lower_to_upper((uintptr_t)pml4);
-    memset(pml4, 0, PAGE_SIZE);
     pmm.release(&pmm);
 
     if (cpuid_has_1gb_pages())
     {
-        debugInfo("1GB pages are supported");
+        debug_info("1GB pages are supported");
         page_size = gib(1);
     }
     else
     {
-        debugInfo("1GB pages are not supported, defaulting to 2MB pages");
+        debug_info("1GB pages are not supported, defaulting to 2MB pages");
         page_size = mib(2);
     }
 
@@ -195,12 +196,12 @@ void vmm_init(void)
     kmmap_section((uintptr_t)rodata_start_addr, (uintptr_t)rodata_end_addr, MU_MEM_READ);
     kmmap_section((uintptr_t)data_start_addr, (uintptr_t)data_end_addr, MU_MEM_READ | MU_MEM_WRITE);
 
-    debugInfo("Kernel sections mapped");
+    debug_info("Kernel sections mapped");
 
     usize end = max(gib(4), pmm_available_pages() * PAGE_SIZE);
     u64 flags = transform_flags(MU_MEM_WRITE | MU_MEM_READ | MU_MEM_HUGE);
 
-    for (usize i = 1; i < end; i += page_size)
+    for (usize i = page_size; i < end; i += page_size)
     {
         kmmap_page(pml4, hal_mmap_lower_to_upper(i), i, flags);
     }
@@ -213,11 +214,11 @@ void vmm_init(void)
         }
     }
 
-    debugInfo("Memory mapped");
+    debug_info("Memory mapped");
 
     hal_space_apply((HalSpace *)pml4);
 
-    debugInfo("Space applied");
+    debug_info("Space applied");
 }
 
 void hal_space_apply(HalSpace *space)
@@ -237,6 +238,7 @@ MuRes hal_space_create(HalSpace **self)
     }
 
     uintptr_t *space = (uintptr_t *)hal_mmap_lower_to_upper((uintptr_t)ptr.value);
+    memset((void *)space, 0, PAGE_SIZE);
 
     for (usize i = 255; i < 512; i++)
     {

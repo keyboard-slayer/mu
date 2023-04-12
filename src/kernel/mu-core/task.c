@@ -1,12 +1,12 @@
-#include "task.h"
 #include <mu-base/std.h>
 #include <mu-hal/hal.h>
+#include <mu-mem/heap.h>
 #include <string.h>
 
 #include "const.h"
-#include "heap.h"
 #include "pmm.h"
 #include "sched.h"
+#include "task.h"
 
 MaybeTaskPtr task_init(Str path, HalSpace *space)
 {
@@ -36,7 +36,7 @@ MaybeTaskPtr task_kernel(void)
 
     self->space = hal_space_kernel();
     self->state = TASK_READY;
-    self->path = str$("kernel");
+    self->path = str("kernel");
     self->tid = 0;
 
     return Just(MaybeTaskPtr, self);

@@ -108,7 +108,7 @@ void pmm_init(void)
     HandoverRecord record;
 
     bitmap.size = align_up((last_entry.start + last_entry.size) / (PAGE_SIZE * 8), PAGE_SIZE);
-    debugInfo("Bitmap size: 0x%x", bitmap.size);
+    debug_info("Bitmap size: 0x{x}", bitmap.size);
 
     handover_foreach_record(handover, record)
     {
@@ -126,7 +126,7 @@ void pmm_init(void)
         panic("No usable memory for bitmap");
     }
 
-    debugInfo("Bitmap at: 0x%p", hal_mmap_upper_to_lower((uintptr_t)bitmap.bitmap));
+    debug_info("Bitmap at: 0x{a}", hal_mmap_upper_to_lower((uintptr_t)bitmap.bitmap));
 
     memset(bitmap.bitmap, 0xff, bitmap.size);
 
@@ -140,14 +140,14 @@ void pmm_init(void)
         }
     }
 
-    debugInfo("Available pages: 0x%x", available_pages);
-    debugInfo("PMM initialized");
+    debug_info("Available pages: 0x{x}", available_pages);
+    debug_info("PMM initialized");
 }
 
 MaybePtr pmm_calloc(Alloc *self, usize nmemb, usize size)
 {
     void *ptr = Try(MaybePtr, self->malloc(self, nmemb * size));
-    memset((void *)hal_mmap_lower_to_upper((uintptr_t)ptr), 0, nmemb + size);
+    memset((void *)hal_mmap_lower_to_upper((uintptr_t)ptr), 0, nmemb * size);
 
     return Just(MaybePtr, ptr);
 }

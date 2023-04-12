@@ -3,6 +3,8 @@
 #include <mu-api/api.h>
 #include <mu-base/std.h>
 
+#include "task.h"
+
 #define EI_NIDENT (16)
 
 #define ELFMAG     "\177ELF"
@@ -86,4 +88,4 @@ typedef struct
     Elf_Half e_shstrndx;
 } Elf_Ehdr;
 
-void elf_load_module(char const *name, MuArgs args);
+MaybeTaskPtr elf_load_module(cstr name, MuArgs args);

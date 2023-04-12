@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "fmt.h"
 #include "macro.h"
 #include "types.h"
 
@@ -23,14 +24,17 @@ typedef enum
     DEBUG_EVENT_LENGTH
 } DebugEvent;
 
-void __debug_impl(char const *filename, usize lineno, DebugEvent event, char const *fmt, ...);
+void __debug_impl(cstr filename, usize lineno, DebugEvent event, cstr fmt, FmtArgs args);
 
-#define debug(EVENT, ...) __debug_impl(__FILENAME__, __LINE__, EVENT, __VA_ARGS__);
+#define debug(EVENT, FMT, ...) __debug_impl(__FILENAME__, __LINE__, EVENT, FMT, PRINT_ARGS(__VA_ARGS__));
 
-#define debugInfo(...) debug(DEBUG_INFO, __VA_ARGS__)
+#define debug_info(FMT, ...) debug(DEBUG_INFO, FMT, __VA_ARGS__)
 
-#define debugWarn(...) debug(DEBUG_WARN, __VA_ARGS__)
+#define debug_warn(FMT, ...) debug(DEBUG_WARN, FMT, __VA_ARGS__)
 
-#define panic(...) \
-    ({__debug_impl(__FILENAME__, __LINE__, DEBUG_PANIC, __VA_ARGS__); \
+#define assert(COND, FMT, ...) \
+    ({if (!(COND)) {__debug_impl(__FILENAME__, __LINE__, DEBUG_PANIC, FMT, PRINT_ARGS(__VA_ARGS__)); } })
+
+#define panic(FMT, ...) \
+    ({__debug_impl(__FILENAME__, __LINE__, DEBUG_PANIC, FMT, PRINT_ARGS(__VA_ARGS__)); \
     unreachable(); })

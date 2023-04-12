@@ -32,5 +32,5 @@ void idt_init(void)
     }
 
     idt_flush(idt_descriptor());
-    debugInfo("IDT initialized");
+    debug_info("IDT initialized");
 }
