@@ -1,7 +1,9 @@
 #include <mu-base/std.h>
 #include <mu-misc/lock.h>
+#include <mu-traits/writer.h>
 
 #include "asm.h"
+#include "mu-hal/hal.h"
 #include "serial.h"
 
 static bool init = false;
@@ -28,25 +30,32 @@ static void serial_init(void)
     init = true;
 }
 
-void hal_serial_acquire(void)
+static void serial_putc(unused Writer *self, char c)
 {
-    spinlock_acquire(&lock);
+    while ((asm_in8(SERIAL_PORT + COM_REGS_LINE_STATUS) & 0x20) == 0)
+        ;
+
+    serial_write(COM_REGS_DATA, c);
 }
 
-void hal_serial_release(void)
+void serial_release(Writer *self)
 {
     spinlock_release(&lock);
+    *self = (Writer){0};
 }
 
-void hal_serial_write(char const *str, usize len)
+Writer hal_acquire_serial(void)
 {
+    spinlock_acquire(&lock);
+
     if (!init)
     {
         serial_init();
     }
 
-    for (usize i = 0; i < len; i++)
-    {
-        serial_write(COM_REGS_DATA, str[i]);
-    }
+    return (Writer){
+        .putc = serial_putc,
+        .release = serial_release,
+        .puts = generic_puts,
+    };
 }

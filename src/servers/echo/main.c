@@ -3,6 +3,6 @@
 
 int mu_main(unused MuArgs args)
 {
-    mu_log("Hello world !", 14);
+    mu_log("Hello from µ !", 14);
     return 0;
 }

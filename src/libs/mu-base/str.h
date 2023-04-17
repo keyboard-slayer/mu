@@ -65,7 +65,7 @@ typedef struct
     u8 const *buf;
 } Maybe$(Str);
 
-#define nullstr str_const$("")
+#define nullstr str_const("")
 
 static inline bool str_empty(Str const str)
 {
@@ -114,8 +114,8 @@ typedef StrFix(128) StrFix128;
 
 static inline Str str_forward(Str str) { return str; }
 static inline Str str_make_from_inline_str(InlineStr *str) { return (Str){str->len, str->buf}; }
-static inline Str str_make_from_cstr(char const *cstr) { return (Str){cstr_len((u8 const *)cstr), (u8 *)cstr}; }
-static inline Str str_make_from_cstr8(char const *cstr) { return (Str){cstr_len((u8 const *)cstr), (u8 *)cstr}; }
+static inline Str str_make_from_cstr(cstr cstr) { return (Str){cstr_len((u8 const *)cstr), (u8 *)cstr}; }
+static inline Str str_make_from_cstr8(cstr cstr) { return (Str){cstr_len((u8 const *)cstr), (u8 *)cstr}; }
 static inline Str str_make_from_str_fix8(StrFix8 const *str_fix) { return (Str){str_fix->len, (u8 *)str_fix->buf}; }
 static inline Str str_make_from_str_fix16(StrFix16 const *str_fix) { return (Str){str_fix->len, (u8 *)str_fix->buf}; }
 static inline Str str_make_from_str_fix32(StrFix32 const *str_fix) { return (Str){str_fix->len, (u8 *)str_fix->buf}; }
@@ -125,12 +125,12 @@ static inline Str str_make_from_str_fix128(StrFix128 const *str_fix) { return (S
 // clang-format off
 
 // Create a new instance of a non owning string.
-#define str$(EXPR)                                          \
+#define str(EXPR)                                           \
     _Generic((EXPR),                                        \
         Str              : str_forward,                     \
         InlineStr *      : str_make_from_inline_str,        \
         _MatchConst(char *, str_make_from_cstr),            \
-        _MatchConst(u8 *, str_make_from_cstr8),        \
+        _MatchConst(u8 *, str_make_from_cstr8),             \
         _MatchConst(StrFix8 *, str_make_from_str_fix8),     \
         _MatchConst(StrFix16 *, str_make_from_str_fix16),   \
         _MatchConst(StrFix32 *, str_make_from_str_fix32),   \
@@ -138,25 +138,25 @@ static inline Str str_make_from_str_fix128(StrFix128 const *str_fix) { return (S
         _MatchConst(StrFix128 *, str_make_from_str_fix128)  \
     )(EXPR)
 
-#define str_const$(STR)  (Str const){sizeof(STR) - 1, ((uint8_t const*)(STR))}
+#define str_const(STR)  (Str const){sizeof(STR) - 1, ((uint8_t const*)(STR))}
 
 // clang-format on
 
-#define str_n$(n, str)         \
+#define str_n(n, str)          \
     (Str)                      \
     {                          \
         (n), (u8 const *)(str) \
     }
 
 // Create a new instance of a fix size string.
-#define str_fix$(T, STR) (                             \
+#define str_fix(T, STR) (                              \
     {                                                  \
         T dst_str = {};                                \
-        Str src_str = str$(STR);                       \
+        Str src_str = str(STR);                        \
         memcpy(dst_str.buf, src_str.buf, src_str.len); \
         dst_str.len = src_str.len;                     \
         dst_str;                                       \
     })
 
 #define str_sub(str, start, end) \
-    str_n$((end) - (start), (u8 const *)str.buf + (start))
+    str_n((end) - (start), (u8 const *)str.buf + (start))

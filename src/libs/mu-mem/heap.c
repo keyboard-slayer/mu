@@ -1,27 +1,21 @@
 #include <libheap/libheap.h>
 #include <mu-base/std.h>
+#include <mu-embed/alloc.h>
 #include <mu-hal/hal.h>
+#include <mu-mem/heap.h>
 #include <mu-misc/lock.h>
-
-#include "heap.h"
-#include "pmm.h"
 
 static Spinlock lock = {0};
 
 static void *alloc_block(unused void *ctx, usize size)
 {
-    Alloc pmm = pmm_acquire();
-    uintptr_t ptr = (uintptr_t)unwrap(pmm.malloc(&pmm, size));
-    pmm_release(&pmm);
-
-    return (void *)hal_mmap_lower_to_upper(ptr);
+    void *ptr = unwrap_or(embed_alloc(size), NULL);
+    return (void *)hal_mmap_lower_to_upper((uintptr_t)ptr);
 }
 
 static void free_block(unused void *ctx, void *ptr, usize size)
 {
-    Alloc pmm = pmm_acquire();
-    pmm.free(&pmm, ptr, size);
-    pmm_release(&pmm);
+    embed_free(ptr, size);
 }
 
 static void hook_log(unused void *ctx, unused enum HeapLogType type, unused const char *msg, unused va_list args)

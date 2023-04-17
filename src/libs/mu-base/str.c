@@ -51,7 +51,7 @@ MaybeStr str_dup(Str const str, Alloc *alloc)
 
     u8 *buf = (u8 *)Try(MaybeStr, alloc->malloc(alloc, str.len));
     memcpy(buf, str.buf, str.len);
-    return Just(MaybeStr, str_n$(str.len, buf));
+    return Just(MaybeStr, str_n(str.len, buf));
 }
 
 bool str_eq_ci(Str const lhs, Str const rhs)
@@ -82,7 +82,7 @@ int str_count(Str const haystack, Str const needle)
     int count = 0;
     for (usize i = 0; i < haystack.len - needle.len; i++)
     {
-        Str slice = str_n$(needle.len, haystack.buf + i);
+        Str slice = str_n(needle.len, haystack.buf + i);
 
         if (str_eq(slice, needle))
         {
@@ -119,7 +119,7 @@ int str_last(Str const lStr, Str const rStr)
 
     for (size_t i = 0; i < lStr.len - rStr.len; i++)
     {
-        Str substr = str_n$(rStr.len, lStr.buf + i);
+        Str substr = str_n(rStr.len, lStr.buf + i);
 
         if (str_eq(substr, rStr))
         {
@@ -154,7 +154,7 @@ int str_first(Str const lStr, Str const rStr)
 
     for (size_t i = 0; i <= lStr.len - rStr.len; i++)
     {
-        Str substr = str_n$(rStr.len, lStr.buf + i);
+        Str substr = str_n(rStr.len, lStr.buf + i);
 
         if (str_eq(substr, rStr))
         {

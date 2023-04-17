@@ -1,0 +1,17 @@
+{
+    "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
+    "id": "mu-embed-userspace",
+    "type": "lib",
+    "description": "Embed for the userspace",
+    "enableIf": {
+        "freestanding": [
+            false
+        ]
+    },
+    "provides": [
+        "mu-embed"
+    ],
+    "requires": [
+        "mu-traits"
+    ]
+}

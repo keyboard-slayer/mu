@@ -1,5 +1,6 @@
 import os
 
+from distutils.dir_util import copy_tree
 from osdk.context import loadAllComponents
 from osdk import utils, shell, builder
 from osdk.cmds import Cmd, append
@@ -24,7 +25,7 @@ def buildPkgs(binDir: str, debug: bool) -> list[str]:
     pkgs = [p.id for p in loadAllComponents() if "src/servers" in p.dirname()]
 
     for pkg in pkgs:
-        elf = builder.build(pkg, "mu-x86_64:debug")
+        elf = builder.build(pkg, "mu-x86_64:debug:o0")
         shell.cp(elf, f"{binDir}/{os.path.basename(elf)[:-4]}")
 
     return pkgs
@@ -40,6 +41,11 @@ def limineGenConfig(bootDir: str, pkgs: list[str]) -> None:
             cfg.write(f"MODULE_PATH=boot:///bin/{pkg}\n")
 
 
+def limineAddSubmodules(bootDir: str, modPath: str) -> None:
+    with open(f"{bootDir}/limine.cfg", "a") as cfg:
+        cfg.write(f"MODULE_PATH=boot://{modPath}\n")
+
+
 def bootCmd(args: Args) -> None:
     debug = "debug" in args.opts
     imageDir = shell.mkdir(".osdk/images/mu-x86_64")
@@ -47,17 +53,17 @@ def bootCmd(args: Args) -> None:
     binDir = shell.mkdir(f"{imageDir}/bin")
     bootDir = shell.mkdir(f"{imageDir}/boot")
 
-    ovmf = shell.wget(
-        "https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd"
-    )
+    ovmf = shell.wget("https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd")
 
     mu = builder.build("mu-core", "kernel-x86_64:debug")
 
     shell.cp(mu, f"{bootDir}/kernel.elf")
+    copy_tree("meta/sysroot", imageDir)
 
     pkgs = buildPkgs(binDir, debug)
     installLimine(bootDir, efiBootDir)
     limineGenConfig(bootDir, pkgs)
+    limineAddSubmodules(bootDir, "/etc/rc.json")
 
     qemuCmd: list[str] = [
         "qemu-system-x86_64",
@@ -66,7 +72,6 @@ def bootCmd(args: Args) -> None:
         "q35",
         "-no-reboot",
         "-no-shutdown",
-        # "-S", "-s",
         "-serial",
         "mon:stdio",
         # "stdio",
@@ -79,6 +84,9 @@ def bootCmd(args: Args) -> None:
         "-drive",
         f"file=fat:rw:{imageDir},media=disk,format=raw",
     ]
+
+    if debug:
+        qemuCmd += ["-s", "-S"]
 
     if kvmAvailable():
         qemuCmd += ["-enable-kvm"]

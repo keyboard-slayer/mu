@@ -2,6 +2,7 @@
 
 #include <handover/handover.h>
 #include <mu-api/api.h>
+#include <mu-traits/writer.h>
 
 typedef struct _HalRegs HalRegs;
 
@@ -85,8 +86,4 @@ void hal_parse_handover(void);
 
 /* --- Misc ----------------------------------------------------------------- */
 
-void hal_serial_acquire(void);
-
-void hal_serial_release(void);
-
-void hal_serial_write(char const *str, usize len);
+Writer hal_acquire_serial(void);

@@ -1,9 +1,9 @@
-#include "sched.h"
 #include <mu-base/std.h>
 #include <mu-hal/hal.h>
+#include <mu-mem/heap.h>
 #include <mu-misc/lock.h>
 
-#include "heap.h"
+#include "sched.h"
 
 #if defined(__x86_64__)
 #    include <mu-x86_64/cpu.h>
@@ -24,9 +24,14 @@ void sched_init(void)
     sched_self()->tick = 0;
     sched_self()->task_index = 0;
 
-    Task *kernel_task = unwrap(task_kernel());
     vec_init(&sched_self()->tasks, heap_acquire);
-    vec_push(&sched_self()->tasks, kernel_task);
+
+    if (hal_cpu_self()->id == 0)
+    {
+        Task *kernel_task = unwrap(task_kernel());
+        vec_push(&sched_self()->tasks, kernel_task);
+    }
+
     sched_self()->is_init = true;
 }
 

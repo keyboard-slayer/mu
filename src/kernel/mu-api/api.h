@@ -1,6 +1,6 @@
 #pragma once
 
-#include <mu-base/types.h>
+#include <mu-base/str.h>
 
 #define mu_always_inline static __attribute__((always_inline, used))
 
@@ -27,6 +27,7 @@ typedef enum
     MU_SYS_START,
     MU_SYS_WAIT,
     MU_SYS_EXIT,
+    MU_SYS_SELF,
 
     MU_SYS_MAP,
     MU_SYS_UNMAP,
@@ -84,6 +85,13 @@ typedef struct
 {
     u64 _raw;
 } MuCap;
+
+typedef struct
+{
+    usize tid;
+    Str path;
+    MuCap space;
+} MuTask;
 
 typedef enum
 {
@@ -163,7 +171,7 @@ mu_always_inline MuRes __mu_syscall_impl(MuSyscall s, MuArg arg1, MuArg arg2, Mu
 
 /* --- Syscalls -------------------------------------------------------------- */
 
-mu_always_inline MuRes mu_log(char const *str, usize len)
+mu_always_inline MuRes mu_log(cstr str, usize len)
 {
     return mu_syscall(MU_SYS_LOG, (MuArg)str, (MuArg)len);
 }
@@ -183,15 +191,15 @@ mu_always_inline MuRes mu_exit(MuArg res)
     return mu_syscall(MU_SYS_EXIT, res);
 }
 
-mu_always_inline MuRes mu_panic(char const *str, usize len)
+mu_always_inline MuRes mu_panic(cstr str, usize len)
 {
     mu_log(str, len);
     return mu_exit(1);
 }
 
-mu_always_inline MuRes mu_map(MuCap space, MuCap vmo, uintptr_t virt, uintptr_t off, usize len, MuMapFlags flags)
+mu_always_inline MuRes mu_map(MuCap space, MuCap vmo, uintptr_t virt, uintptr_t phys, usize len, MuMapFlags flags)
 {
-    return mu_syscall(MU_SYS_MAP, space._raw, vmo._raw, virt, off, len, (MuArg)flags);
+    return mu_syscall(MU_SYS_MAP, space._raw, vmo._raw, virt, phys, len, (MuArg)flags);
 }
 
 mu_always_inline MuRes mu_unmap(MuCap space, uintptr_t virt, usize len)
@@ -282,4 +290,9 @@ mu_always_inline MuRes mu_in(MuCap iospace, uintptr_t port, uintptr_t *val, MuIo
 mu_always_inline MuRes mu_out(MuCap iospace, uintptr_t port, uintptr_t val, MuIoFlags flags)
 {
     return mu_syscall(MU_SYS_OUT, iospace._raw, port, val, (MuArg)flags);
+}
+
+mu_always_inline MuRes mu_self(MuCap *cap)
+{
+    return mu_syscall(MU_SYS_SELF, (MuArg)cap);
 }

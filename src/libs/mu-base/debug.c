@@ -1,65 +1,42 @@
-#include <mu-hal/hal.h>
+#include <mu-api/api.h>
+#include <mu-embed/log.h>
+#include <mu-embed/misc.h>
 #include <stdarg.h>
-
-#define STB_SPRINTF_NOFLOAT
-#define STB_SPRINTF_IMPLEMENTATION
-#define STB_SPRINTF_NOUNALIGNED
-#include "__stb_sprintf.h"
+#include <stdlib.h>
 
 #include "debug.h"
+#include "fmt.h"
 
-static char const *event_header[DEBUG_EVENT_LENGTH] = {
+static cstr event_header[DEBUG_EVENT_LENGTH] = {
     NULL,
     "[ INFO  ]",
     "[ WARN  ]",
     "[ PANIC ]",
 };
 
-static char const *event_colors[DEBUG_EVENT_LENGTH] = {
+static cstr event_colors[DEBUG_EVENT_LENGTH] = {
     NULL,
     "\033[34m",
     "\033[33m",
     "\033[31m",
 };
 
-void __debug_impl(const char *filename, usize lineno, DebugEvent event, const char *fmt, ...)
+void __debug_impl(const char *filename, usize lineno, DebugEvent event, const char *fmt, FmtArgs args)
 {
-    va_list ap;
-
-    hal_serial_acquire();
-    static char buffer[1024] = {0};
+    Writer writer = embed_acquire_writer();
 
     if (event != DEBUG_NONE)
     {
-        hal_serial_write(event_colors[event], strlen(event_colors[event]));
-        hal_serial_write(event_header[event], strlen(event_header[event]));
-        hal_serial_write(" ", 1);
-        memcpy(buffer, filename, strlen(filename));
-        char *ptr = strrchr(buffer, '.');
-
-        if (ptr)
-        {
-            *ptr = '\0';
-        }
-
-        hal_serial_write(buffer, strlen(buffer));
-
-        stbsp_snprintf(buffer, 1024, ":%ld ", lineno);
-
-        hal_serial_write(buffer, strlen(buffer));
-        hal_serial_write("\033[0m", 4);
+        fmt(&writer, "{}{} {}:{} \033[0m", event_colors[event], event_header[event], filename, lineno);
     }
 
-    va_start(ap, fmt);
-    stbsp_vsnprintf(buffer, 1024, fmt, ap);
-    hal_serial_write(buffer, strlen(buffer));
-    va_end(ap);
-    hal_serial_write("\n", 1);
-
-    hal_serial_release();
+    fmt_impl(&writer, fmt, args);
+    writer.putc(&writer, '\n');
 
     if (event == DEBUG_PANIC)
     {
-        hal_cpu_stop();
+        embed_abort();
     }
+
+    writer.release(&writer);
 }

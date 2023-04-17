@@ -32,7 +32,7 @@
 #define unwrap(EXP)                                  \
     ({                                               \
         if (!EXP.isJust)                             \
-            abort("Couldn't unwrap value of " #EXP); \
+            panic("Couldn't unwrap value of " #EXP); \
         EXP.value;                                   \
     })
 

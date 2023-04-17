@@ -198,9 +198,9 @@ void apic_init(void)
 {
     madt = (Madt *)acpi_parse_sdt("APIC");
     lapic_enable();
-    debugInfo("LAPIC enabled");
+    debug_info("LAPIC enabled");
     ioapic_redirect_legacy();
-    debugInfo("IOAPIC enabled and interrupts redirected");
+    debug_info("IOAPIC enabled and interrupts redirected");
 
     hal_cpu_sti();
 }

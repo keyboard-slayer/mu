@@ -1,7 +1,7 @@
 #include <mu-base/std.h>
 #include <mu-core/const.h>
-#include <mu-core/heap.h>
 #include <mu-hal/hal.h>
+#include <mu-mem/heap.h>
 #include <mu-misc/lock.h>
 
 #include "cpu.h"
@@ -75,10 +75,10 @@ void gdt_init(void)
     gdt_load_tss(NULL);
 
     gdt_flush(gdt_descriptor());
-    debugInfo("GDT initialized");
+    debug_info("GDT initialized");
 
     tss_flush();
-    debugInfo("TSS flushed");
+    debug_info("TSS flushed");
 }
 void gdt_init_tss(void)
 {
@@ -88,7 +88,7 @@ void gdt_init_tss(void)
     hal_cpu_self()->tss.rsp[0] = (uintptr_t)(unwrap(heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
     heap.release(&heap);
 
-    debugInfo("TSS initialized (rsp0: %p, ist1: %p, ist2: %p)", hal_cpu_self()->tss.rsp[0], hal_cpu_self()->tss.ist[1], hal_cpu_self()->tss.ist[2]);
+    debug_info("TSS initialized (rsp0: {a}, ist1: {a}, ist2: {a})", hal_cpu_self()->tss.rsp[0], hal_cpu_self()->tss.ist[1], hal_cpu_self()->tss.ist[2]);
 
     gdt_load_tss(&hal_cpu_self()->tss);
     tss_flush();

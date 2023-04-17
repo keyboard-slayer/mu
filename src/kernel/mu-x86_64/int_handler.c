@@ -58,7 +58,7 @@ static usize dump_backtrace(uintptr_t rbp)
 
     while (stackframe)
     {
-        debug(DEBUG_NONE, "* %p", stackframe->rip);
+        debug(DEBUG_NONE, "* {a}", stackframe->rip);
         stackframe = stackframe->rbp;
     }
 
@@ -78,14 +78,14 @@ static void log_exception(HalRegs const *regs)
     asm_read_cr(4, cr4);
 
     debug(DEBUG_NONE, "\n\n------------------------------------------------------------------------------------\n");
-    debug(DEBUG_NONE, "%s on core %d (0x%x) Err: 0x%x", exception_messages[regs->intno], lapic_id(), regs->intno, regs->err);
-    debug(DEBUG_NONE, "RAX %p RBX %p RCX %p RDX %p", regs->rax, regs->rbx, regs->rcx, regs->rdx);
-    debug(DEBUG_NONE, "RSI %p RDI %p RBP %p RSP %p", regs->rsi, regs->rdi, regs->rbp, regs->rsp);
-    debug(DEBUG_NONE, "R8  %p R9  %p R10 %p R11 %p", regs->r8, regs->r9, regs->r10, regs->r11);
-    debug(DEBUG_NONE, "R12 %p R13 %p R14 %p R15 %p", regs->r12, regs->r13, regs->r14, regs->r15);
-    debug(DEBUG_NONE, "CR0 %p CR2 %p CR3 %p CR4 %p", cr0, cr2, cr3, cr4);
-    debug(DEBUG_NONE, "CS  %p SS  %p FLG %p", regs->cs, regs->ss, regs->rflags);
-    debug(DEBUG_NONE, "RIP \033[7m%p\033[0m\n", regs->rip);
+    debug(DEBUG_NONE, "{} on core {} (0x{x}) Err: 0x{x}", exception_messages[regs->intno], lapic_id(), regs->intno, regs->err);
+    debug(DEBUG_NONE, "RAX {a} RBX {a} RCX {a} RDX {a}", regs->rax, regs->rbx, regs->rcx, regs->rdx);
+    debug(DEBUG_NONE, "RSI {a} RDI {a} RBP {a} RSP {a}", regs->rsi, regs->rdi, regs->rbp, regs->rsp);
+    debug(DEBUG_NONE, "R8  {a} R9  {a} R10 {a} R11 {a}", regs->r8, regs->r9, regs->r10, regs->r11);
+    debug(DEBUG_NONE, "R12 {a} R13 {a} R14 {a} R15 {a}", regs->r12, regs->r13, regs->r14, regs->r15);
+    debug(DEBUG_NONE, "CR0 {a} CR2 {a} CR3 {a} CR4 {a}", cr0, cr2, cr3, cr4);
+    debug(DEBUG_NONE, "CS  {a} SS  {a} FLG {a}", regs->cs, regs->ss, regs->rflags);
+    debug(DEBUG_NONE, "RIP \033[7m{a}\033[0m\n", regs->rip);
     dump_backtrace(regs->rbp);
     debug(DEBUG_NONE, "\n------------------------------------------------------------------------------------");
 }

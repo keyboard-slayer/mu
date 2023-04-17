@@ -134,9 +134,9 @@ void handover_parse_mmap(HandoverBuilder *builder)
         panic("failed to get memory map");
     }
 
-    debugInfo("---------------------------------");
-    debugInfo("Memory type |  Start   |  Size");
-    debugInfo("---------------------------------");
+    debug_info("---------------------------------");
+    debug_info("Memory type |  Start   |  Size");
+    debug_info("---------------------------------");
 
     for (usize i = 0; i < memmap_request.response->entry_count; i++)
     {
@@ -147,34 +147,34 @@ void handover_parse_mmap(HandoverBuilder *builder)
         {
         case LIMINE_MEMMAP_USABLE:
             tag_type = HANDOVER_FREE;
-            debugInfo("Free        | %8lx | %8lx", entry->base, entry->length);
+            debug_info("Free        | {a} | {a}", entry->base, entry->length);
             break;
 
         case LIMINE_MEMMAP_ACPI_NVS:
         case LIMINE_MEMMAP_RESERVED:
         case LIMINE_MEMMAP_BAD_MEMORY:
-            debugInfo("Reserved    | %8lx | %8lx", entry->base, entry->length);
+            debug_info("Reserved    | {a} | {a}", entry->base, entry->length);
             tag_type = HANDOVER_RESERVED;
             break;
 
         case LIMINE_MEMMAP_ACPI_RECLAIMABLE:
         case LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE:
-            debugInfo("Reclaimable | %8lx | %8lx", entry->base, entry->length);
+            debug_info("Reclaimable | {a} | {a}", entry->base, entry->length);
             tag_type = HANDOVER_LOADER;
             break;
 
         case LIMINE_MEMMAP_KERNEL_AND_MODULES:
-            debugInfo("Kernel      | %8lx | %8lx", entry->base, entry->length);
+            debug_info("Kernel      | {a} | {a}", entry->base, entry->length);
             tag_type = HANDOVER_KERNEL;
             break;
 
         case LIMINE_MEMMAP_FRAMEBUFFER:
-            debugInfo("Framebuffer | %8lx | %8lx", entry->base, entry->length);
+            debug_info("Framebuffer | {a} | {a}", entry->base, entry->length);
             tag_type = HANDOVER_FB;
             break;
 
         default:
-            panic("Unknown memory type %d", entry->type);
+            panic("Unknown memory type {}", entry->type);
             break;
         }
 

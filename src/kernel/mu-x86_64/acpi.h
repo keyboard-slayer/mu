@@ -41,7 +41,7 @@ typedef struct packed
 } Xsdt;
 
 void acpi_init(void);
-AcpiSdt *acpi_parse_sdt(char const *tablename);
+AcpiSdt *acpi_parse_sdt(cstr tablename);
 
 void *abstract_get_rsdp(void);
 
