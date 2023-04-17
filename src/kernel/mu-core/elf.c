@@ -36,16 +36,15 @@ MaybeTaskPtr elf_load_module(cstr name, MuArgs args)
 
         if (phdr->p_type == PT_LOAD)
         {
-            debug_info("Mapping program header start: {x} end: {x}", phdr->p_vaddr, phdr->p_vaddr + phdr->p_memsz);
+            debug_info("Mapping program header start: {x} len: {x}", phdr->p_vaddr, phdr->p_memsz);
             Alloc pmm = pmm_acquire();
 
-            usize size = align_up(phdr->p_memsz, PAGE_SIZE);
-            uintptr_t paddr = (uintptr_t)Try(MaybeTaskPtr, pmm.malloc(&pmm, size / PAGE_SIZE));
+            uintptr_t paddr = (uintptr_t)Try(MaybeTaskPtr, pmm.malloc(&pmm, phdr->p_memsz));
             pmm.release(&pmm);
 
             debug_info("Phdr will be copied over 0x{a}", paddr);
 
-            if (hal_space_map(space, phdr->p_vaddr, paddr, size, MU_MEM_READ | MU_MEM_USER | MU_MEM_EXEC) != MU_RES_OK)
+            if (hal_space_map(space, phdr->p_vaddr, paddr, align_up(phdr->p_memsz, PAGE_SIZE), MU_MEM_READ | MU_MEM_USER | MU_MEM_EXEC) != MU_RES_OK)
             {
                 panic("Couldn't map ELF binary");
             }
