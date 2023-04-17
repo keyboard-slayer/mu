@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 #define Maybe(T)     \
     struct           \
     {                \

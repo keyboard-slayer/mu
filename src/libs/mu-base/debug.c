@@ -2,7 +2,6 @@
 #include <mu-embed/log.h>
 #include <mu-embed/misc.h>
 #include <stdarg.h>
-#include <stdlib.h>
 
 #include "debug.h"
 #include "fmt.h"
