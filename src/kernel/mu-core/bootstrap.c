@@ -1,6 +1,7 @@
 #include <handover/utils.h>
 #include <mu-api/bootstrap.h>
 #include <mu-base/std.h>
+#include <mu-core/const.h>
 #include <mu-ds/vec.h>
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
@@ -31,7 +32,7 @@ unused static void passModules(Task *task)
                 continue;
             }
 
-            hal_space_map(task->space, addr, addr, rec.size, MU_MEM_USER | MU_MEM_READ);
+            hal_space_map(task->space, addr, addr, align_up(rec.size, PAGE_SIZE), MU_MEM_USER | MU_MEM_READ);
 
             memcpy(&mod.name, filename, strlen(filename));
             vec_push(&mods, mod);
@@ -39,7 +40,7 @@ unused static void passModules(Task *task)
     }
 
     uintptr_t addr = hal_mmap_upper_to_lower((uintptr_t)mods.data);
-    hal_space_map(task->space, addr, addr, mods.capacity * sizeof(Module), MU_MEM_USER | MU_MEM_READ);
+    hal_space_map(task->space, align_down(addr, PAGE_SIZE), align_down(addr, PAGE_SIZE), align_up(mods.capacity * sizeof(Module), PAGE_SIZE), MU_MEM_USER | MU_MEM_READ);
 
     task->context.regs.rdi = addr;
     task->context.regs.rsi = mods.length;

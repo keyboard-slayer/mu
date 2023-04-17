@@ -2,5 +2,5 @@
 
 void embed_abort(void)
 {
-    hal_cpu_stop();
+    hal_cpu_debug();
 }

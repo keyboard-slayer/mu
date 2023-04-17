@@ -32,10 +32,10 @@ void __debug_impl(const char *filename, usize lineno, DebugEvent event, const ch
     fmt_impl(&writer, fmt, args);
     writer.putc(&writer, '\n');
 
+    writer.release(&writer);
+
     if (event == DEBUG_PANIC)
     {
         embed_abort();
     }
-
-    writer.release(&writer);
 }

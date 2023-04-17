@@ -15,8 +15,6 @@ int mu_main(MuArgs args)
     Module *mods = (Module *)args.arg1;
     usize len = args.arg2;
 
-    debug_info("I love devse");
-
     if (!len)
     {
         panic("No modules found");

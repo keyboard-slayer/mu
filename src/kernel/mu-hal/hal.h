@@ -14,23 +14,25 @@ void hal_init(void);
 
 typedef struct _HalCpu HalCpu;
 
-HalCpu *hal_cpu_self(void);
-
 HalCpu *hal_cpu_begin(void);
 
 HalCpu *hal_cpu_end(void);
 
 HalCpu *hal_cpu_get(usize id);
 
+HalCpu *hal_cpu_self(void);
+
 usize hal_cpu_len(void);
 
 void hal_cpu_cli(void);
 
-void hal_cpu_sti(void);
+void hal_cpu_debug(void);
+
+void hal_cpu_halt(void);
 
 void hal_cpu_relax(void);
 
-void hal_cpu_halt(void);
+void hal_cpu_sti(void);
 
 void hal_cpu_stop(void);
 

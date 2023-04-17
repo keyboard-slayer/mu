@@ -44,6 +44,11 @@ void hal_cpu_relax(void)
     __asm__("pause");
 }
 
+void hal_cpu_debug(void)
+{
+    __asm__("int $1");
+}
+
 void hal_cpu_stop(void)
 {
     while (true)

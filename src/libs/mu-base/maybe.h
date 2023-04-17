@@ -22,25 +22,28 @@
         .isJust = false \
     }
 
-#define Try(T, EXP)         \
-    ({                      \
-        if (!EXP.isJust)    \
-            return None(T); \
-        EXP.value;          \
+#define Try(T, EXPR)                  \
+    ({                                \
+        typeof(EXPR) __expr = (EXPR); \
+        if (!__expr.isJust)           \
+            return None(T);           \
+        __expr.value;                 \
     })
 
-#define unwrap(EXP)                                  \
-    ({                                               \
-        if (!EXP.isJust)                             \
-            panic("Couldn't unwrap value of " #EXP); \
-        EXP.value;                                   \
+#define unwrap(EXPR)                                  \
+    ({                                                \
+        typeof(EXPR) __expr = (EXPR);                 \
+        if (!__expr.isJust)                           \
+            panic("Couldn't unwrap value of " #EXPR); \
+        __expr.value;                                 \
     })
 
-#define unwrap_or(EXP, DEFAULT) \
-    ({                          \
-        if (!EXP.isJust)        \
-            DEFAULT;            \
-        EXP.value;              \
+#define unwrap_or(EXPR, DEFAULT)      \
+    ({                                \
+        typeof(EXPR) __expr = (EXPR); \
+        if (!__expr.isJust)           \
+            DEFAULT;                  \
+        __expr.value;                 \
     })
 
 #define Maybe$(N)                        \
