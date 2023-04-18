@@ -6,11 +6,28 @@
 typedef struct
 {
     u64 size;
-    u64 last_used;
+    u64 last_used_low;
+    u64 last_used_high;
     u8 *bitmap;
 } PmmBitmap;
 
+typedef struct
+{
+    uintptr_t ptr;
+    usize len;
+} Maybe$(PmmObj);
+
+typedef struct _Pmm
+{
+    MaybePmmObj (*malloc)(usize size);
+    MaybePmmObj (*calloc)(usize nmemb, usize size);
+    void (*free)(PmmObj obj);
+    void (*release)(struct _Pmm *self);
+} Pmm;
+
 void pmm_init(void);
-Alloc pmm_acquire(void);
-void pmm_release(Alloc *self);
+Pmm pmm_acquire(void);
+void pmm_release(Pmm *self);
+void pmm_free(PmmObj *obj);
 u64 pmm_available_pages(void);
+MaybePtr pmm_alloc_page(usize pages, bool high);

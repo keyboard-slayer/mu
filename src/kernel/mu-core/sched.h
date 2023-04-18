@@ -1,7 +1,6 @@
 #pragma once
 
 #include <mu-core/task.h>
-#include <stdbool.h>
 
 typedef Vec(Task *) VecTask;
 

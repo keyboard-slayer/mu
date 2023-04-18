@@ -16,7 +16,7 @@ MaybePtr embed_alloc(usize size)
     }
 
     mu_map(task.space, ptr, ptr._raw, 0, size, MU_MEM_USER | MU_MEM_READ | MU_MEM_WRITE);
-    return Just(MaybePtr, (void *)ptr._raw);
+    return Some(MaybePtr, (void *)ptr._raw);
 }
 
 void embed_free(void *ptr, usize size)

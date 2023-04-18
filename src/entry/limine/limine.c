@@ -50,25 +50,25 @@ volatile struct limine_module_request module_request = {
 
 void *abstract_get_rsdp(void)
 {
-    return non_null$(rsp_request.response->address);
+    assert(hhdm_request.response != nullptr, "Couldn't retrieve HHDM offset");
+    return rsp_request.response->address;
 }
 
 uintptr_t hal_mmap_upper_to_lower(uintptr_t virt)
 {
-    return virt - non_null$(hhdm_request.response->offset);
+    assert(hhdm_request.response != nullptr, "Couldn't retrieve HHDM offset");
+    return virt - hhdm_request.response->offset;
 }
 
 uintptr_t hal_mmap_lower_to_upper(uintptr_t phys)
 {
-    return phys + non_null$(hhdm_request.response->offset);
+    assert(hhdm_request.response != nullptr, "Couldn't retrieve HHDM offset");
+    return phys + hhdm_request.response->offset;
 }
 
 HalAddr hal_mmap_kaddr()
 {
-    if (kaddr_req.response == NULL)
-    {
-        panic("Couldn't get Kernel addresses");
-    }
+    assert(kaddr_req.response != nullptr, "Couldn't retrieve kernel address");
 
     return (HalAddr){
         .phys = kaddr_req.response->physical_base,
@@ -78,10 +78,7 @@ HalAddr hal_mmap_kaddr()
 
 void hal_cpu_goto(void (*fn)(void))
 {
-    if (smp_request.response == NULL)
-    {
-        panic("Couldn't get other Cpus");
-    }
+    assert(smp_request.response != nullptr, "Couldn't retrieve other Cpus");
 
     for (usize i = 1; i < smp_request.response->cpu_count; i++)
     {
@@ -91,20 +88,14 @@ void hal_cpu_goto(void (*fn)(void))
 
 usize hal_cpu_len(void)
 {
-    if (smp_request.response == NULL)
-    {
-        panic("Couldn't get other Cpus");
-    }
+    assert(smp_request.response != nullptr, "Couldn't retrieve other Cpus");
 
     return smp_request.response->cpu_count;
 }
 
 void handover_parse_module(HandoverBuilder *builder)
 {
-    if (module_request.response == NULL)
-    {
-        panic("Couldn't get modules");
-    }
+    assert(module_request.response != nullptr, "Couldn't retrieve modules");
 
     HandoverRecord record;
 
@@ -129,10 +120,7 @@ void handover_parse_module(HandoverBuilder *builder)
 
 void handover_parse_mmap(HandoverBuilder *builder)
 {
-    if (memmap_request.response == NULL)
-    {
-        panic("failed to get memory map");
-    }
+    assert(memmap_request.response != nullptr, "Couldn't retrieve memory map");
 
     debug_info("---------------------------------");
     debug_info("Memory type |  Start   |  Size");

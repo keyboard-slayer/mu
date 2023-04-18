@@ -15,6 +15,8 @@
 #define mib(x) (kib(x) * 1024)
 #define gib(x) (mib(x) * 1024)
 
+#define cleanup(fn) [[gnu::cleanup(fn)]]
+
 #define align_up(x, align)   (((x) + (align)-1) & ~((align)-1))
 #define align_down(x, align) ((x) & ~((align)-1))
 

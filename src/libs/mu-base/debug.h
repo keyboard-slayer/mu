@@ -6,14 +6,6 @@
 #include "macro.h"
 #include "types.h"
 
-#define non_null$(x) ({                             \
-    if ((uintptr_t)x == 0)                          \
-    {                                               \
-        panic("Assertion failed (" #x " is null)"); \
-    }                                               \
-    x;                                              \
-})
-
 typedef enum
 {
     DEBUG_NONE,

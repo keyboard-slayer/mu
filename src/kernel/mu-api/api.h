@@ -59,6 +59,7 @@ typedef enum
     MU_RES_BAD_CAP,
     MU_RES_BAD_SYSCALL,
     MU_RES_NO_MEM,
+    MU_RES_NON_IMPLEM,
 
     __MU_RES_LEN,
 } MuRes;
@@ -89,7 +90,6 @@ typedef struct
 typedef struct
 {
     usize tid;
-    Str path;
     MuCap space;
 } MuTask;
 

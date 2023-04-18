@@ -57,18 +57,18 @@ static MaybePtr vmm_get_pml_alloc(uintptr_t *pml, usize index, bool alloc)
 {
     if ((pml[index] & VMM_PRESENT))
     {
-        return Just(MaybePtr, (void *)(hal_mmap_lower_to_upper(VMM_GET_ADDR(pml[index]))));
+        return Some(MaybePtr, (void *)(hal_mmap_lower_to_upper(VMM_GET_ADDR(pml[index]))));
     }
     else if (alloc)
     {
-        Alloc pmm = pmm_acquire();
-        uintptr_t *ptr = Try(MaybePtr, pmm.calloc(&pmm, 1, PAGE_SIZE));
+        cleanup(pmm_release) Pmm pmm = pmm_acquire();
+        uintptr_t *ptr = (uintptr_t *)Try(MaybePtr, pmm.calloc(1, PAGE_SIZE)).ptr;
         uintptr_t ptr_hhdm = hal_mmap_lower_to_upper((uintptr_t)ptr);
 
         pml[index] = (uintptr_t)ptr | VMM_PRESENT | VMM_WRITE | VMM_USER;
         pmm_release(&pmm);
 
-        return Just(MaybePtr, (void *)ptr_hhdm);
+        return Some(MaybePtr, (void *)ptr_hhdm);
     }
 
     return None(MaybePtr);
@@ -163,18 +163,18 @@ MuRes hal_space_map(HalSpace *self, uintptr_t virt, uintptr_t phys, usize len, M
 
 void vmm_init(void)
 {
-    Alloc pmm = pmm_acquire();
+    Pmm pmm = pmm_acquire();
     HandoverPayload *handover = hal_get_handover();
     HandoverRecord record;
 
-    auto alloc = pmm.calloc(&pmm, 1, PAGE_SIZE);
+    auto alloc = pmm.calloc(1, PAGE_SIZE);
 
-    if (!alloc.isJust)
+    if (!alloc.isSome)
     {
         panic("Couldn't allocate memory for pml4");
     }
 
-    pml4 = (uintptr_t *)alloc.value;
+    pml4 = (uintptr_t *)alloc.value.ptr;
 
     debug_info("PML4: 0x{a}", (uintptr_t)pml4);
 
@@ -228,16 +228,16 @@ void hal_space_apply(HalSpace *space)
 
 MuRes hal_space_create(HalSpace **self)
 {
-    Alloc pmm = pmm_acquire();
-    auto ptr = pmm.calloc(&pmm, 1, PAGE_SIZE);
+    Pmm pmm = pmm_acquire();
+    auto ptr = pmm.calloc(1, PAGE_SIZE);
     pmm_release(&pmm);
 
-    if (!ptr.isJust)
+    if (!ptr.isSome)
     {
         return MU_RES_NO_MEM;
     }
 
-    uintptr_t *space = (uintptr_t *)hal_mmap_lower_to_upper((uintptr_t)ptr.value);
+    uintptr_t *space = (uintptr_t *)hal_mmap_lower_to_upper((uintptr_t)ptr.value.ptr);
     memset((void *)space, 0, PAGE_SIZE);
 
     for (usize i = 255; i < 512; i++)

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <stdbool.h>
-
 #define Either(T, U)  \
     struct            \
     {                 \

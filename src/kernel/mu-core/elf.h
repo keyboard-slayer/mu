@@ -24,7 +24,7 @@
 typedef usize Elf_Size;
 
 #if defined(__osdk_bits_64__)
-#    define elf_is_correct_class$(e) (e->e_ident[EI_CLASS] == ELFCLASS64)
+#    define elf_is_correct_class(e) (e->e_ident[EI_CLASS] == ELFCLASS64)
 
 typedef u64 Elf_Addr;
 typedef u16 Elf_Half;
@@ -48,7 +48,7 @@ typedef struct elf64_phdr
 } Elf_Phdr;
 
 #elif defined(__osdk_bits_32__)
-#    define elf_is_correct_class$(e) (e.e_ident[EI_CLASS] == ELFCLASS32)
+#    define elf_is_correct_class(e) (e.e_ident[EI_CLASS] == ELFCLASS32)
 
 typedef u32 Elf32_Addr;
 typedef u16 Elf32_Half;

@@ -15,6 +15,20 @@ int mu_main(MuArgs args)
     Module *mods = (Module *)args.arg1;
     usize len = args.arg2;
 
+    MuCap ptr;
+    MuCap task;
+
+    if (mu_create_vmo(&ptr, 0, 4096, MU_MEM_LOW) != MU_RES_OK)
+    {
+        panic("Couldn't alloc memory");
+    }
+
+    mu_self(&task);
+
+    debug_info("Addr = {a}", ptr._raw);
+    debug_info("Addr = {a}", ptr._raw);
+    debug_info("Hello from {a}", ((MuTask *)task._raw)->space._raw);
+
     if (!len)
     {
         panic("No modules found");

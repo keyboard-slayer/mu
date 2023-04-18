@@ -38,7 +38,7 @@ static MaybePtr _heap_alloc(unused Alloc *self, usize size)
         return None(MaybePtr);
     }
 
-    return Just(MaybePtr, res);
+    return Some(MaybePtr, res);
 }
 
 static void _heap_free(unused Alloc *self, void *ptr, unused usize size)
@@ -55,7 +55,7 @@ static MaybePtr _heap_calloc(unused Alloc *self, usize nmemb, usize size)
         return None(MaybePtr);
     }
 
-    return Just(MaybePtr, res);
+    return Some(MaybePtr, res);
 }
 
 static MaybePtr _heap_realloc(unused Alloc *self, void *ptr, usize size)
@@ -67,10 +67,10 @@ static MaybePtr _heap_realloc(unused Alloc *self, void *ptr, usize size)
         return None(MaybePtr);
     }
 
-    return Just(MaybePtr, res);
+    return Some(MaybePtr, res);
 }
 
-static void _heap_release(Alloc *alloc)
+void heap_release(Alloc *alloc)
 {
     spinlock_release(&lock);
     memset(alloc, 0, sizeof(Alloc));
@@ -84,6 +84,6 @@ Alloc heap_acquire(void)
         .realloc = _heap_realloc,
         .calloc = _heap_calloc,
         .free = _heap_free,
-        .release = _heap_release,
+        .release = heap_release,
     };
 }

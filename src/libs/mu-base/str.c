@@ -39,19 +39,19 @@ MaybeStr str_concat(Str const lhs, Str const rhs, Alloc *alloc)
     memcpy(buf + lhs.len, rhs.buf, rhs.len);
 
     result.buf = buf;
-    return Just(MaybeStr, result);
+    return Some(MaybeStr, result);
 }
 
 MaybeStr str_dup(Str const str, Alloc *alloc)
 {
     if (str_empty(str))
     {
-        return Just(MaybeStr, str_make_from_cstr(""));
+        return Some(MaybeStr, str_make_from_cstr(""));
     }
 
     u8 *buf = (u8 *)Try(MaybeStr, alloc->malloc(alloc, str.len));
     memcpy(buf, str.buf, str.len);
-    return Just(MaybeStr, str_n(str.len, buf));
+    return Some(MaybeStr, str_n(str.len, buf));
 }
 
 bool str_eq_ci(Str const lhs, Str const rhs)

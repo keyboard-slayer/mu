@@ -1,7 +1,5 @@
 #define auto __auto_type
 
-#include <stdbool.h>
-
 #include "debug.h"
 #include "either.h"
 #include "fmt.h"

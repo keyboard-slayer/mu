@@ -3,7 +3,6 @@
 #include <mu-hal/hal.h>
 #include <mu-misc/lock.h>
 #include <mu-traits/alloc.h>
-#include <stdbool.h>
 
 #include "const.h"
 #include "pmm.h"
@@ -35,19 +34,22 @@ static void pmm_set_used(u64 base, u64 length)
     }
 }
 
-static void *pmm_inner(usize pages)
+static void *pmm_inner(usize pages, bool high)
 {
     usize page_start_index;
     void *ret;
     usize size = 0;
 
-    while (bitmap.last_used < bitmap.size)
+    usize *start = high ? &bitmap.last_used_high : &bitmap.last_used_low;
+    usize end = high ? 0 : bitmap.size;
+
+    while (*start < end)
     {
-        if (!bitmap_is_bit_set(bitmap.last_used++))
+        if (!bitmap_is_bit_set(high ? (*start)-- : (*start)++))
         {
             if (++size == pages)
             {
-                page_start_index = bitmap.last_used - pages;
+                page_start_index = *start - pages;
                 pmm_set_used(page_start_index, pages);
 
                 ret = (void *)(page_start_index * PAGE_SIZE);
@@ -63,41 +65,40 @@ static void *pmm_inner(usize pages)
     return NULL;
 }
 
-static void *pmm_alloc_page(usize pages)
+MaybePtr pmm_alloc_page(usize pages, bool high)
 {
-    void *ret = pmm_inner(pages);
+    void *ret = pmm_inner(pages, high);
 
     if (ret == NULL)
     {
-        bitmap.last_used = 0;
-        ret = pmm_inner(pages);
+        bitmap.last_used_low = 0;
+        ret = pmm_inner(pages, high);
     }
 
     if (ret == NULL)
-    {
-        return NULL;
-    }
-
-    return ret;
-}
-
-MaybePtr pmm_alloc(unused Alloc *self, usize size)
-{
-    usize pages = align_up(size, PAGE_SIZE) / PAGE_SIZE;
-    void *res = pmm_alloc_page(pages);
-
-    if (!res)
     {
         return None(MaybePtr);
     }
 
-    return Just(MaybePtr, res);
+    return Some(MaybePtr, ret);
 }
 
-void pmm_free(unused Alloc *self, void *ptr, usize size)
+MaybePmmObj pmm_alloc(usize size)
 {
-    usize base = align_down((uintptr_t)ptr, PAGE_SIZE) / PAGE_SIZE;
     usize pages = align_up(size, PAGE_SIZE) / PAGE_SIZE;
+    void *ptr = Try(MaybePmmObj, pmm_alloc_page(pages, false));
+    PmmObj obj = {
+        .ptr = (uintptr_t)ptr,
+        .len = size,
+    };
+
+    return Some(MaybePmmObj, obj);
+}
+
+void pmm_free(PmmObj *obj)
+{
+    usize base = align_down((uintptr_t)obj->ptr, PAGE_SIZE) / PAGE_SIZE;
+    usize pages = align_up(obj->len, PAGE_SIZE) / PAGE_SIZE;
     pmm_unset(base, pages);
 }
 
@@ -129,6 +130,7 @@ void pmm_init(void)
     debug_info("Bitmap at: 0x{a}", hal_mmap_upper_to_lower((uintptr_t)bitmap.bitmap));
 
     memset(bitmap.bitmap, 0xff, bitmap.size);
+    bitmap.last_used_high = bitmap.size - 1;
 
     handover_foreach_record(handover, record)
     {
@@ -144,29 +146,32 @@ void pmm_init(void)
     debug_info("PMM initialized");
 }
 
-MaybePtr pmm_calloc(Alloc *self, usize nmemb, usize size)
+MaybePmmObj pmm_calloc(usize nmemb, usize size)
 {
-    void *ptr = Try(MaybePtr, self->malloc(self, nmemb * size));
-    memset((void *)hal_mmap_lower_to_upper((uintptr_t)ptr), 0, nmemb * size);
-
-    return Just(MaybePtr, ptr);
+    PmmObj ptr = Try(MaybePmmObj, pmm_alloc(nmemb * size));
+    memset((void *)hal_mmap_lower_to_upper(ptr.ptr), 0, nmemb * size);
+    return Some(MaybePmmObj, ptr);
 }
 
-void pmm_release(Alloc *self)
+void pmm_release(Pmm *self)
 {
-    *self = (Alloc){0};
+    *self = (Pmm){0};
     spinlock_release(&lock);
 }
 
-Alloc pmm_acquire(void)
+void _pmm_free(PmmObj obj)
+{
+    pmm_free(&obj);
+}
+
+Pmm pmm_acquire(void)
 {
     spinlock_acquire(&lock);
-    return (Alloc){
+    return (Pmm){
         .malloc = pmm_alloc,
-        .free = pmm_free,
+        .free = _pmm_free,
         .release = pmm_release,
         .calloc = pmm_calloc,
-        .realloc = NULL,
     };
 }
 

@@ -27,9 +27,9 @@ MuRes hal_ctx_create(HalCtx *self, uintptr_t ip, uintptr_t sp, MuArgs args)
     self->regs.r8 = args.arg5;
     self->regs.r9 = args.arg6;
 
-    Alloc pmm = pmm_acquire();
+    Pmm pmm = pmm_acquire();
 
-    void *stack = unwrap(pmm.calloc(&pmm, 1, STACK_SIZE));
+    void *stack = (void *)unwrap_or(pmm.calloc(1, STACK_SIZE), NULL).ptr;
     if (stack == NULL)
     {
         return MU_RES_NO_MEM;

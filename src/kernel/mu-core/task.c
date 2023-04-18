@@ -10,7 +10,7 @@
 
 MaybeTaskPtr task_init(Str path, HalSpace *space)
 {
-    Alloc heap = heap_acquire();
+    cleanup(heap_release) Alloc heap = heap_acquire();
     Task *self = Try(MaybeTaskPtr, heap.malloc(&heap, sizeof(Task)));
     heap.release(&heap);
 
@@ -19,13 +19,13 @@ MaybeTaskPtr task_init(Str path, HalSpace *space)
     self->tid = sched_next_tid();
     self->space = space;
 
-    Alloc pmm = pmm_acquire();
-    self->stack = (uintptr_t)Try(MaybeTaskPtr, pmm.malloc(&pmm, align_up(STACK_SIZE, PAGE_SIZE) / PAGE_SIZE));
+    cleanup(pmm_release) Pmm pmm = pmm_acquire();
+    self->stack = (uintptr_t)Try(MaybeTaskPtr, pmm.malloc(align_up(STACK_SIZE, PAGE_SIZE) / PAGE_SIZE)).ptr;
     pmm_release(&pmm);
 
     hal_space_map(space, USER_STACK_BASE, self->stack, STACK_SIZE, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_USER);
 
-    return Just(MaybeTaskPtr, self);
+    return Some(MaybeTaskPtr, self);
 }
 
 MaybeTaskPtr task_kernel(void)
@@ -39,5 +39,5 @@ MaybeTaskPtr task_kernel(void)
     self->path = str("kernel");
     self->tid = 0;
 
-    return Just(MaybeTaskPtr, self);
+    return Some(MaybeTaskPtr, self);
 }
