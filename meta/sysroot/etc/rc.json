@@ -1,9 +1,8 @@
 [
     {
-        "id": "echo",
         "path": "/bin/echo",
         "args": [
-            0xb00b1e5
+            184594917
         ]
     }
 ]

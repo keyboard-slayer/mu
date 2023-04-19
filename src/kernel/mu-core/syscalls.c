@@ -5,6 +5,7 @@
 #include <mu-core/sched.h>
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
+#include <stdint.h>
 
 typedef MuRes Handler(MuArg arg1, MuArg arg2, MuArg arg3, MuArg arg4, MuArg arg5, MuArg arg6);
 
@@ -57,32 +58,52 @@ static MuRes sys_create(MuType type, unused MuCap *cap, unused MuArg arg1, unuse
 
     switch (type)
     {
-    case MU_TYPE_VMO:
-    {
-        debug_info("{}", arg4);
-        switch (arg4)
+        case MU_TYPE_VMO:
         {
-        case MU_MEM_DMA:
+            switch (arg3)
+            {
+                case MU_MEM_DMA:
+                {
+                    return MU_RES_NON_IMPLEM;
+                    break;
+                }
+                case MU_MEM_LOW:
+                    [[fallthrough]];
+                case MU_MEM_HIGH:
+                {
+                    cap->_raw = (uintptr_t)unwrap_or(pmm_alloc_page(arg2, high), NULL);
+                    break;
+                }
+            }
+
+            break;
+        }
+
+        case MU_TYPE_VSPACE:
+        {
+            HalSpace *space;
+            MuRes res = hal_space_create(&space);
+
+            if (res != MU_RES_OK)
+            {
+                return res;
+            }
+
+            cap->_raw = (uintptr_t)space;
+            break;
+        }
+
+        case MU_TYPE_TASK:
+        {
+            cstr name = (cstr)hal_mmap_lower_to_upper(arg1);
+            cap->_raw = (uintptr_t)unwrap_or(task_init(str(name), (HalSpace *)arg2), NULL);
+            break;
+        }
+
+        default:
         {
             return MU_RES_NON_IMPLEM;
-            break;
         }
-        case MU_MEM_LOW:
-            [[fallthrough]];
-        case MU_MEM_HIGH:
-        {
-            cap->_raw = (uintptr_t)unwrap_or(pmm_alloc_page(arg3, high), NULL);
-            break;
-        }
-        }
-
-        break;
-    }
-
-    default:
-    {
-        return MU_RES_NON_IMPLEM;
-    }
     }
 
     if (!cap->_raw)
@@ -93,11 +114,31 @@ static MuRes sys_create(MuType type, unused MuCap *cap, unused MuArg arg1, unuse
     return MU_RES_OK;
 }
 
+static MuRes sys_map(MuCap space, MuCap vmo, uintptr_t virt, uintptr_t off, usize len, MuMapFlags flags)
+{
+    if (space._raw == 0)
+    {
+        return MU_RES_BAD_ARG;
+    }
+
+    return hal_space_map((HalSpace *)space._raw, virt, vmo._raw + off, len, flags | MU_MEM_USER);
+}
+
+static MuRes sys_start(MuCap task, uintptr_t ip, uintptr_t sp, MuArgs *args)
+{
+    Task *t = (Task *)task._raw;
+    hal_ctx_create(&t->context, ip, sp, *args);
+    sched_push_task(t);
+    return MU_RES_OK;
+}
+
 static Handler *handlers[__MU_SYS_LEN] = {
     [MU_SYS_LOG] = (Handler *)sys_log,
     [MU_SYS_EXIT] = (Handler *)sys_exit,
     [MU_SYS_SELF] = (Handler *)sys_self,
     [MU_SYS_CREATE] = (Handler *)sys_create,
+    [MU_SYS_MAP] = (Handler *)sys_map,
+    [MU_SYS_START] = (Handler *)sys_start,
 };
 
 MuRes mu_core_syscall(MuSyscall s, MuArgs args)

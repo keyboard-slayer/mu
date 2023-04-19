@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mu-base/types.h>
+#include <string.h>
 
 char *strrchr(const char *s, int c);
 
@@ -12,6 +13,10 @@ void *memcpy(void *dest, const void *src, usize n);
 
 int memcmp(const void *s1, const void *s2, usize n);
 
-int strncmp(const char *s1, const char *s2, usize n);
+char *strdup(cstr s);
 
-int strcmp(const char *s1, const char *s2);
+char *strndup(cstr s, usize n);
+
+int strcmp(cstr s1, cstr s2);
+
+int strncmp(cstr s1, cstr s2, usize len);

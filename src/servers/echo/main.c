@@ -1,8 +1,8 @@
 #include <mu-api/api.h>
 #include <mu-base/std.h>
 
-int mu_main(unused MuArgs args)
+int mu_main(MuArgs args)
 {
-    mu_log("Hello from µ !", 14);
+    debug_info("The value you passed is {x}", args.arg1);
     return 0;
 }

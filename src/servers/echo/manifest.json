@@ -3,7 +3,9 @@
     "id": "echo",
     "type": "exe",
     "requires": [
-        "crt0"
+        "crt0",
+        "mu-base",
+        "libc"
     ],
     "props": {
         "cpp-root-include": true

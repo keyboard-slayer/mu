@@ -22,5 +22,5 @@ void syscall_set_gs(uintptr_t addr)
 
 i64 syscall_handler(HalRegs *regs)
 {
-    return mu_core_syscall(regs->rax, (MuArgs){regs->rdi, regs->rsi, regs->rdx, regs->r10, regs->r8, regs->r9});
+    return mu_core_syscall(regs->rax, (MuArgs){regs->rdi, regs->rsi, regs->rdx, regs->r8, regs->r9, regs->r10});
 }

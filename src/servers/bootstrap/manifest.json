@@ -4,9 +4,11 @@
     "type": "exe",
     "requires": [
         "crt0",
-        "tiny-json",
         "libc",
-        "mu-base"
+        "tiny-json",
+        "mu-base",
+        "mu-ds",
+        "elf"
     ],
     "props": {
         "cpp-root-include": true

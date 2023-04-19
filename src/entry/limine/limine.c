@@ -133,37 +133,37 @@ void handover_parse_mmap(HandoverBuilder *builder)
 
         switch (entry->type)
         {
-        case LIMINE_MEMMAP_USABLE:
-            tag_type = HANDOVER_FREE;
-            debug_info("Free        | {a} | {a}", entry->base, entry->length);
-            break;
+            case LIMINE_MEMMAP_USABLE:
+                tag_type = HANDOVER_FREE;
+                debug_info("Free        | {a} | {a}", entry->base, entry->length);
+                break;
 
-        case LIMINE_MEMMAP_ACPI_NVS:
-        case LIMINE_MEMMAP_RESERVED:
-        case LIMINE_MEMMAP_BAD_MEMORY:
-            debug_info("Reserved    | {a} | {a}", entry->base, entry->length);
-            tag_type = HANDOVER_RESERVED;
-            break;
+            case LIMINE_MEMMAP_ACPI_NVS:
+            case LIMINE_MEMMAP_RESERVED:
+            case LIMINE_MEMMAP_BAD_MEMORY:
+                debug_info("Reserved    | {a} | {a}", entry->base, entry->length);
+                tag_type = HANDOVER_RESERVED;
+                break;
 
-        case LIMINE_MEMMAP_ACPI_RECLAIMABLE:
-        case LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE:
-            debug_info("Reclaimable | {a} | {a}", entry->base, entry->length);
-            tag_type = HANDOVER_LOADER;
-            break;
+            case LIMINE_MEMMAP_ACPI_RECLAIMABLE:
+            case LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE:
+                debug_info("Reclaimable | {a} | {a}", entry->base, entry->length);
+                tag_type = HANDOVER_LOADER;
+                break;
 
-        case LIMINE_MEMMAP_KERNEL_AND_MODULES:
-            debug_info("Kernel      | {a} | {a}", entry->base, entry->length);
-            tag_type = HANDOVER_KERNEL;
-            break;
+            case LIMINE_MEMMAP_KERNEL_AND_MODULES:
+                debug_info("Kernel      | {a} | {a}", entry->base, entry->length);
+                tag_type = HANDOVER_KERNEL;
+                break;
 
-        case LIMINE_MEMMAP_FRAMEBUFFER:
-            debug_info("Framebuffer | {a} | {a}", entry->base, entry->length);
-            tag_type = HANDOVER_FB;
-            break;
+            case LIMINE_MEMMAP_FRAMEBUFFER:
+                debug_info("Framebuffer | {a} | {a}", entry->base, entry->length);
+                tag_type = HANDOVER_FB;
+                break;
 
-        default:
-            panic("Unknown memory type {}", entry->type);
-            break;
+            default:
+                panic("Unknown memory type {}", entry->type);
+                break;
         }
 
         HandoverRecord record = {

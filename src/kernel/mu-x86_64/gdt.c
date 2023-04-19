@@ -88,7 +88,7 @@ void gdt_init_tss(void)
     hal_cpu_self()->tss.rsp[0] = (uintptr_t)(unwrap(heap.malloc(&heap, KERNEL_STACK_SIZE)) + KERNEL_STACK_SIZE);
     heap.release(&heap);
 
-    debug_info("TSS initialized (rsp0: {a}, ist1: {a}, ist2: {a})", hal_cpu_self()->tss.rsp[0], hal_cpu_self()->tss.ist[1], hal_cpu_self()->tss.ist[2]);
+    debug_info("TSS initialized (rsp0: {a}, ist1: {a}, ist2: {a})", hal_cpu_self()->tss.rsp[0], hal_cpu_self()->tss.ist[0], hal_cpu_self()->tss.ist[1]);
 
     gdt_load_tss(&hal_cpu_self()->tss);
     tss_flush();

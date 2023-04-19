@@ -12,5 +12,3 @@ typedef struct _Alloc
 } Alloc;
 
 typedef Alloc (*AllocAcquireFn)(void);
-
-MaybePtr generic_calloc(Alloc *self, usize nmemb, usize size);

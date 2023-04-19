@@ -1,22 +1,29 @@
 #include <mu-core/pmm.h>
 #include <mu-embed/alloc.h>
+#include <mu-hal/hal.h>
 
-MaybePtr embed_alloc(usize size)
+MaybeAllocObj embed_alloc(usize size)
 {
     Pmm pmm = pmm_acquire();
-    PmmObj res = Try(MaybePtr, pmm.calloc(1, size));
+    PmmObj res = Try(MaybeAllocObj, pmm.calloc(1, size));
     pmm.release(&pmm);
 
-    return Some(MaybePtr, (void *)res.ptr);
+    auto obj = (AllocObj){
+        .ptr = hal_mmap_lower_to_upper(res.ptr),
+        .size = size,
+    };
+
+    return Some(MaybeAllocObj, obj);
 }
 
-void embed_free(void *ptr, usize size)
+void embed_free(AllocObj *self)
 {
     Pmm pmm = pmm_acquire();
 
     PmmObj obj = {
-        .ptr = (uintptr_t)ptr,
-        .len = size};
+        .ptr = self->ptr,
+        .len = self->size,
+    };
 
     pmm.free(obj);
     pmm.release(&pmm);

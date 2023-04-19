@@ -59,7 +59,9 @@ typedef enum
     MU_RES_BAD_CAP,
     MU_RES_BAD_SYSCALL,
     MU_RES_NO_MEM,
+    MU_RES_NON_ALIGN,
     MU_RES_NON_IMPLEM,
+    MU_RES_BAD_ARG,
 
     __MU_RES_LEN,
 } MuRes;
@@ -85,7 +87,7 @@ typedef struct
 typedef struct
 {
     u64 _raw;
-} MuCap;
+} Maybe$(MuCap);
 
 typedef struct
 {
@@ -197,9 +199,9 @@ mu_always_inline MuRes mu_panic(cstr str, usize len)
     return mu_exit(1);
 }
 
-mu_always_inline MuRes mu_map(MuCap space, MuCap vmo, uintptr_t virt, uintptr_t phys, usize len, MuMapFlags flags)
+mu_always_inline MuRes mu_map(MuCap space, MuCap vmo, uintptr_t virt, usize off, usize len, MuMapFlags flags)
 {
-    return mu_syscall(MU_SYS_MAP, space._raw, vmo._raw, virt, phys, len, (MuArg)flags);
+    return mu_syscall(MU_SYS_MAP, space._raw, vmo._raw, virt, off, len, (MuArg)flags);
 }
 
 mu_always_inline MuRes mu_unmap(MuCap space, uintptr_t virt, usize len)
@@ -212,9 +214,9 @@ mu_always_inline MuRes mu_create(MuType type, MuCap *cap, MuArg arg1, MuArg arg2
     return mu_syscall(MU_SYS_CREATE, (MuArg)type, (MuArg)cap, arg1, arg2, arg3, arg4);
 }
 
-mu_always_inline MuRes mu_create_task(MuCap *cap, MuCap vspace)
+mu_always_inline MuRes mu_create_task(MuCap *cap, MuCap name, MuCap vspace)
 {
-    return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_TASK, (MuArg)cap, vspace._raw);
+    return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_TASK, (MuArg)cap, name._raw, vspace._raw);
 }
 
 mu_always_inline MuRes mu_create_vspace(MuCap *cap)

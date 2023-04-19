@@ -26,11 +26,8 @@ void sched_init(void)
 
     vec_init(&sched_self()->tasks, heap_acquire);
 
-    if (hal_cpu_self()->id == 0)
-    {
-        Task *kernel_task = unwrap(task_kernel());
-        vec_push(&sched_self()->tasks, kernel_task);
-    }
+    Task *kernel_task = unwrap(task_kernel());
+    vec_push(&sched_self()->tasks, kernel_task);
 
     sched_self()->is_init = true;
 }
@@ -75,13 +72,14 @@ void sched_push_task(Task *task)
 
     for (usize i = 1; i < hal_cpu_len(); i++)
     {
-        if (smallest < hal_cpu_get(i)->sched.tasks.length)
+        if (smallest > hal_cpu_get(i)->sched.tasks.length)
         {
             smallest = i;
             cpu_id = i;
         }
     }
 
+    debug_info("Pushing Task {} to CPU {}", task->tid, cpu_id);
     vec_push(&hal_cpu_get(cpu_id)->sched.tasks, task);
 }
 

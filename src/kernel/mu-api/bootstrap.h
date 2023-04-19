@@ -7,6 +7,6 @@ typedef struct packed
     char name[128];
     usize len;
     uintptr_t ptr;
-} Module;
+} Maybe$(Module);
 
 int bootstrap_check_in(void *channel, cstr domain);

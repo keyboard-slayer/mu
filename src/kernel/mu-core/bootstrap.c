@@ -1,3 +1,4 @@
+#include <elf/elf.h>
 #include <handover/utils.h>
 #include <mu-api/bootstrap.h>
 #include <mu-base/std.h>
@@ -6,12 +7,13 @@
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
 
-#include "elf.h"
+#include <mu-x86_64/asm.h>
+
 #include "sched.h"
 
 typedef Vec(Module) VecModule;
 
-unused static void passModules(Task *task)
+static void passModules(Task *task)
 {
     HandoverRecord rec;
     VecModule mods;
@@ -48,13 +50,17 @@ unused static void passModules(Task *task)
 
 int _start()
 {
+
     debug_info("Hello from µ !");
     hal_parse_handover();
     hal_init();
 
-    Task *bootstrap = unwrap(elf_load_module("/bin/bootstrap", (MuArgs){0}));
-    passModules(bootstrap);
+    HalSpace *vspace;
+    assert(hal_space_create(&vspace) == MU_RES_OK, "Couldn't create vspace for bootstrap");
+    auto mod = handover_file_find(hal_get_handover(), "/bin/bootstrap");
+    MuCap bootstrap = unwrap(elf_parse("/bin/bootstrap", mod.start, (uintptr_t)vspace, (MuArgs){0}));
+    passModules((Task *)bootstrap._raw);
 
-    sched_push_task(bootstrap);
+    sched_push_task((Task *)bootstrap._raw);
     loop;
 }

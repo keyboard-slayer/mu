@@ -1,7 +1,8 @@
 #pragma once
 
-#define unused __attribute__((unused))
-#define packed __attribute__((packed))
+#define maybe_unused [[maybe_unused]]
+#define unused       __attribute__((unused))
+#define packed       __attribute__((packed))
 
 #ifndef unreachable
 #    define unreachable() __builtin_unreachable();

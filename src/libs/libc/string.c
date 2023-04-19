@@ -1,4 +1,4 @@
-#include <mu-base/std.h>
+#include <mu-mem/heap.h>
 
 char *strrchr(const char *s, int c)
 {
@@ -63,4 +63,42 @@ int memcmp(const void *s1, const void *s2, usize n)
     }
 
     return 0;
+}
+
+char *strdup(cstr s)
+{
+    return strndup(s, strlen(s));
+}
+
+char *strndup(cstr s, usize n)
+{
+    Alloc heap = heap_acquire();
+    char *ret = unwrap_or(heap.calloc(&heap, 1, n), NULL);
+    heap.release(&heap);
+
+    if (ret == NULL)
+    {
+        return ret;
+    }
+
+    memcpy(ret, s, n);
+    return ret;
+}
+
+int strncmp(cstr s1, cstr s2, usize n)
+{
+    for (usize i = 0; i < n; i++)
+    {
+        if (s1[i] != s2[i])
+        {
+            return s1[i] - s2[i];
+        }
+    }
+
+    return 0;
+}
+
+int strcmp(cstr s1, cstr s2)
+{
+    return strncmp(s1, s2, strlen(s1));
 }

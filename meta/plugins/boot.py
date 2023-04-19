@@ -3,6 +3,7 @@ import os
 from distutils.dir_util import copy_tree
 from osdk.context import loadAllComponents
 from osdk import utils, shell, builder
+from osdk.const import CACHE_DIR
 from osdk.cmds import Cmd, append
 from osdk.args import Args
 
@@ -46,6 +47,32 @@ def limineAddSubmodules(bootDir: str, modPath: str) -> None:
         cfg.write(f"MODULE_PATH=boot://{modPath}\n")
 
 
+def downloadOvmf() -> str:
+    path = f"{CACHE_DIR}/OVMF.fd"
+
+    if os.path.isfile(path):
+        return path
+
+    deb = shell.wget(
+        "http://ftp.debian.org/debian/pool/main/e/edk2/ovmf_2020.11-2+deb11u1_all.deb"
+    )
+
+    shell.exec(*["ar", "x", "--output", CACHE_DIR, deb])
+    shell.exec(
+        *[
+            "tar",
+            "xf",
+            f"{CACHE_DIR}/data.tar.xz",
+            "-C",
+            os.path.dirname(deb),
+        ]
+    )
+
+    shell.cp(f"{CACHE_DIR}/usr/share/ovmf/OVMF.fd", path)
+
+    return path
+
+
 def bootCmd(args: Args) -> None:
     debug = "debug" in args.opts
     imageDir = shell.mkdir(".osdk/images/mu-x86_64")
@@ -53,6 +80,7 @@ def bootCmd(args: Args) -> None:
     binDir = shell.mkdir(f"{imageDir}/bin")
     bootDir = shell.mkdir(f"{imageDir}/boot")
 
+    # ovmf = downloadOvmf()
     ovmf = shell.wget("https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd")
 
     mu = builder.build("mu-core", "kernel-x86_64:debug")
@@ -67,20 +95,15 @@ def bootCmd(args: Args) -> None:
 
     qemuCmd: list[str] = [
         "qemu-system-x86_64",
-        # "-d" , "int",
-        "-machine",
-        "q35",
+        # "-d", "int",
+        # "-M", "smm=off",
         "-no-reboot",
         "-no-shutdown",
-        "-serial",
-        "mon:stdio",
-        # "stdio",
-        "-bios",
-        ovmf,
-        "-m",
-        "256M",
-        "-smp",
-        "4",
+        # "-cpu", "host",
+        "-serial", "mon:stdio",  # "stdio",
+        "-bios", ovmf,
+        "-m", "4G",
+        "-smp", "4",
         "-drive",
         f"file=fat:rw:{imageDir},media=disk,format=raw",
     ]

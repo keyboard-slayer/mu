@@ -9,5 +9,6 @@
 #define VMM_USER                    (1 << 2)
 #define VMM_HUGE                    (1 << 7)
 #define VMM_NOEXE                   ((u64)1 << 63)
+#define VMM_FLAGS_MASK              (VMM_PRESENT | VMM_WRITE | VMM_USER | VMM_HUGE | VMM_NOEXE)
 
 void vmm_init(void);

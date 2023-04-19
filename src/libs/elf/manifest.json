@@ -1,0 +1,11 @@
+{
+    "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
+    "id": "elf",
+    "description": "Elf spec & parser",
+    "type": "lib",
+    "requires": [
+        "libc",
+        "mu-base",
+        "mu-embed"
+    ]
+}

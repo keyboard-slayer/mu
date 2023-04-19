@@ -2,28 +2,37 @@
 
 #include "alloc.h"
 
-MaybePtr embed_alloc(usize size)
+MaybeAllocObj embed_alloc(usize size)
 {
     MuCap ptr;
-    MuTask task;
+    MuCap task;
 
-    mu_create_vmo(&ptr, 0, size, MU_MEM_HIGH);
-    mu_self((MuCap *)&task);
-
-    if (ptr._raw == 0)
+    // TODO FIX ME space == nullptr
+    // clang-format off
+    
+    if (mu_create_vmo(&ptr, 0, align_up(size, PAGE_SIZE), MU_MEM_LOW) != MU_RES_OK \
+        || mu_self((MuCap *)&task) != MU_RES_OK \
+        || mu_map(((MuTask *)task._raw)->space, ptr, ptr._raw, 0, align_up(size, PAGE_SIZE), MU_MEM_USER | MU_MEM_READ | MU_MEM_WRITE) != MU_RES_OK)
     {
-        return None(MaybePtr);
+        return None(MaybeAllocObj);
     }
+    // clang-format on
 
-    mu_map(task.space, ptr, ptr._raw, 0, size, MU_MEM_USER | MU_MEM_READ | MU_MEM_WRITE);
-    return Some(MaybePtr, (void *)ptr._raw);
+    auto obj = (AllocObj){
+        .ptr = ptr._raw,
+        .size = size,
+    };
+
+    return Some(MaybeAllocObj, obj);
 }
 
-void embed_free(void *ptr, usize size)
+void embed_free(AllocObj *self)
 {
     MuTask task;
 
     mu_self((MuCap *)&task);
 
-    mu_unmap(task.space, (uintptr_t)ptr, size);
+    // TODO mu_close
+
+    mu_unmap(task.space, self->ptr, self->size);
 }

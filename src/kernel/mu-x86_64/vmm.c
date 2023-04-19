@@ -5,6 +5,7 @@
 
 #include "asm.h"
 #include "cpuid.h"
+#include "mu-api/api.h"
 #include "vmm.h"
 
 static usize page_size = mib(2);
@@ -76,8 +77,10 @@ static MaybePtr vmm_get_pml_alloc(uintptr_t *pml, usize index, bool alloc)
 
 static MuRes kmmap_page(uintptr_t *pml, u64 virt, u64 phys, i64 flags)
 {
-    assert(phys % PAGE_SIZE == 0, "phys is not page aligned");
-    assert(virt % PAGE_SIZE == 0, "virt is not page aligned");
+    if (phys % PAGE_SIZE != 0 || virt % PAGE_SIZE != 0)
+    {
+        return MU_RES_NON_ALIGN;
+    }
 
     usize pml1_entry = PMLX_GET_INDEX(virt, 0);
     usize pml2_entry = PMLX_GET_INDEX(virt, 1);
@@ -128,18 +131,16 @@ static void kmmap_section(uintptr_t start, uintptr_t end, u8 flags)
     {
         uintptr_t phys = i - kaddr.virt + kaddr.phys;
 
-        if (kmmap_page(pml4, i, phys, flags_arch) != MU_RES_OK)
-        {
-            panic("Couldn't map kernel sections");
-        }
+        assert(kmmap_page(pml4, i, phys, flags_arch) == MU_RES_OK, "Couldn't map kernel sections");
     }
 }
 
 MuRes hal_space_map(HalSpace *self, uintptr_t virt, uintptr_t phys, usize len, MuMapFlags flags)
 {
-    assert(phys % PAGE_SIZE == 0, "phys is not page aligned");
-    assert(virt % PAGE_SIZE == 0, "virt is not page aligned");
-    assert(len % PAGE_SIZE == 0, "len is not page aligned");
+    if (phys % PAGE_SIZE != 0 || virt % PAGE_SIZE != 0 || len % PAGE_SIZE != 0)
+    {
+        return MU_RES_NON_ALIGN;
+    }
 
     i64 flags_arch = transform_flags(flags);
     const usize map_psize = flags & MU_MEM_HUGE ? page_size : PAGE_SIZE;
@@ -208,7 +209,7 @@ void vmm_init(void)
 
     handover_foreach_record(handover, record)
     {
-        if (record.tag != HANDOVER_FILE && hal_space_map((HalSpace *)pml4, hal_mmap_lower_to_upper(record.start), record.start, record.size, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_HUGE) != MU_RES_OK)
+        if (record.tag != HANDOVER_FILE && record.tag != HANDOVER_FB && hal_space_map((HalSpace *)pml4, hal_mmap_lower_to_upper(record.start), record.start, record.size, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_HUGE) != MU_RES_OK)
         {
             panic("Couldn't map kernel properly");
         }

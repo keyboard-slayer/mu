@@ -77,8 +77,17 @@ static void log_exception(HalRegs const *regs)
     asm_read_cr(3, cr3);
     asm_read_cr(4, cr4);
 
+    auto sched = sched_self();
+
     debug(DEBUG_NONE, "\n\n------------------------------------------------------------------------------------\n");
-    debug(DEBUG_NONE, "{} on core {} (0x{x}) Err: 0x{x}", exception_messages[regs->intno], lapic_id(), regs->intno, regs->err);
+    if (!sched->is_init)
+    {
+        debug(DEBUG_NONE, "{} on core {} (0x{x}) Err: 0x{x}", exception_messages[regs->intno], lapic_id(), regs->intno, regs->err);
+    }
+    else
+    {
+        debug(DEBUG_NONE, "{} on core {} task {} (0x{x}) Err: 0x{x}", exception_messages[regs->intno], lapic_id(), sched->tasks.data[sched->task_index]->path, regs->intno, regs->err);
+    }
     debug(DEBUG_NONE, "RAX {a} RBX {a} RCX {a} RDX {a}", regs->rax, regs->rbx, regs->rcx, regs->rdx);
     debug(DEBUG_NONE, "RSI {a} RDI {a} RBP {a} RSP {a}", regs->rsi, regs->rdi, regs->rbp, regs->rsp);
     debug(DEBUG_NONE, "R8  {a} R9  {a} R10 {a} R11 {a}", regs->r8, regs->r9, regs->r10, regs->r11);
@@ -108,11 +117,11 @@ uintptr_t interrupt_handler(u64 rsp)
     {
         switch (regs->intno)
         {
-        case irq(0):
-        {
-            sched_yield(regs);
-            break;
-        }
+            case irq(0):
+            {
+                sched_yield(regs);
+                break;
+            }
         }
     }
 

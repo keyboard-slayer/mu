@@ -2,7 +2,9 @@
     "id": "mu-mem",
     "description": "",
     "type": "lib",
-    "keywords": [
-        "mu-embed"
+    "requires": [
+        "mu-embed",
+        "mu-misc",
+        "libheap"
     ]
 }
