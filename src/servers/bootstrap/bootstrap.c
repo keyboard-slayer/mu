@@ -36,7 +36,7 @@ static MaybeRCVec init_servers(void)
     json_reader_t r = json_init((cstr)rc.ptr, rc.len);
     cleanup(json_free) json_t obj = json_parse(&r);
 
-    if (obj.type == JSON_ERROR || obj.type != JSON_ARRAY)
+    if (obj.type != JSON_ARRAY)
     {
         return None(MaybeRCVec);
     }

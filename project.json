@@ -14,7 +14,7 @@
         },
         "cute-engineering/tiny-json": {
             "git": "https://github.com/cute-engineering/tiny-json.git",
-            "tag": "v1.1.0"
+            "tag": "v1.2.0"
         }
     }
 }

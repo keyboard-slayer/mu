@@ -1,23 +1,30 @@
 #include <mu-api/api.h>
+#include <mu-ds/vec.h>
 
 #include "log.h"
+#include "mu-mem/heap.h"
 
-static void dummy_lock(unused Writer *self)
+static VecChar buf;
+
+static void release(unused Writer *self)
 {
+    mu_log(buf.data, buf.length);
+    vec_free(&buf);
     return;
 }
 
 static void putc(unused Writer *self, char c)
 {
-    char buf[2] = {c, '\0'};
-    mu_log(buf, 1);
+    vec_push(&buf, c);
 }
 
 Writer embed_acquire_writer(void)
 {
+    vec_init(&buf, heap_acquire);
+
     return (Writer){
         .putc = putc,
-        .release = dummy_lock,
+        .release = release,
         .puts = generic_puts,
     };
 }

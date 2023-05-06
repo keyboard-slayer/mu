@@ -12,6 +12,7 @@
         "mu-embed"
     ],
     "requires": [
+        "mu-ds",
         "mu-traits"
     ]
 }

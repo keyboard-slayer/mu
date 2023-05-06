@@ -1,4 +1,3 @@
-#include <mu-api/api.h>
 #include <mu-base/std.h>
 
 int mu_main(MuArgs args)

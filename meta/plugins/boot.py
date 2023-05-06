@@ -23,11 +23,11 @@ def installLimine(bootDir: str, efiBootDir: str) -> None:
 
 
 def buildPkgs(binDir: str, debug: bool) -> list[str]:
-    pkgs = [p.id for p in loadAllComponents() if "src/servers" in p.dirname()]
+    pkgs = [p.id for p in loadAllComponents() if "src/servers" in p.dirname() or "src/pkgs" in p.dirname()]
 
     for pkg in pkgs:
         elf = builder.build(pkg, "mu-x86_64:debug:o0")
-        shell.cp(elf, f"{binDir}/{os.path.basename(elf)[:-4]}")
+        shell.cp(elf.outfile(), f"{binDir}/{os.path.basename(elf.outfile())[:-4]}")
 
     return pkgs
 
@@ -75,6 +75,7 @@ def downloadOvmf() -> str:
 
 def bootCmd(args: Args) -> None:
     debug = "debug" in args.opts
+    no_ui = "no-ui" in args.opts
     imageDir = shell.mkdir(".osdk/images/mu-x86_64")
     efiBootDir = shell.mkdir(f"{imageDir}/EFI/BOOT")
     binDir = shell.mkdir(f"{imageDir}/bin")
@@ -85,7 +86,7 @@ def bootCmd(args: Args) -> None:
 
     mu = builder.build("mu-core", "kernel-x86_64:debug")
 
-    shell.cp(mu, f"{bootDir}/kernel.elf")
+    shell.cp(mu.outfile(), f"{bootDir}/kernel.elf")
     copy_tree("meta/sysroot", imageDir)
 
     pkgs = buildPkgs(binDir, debug)
@@ -111,6 +112,9 @@ def bootCmd(args: Args) -> None:
 
     if debug:
         qemuCmd += ["-s", "-S"]
+
+    if no_ui:
+        qemuCmd += ["-display", "none"]
 
     if kvmAvailable():
         qemuCmd += ["-enable-kvm"]

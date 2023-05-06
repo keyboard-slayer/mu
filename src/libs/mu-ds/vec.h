@@ -1,7 +1,6 @@
 #pragma once
 
 #include <mu-traits/alloc.h>
-#include <string.h>
 
 void vec_expand_(char **data, usize *length, usize *capacity, int memsz, AllocAcquireFn alloc_fn);
 

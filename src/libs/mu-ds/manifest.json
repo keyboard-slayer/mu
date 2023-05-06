@@ -2,8 +2,5 @@
     "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
     "id": "mu-ds",
     "type": "lib",
-    "description": "Data structures",
-    "requires": [
-        "libc"
-    ]
+    "description": "Data structures"
 }
