@@ -71,7 +71,11 @@ static MuRes sys_create(MuType type, unused MuCap *cap, unused MuArg arg1, unuse
                     [[fallthrough]];
                 case MU_MEM_HIGH:
                 {
-                    cap->_raw = (uintptr_t)unwrap_or(pmm_alloc_page(arg2, high), NULL);
+                    Pmm pmm = pmm_acquire();
+                    auto obj = pmm.malloc(arg2, high);
+
+                    cap->_raw = obj.isSome ? (u64)unwrap(obj).ptr : 0;
+                    pmm.release(&pmm);
                     break;
                 }
             }

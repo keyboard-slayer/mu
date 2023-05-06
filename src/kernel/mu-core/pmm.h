@@ -19,10 +19,11 @@ typedef struct
 
 typedef struct _Pmm
 {
-    MaybePmmObj (*malloc)(usize size);
-    MaybePmmObj (*calloc)(usize nmemb, usize size);
+    MaybePmmObj (*malloc)(usize size, bool high);
+    MaybePmmObj (*calloc)(usize nmemb, usize size, bool high);
     void (*free)(PmmObj obj);
     void (*release)(struct _Pmm *self);
+    bool high;
 } Pmm;
 
 void pmm_init(void);

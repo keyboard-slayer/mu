@@ -20,7 +20,7 @@ MaybeTaskPtr task_init(Str path, HalSpace *space)
     self->space = space;
 
     cleanup(pmm_release) Pmm pmm = pmm_acquire();
-    self->stack = (uintptr_t)Try(MaybeTaskPtr, pmm.malloc(align_up(STACK_SIZE, PAGE_SIZE) / PAGE_SIZE)).ptr;
+    self->stack = (uintptr_t)Try(MaybeTaskPtr, pmm.malloc(align_up(STACK_SIZE, PAGE_SIZE) / PAGE_SIZE, false)).ptr;
     pmm_release(&pmm);
 
     hal_space_map(space, USER_STACK_BASE, self->stack, STACK_SIZE, MU_MEM_READ | MU_MEM_WRITE | MU_MEM_USER);

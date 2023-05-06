@@ -83,10 +83,10 @@ MaybePtr pmm_alloc_page(usize pages, bool high)
     return Some(MaybePtr, ret);
 }
 
-MaybePmmObj pmm_alloc(usize size)
+MaybePmmObj pmm_alloc(usize size, bool high)
 {
     usize pages = align_up(size, PAGE_SIZE) / PAGE_SIZE;
-    void *ptr = Try(MaybePmmObj, pmm_alloc_page(pages, false));
+    void *ptr = Try(MaybePmmObj, pmm_alloc_page(pages, high));
     PmmObj obj = {
         .ptr = (uintptr_t)ptr,
         .len = size,
@@ -146,9 +146,9 @@ void pmm_init(void)
     debug_info("PMM initialized");
 }
 
-MaybePmmObj pmm_calloc(usize nmemb, usize size)
+MaybePmmObj pmm_calloc(usize nmemb, usize size, bool high)
 {
-    PmmObj ptr = Try(MaybePmmObj, pmm_alloc(nmemb * size));
+    PmmObj ptr = Try(MaybePmmObj, pmm_alloc(nmemb * size, high));
     memset((void *)hal_mmap_lower_to_upper(ptr.ptr), 0, nmemb * size);
     return Some(MaybePmmObj, ptr);
 }

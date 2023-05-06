@@ -50,7 +50,6 @@ static void passModules(Task *task)
 
 int _start()
 {
-
     debug_info("Hello from µ !");
     hal_parse_handover();
     hal_init();

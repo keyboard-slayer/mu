@@ -63,7 +63,7 @@ static MaybePtr vmm_get_pml_alloc(uintptr_t *pml, usize index, bool alloc)
     else if (alloc)
     {
         cleanup(pmm_release) Pmm pmm = pmm_acquire();
-        uintptr_t *ptr = (uintptr_t *)Try(MaybePtr, pmm.calloc(1, PAGE_SIZE)).ptr;
+        uintptr_t *ptr = (uintptr_t *)Try(MaybePtr, pmm.calloc(1, PAGE_SIZE, false)).ptr;
         uintptr_t ptr_hhdm = hal_mmap_lower_to_upper((uintptr_t)ptr);
 
         pml[index] = (uintptr_t)ptr | VMM_PRESENT | VMM_WRITE | VMM_USER;
@@ -168,7 +168,7 @@ void vmm_init(void)
     HandoverPayload *handover = hal_get_handover();
     HandoverRecord record;
 
-    auto alloc = pmm.calloc(1, PAGE_SIZE);
+    auto alloc = pmm.calloc(1, PAGE_SIZE, false);
 
     if (!alloc.isSome)
     {
@@ -230,7 +230,7 @@ void hal_space_apply(HalSpace *space)
 MuRes hal_space_create(HalSpace **self)
 {
     Pmm pmm = pmm_acquire();
-    auto ptr = pmm.calloc(1, PAGE_SIZE);
+    auto ptr = pmm.calloc(1, PAGE_SIZE, false);
     pmm_release(&pmm);
 
     if (!ptr.isSome)

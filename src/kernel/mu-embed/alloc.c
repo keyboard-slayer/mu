@@ -5,7 +5,7 @@
 MaybeAllocObj embed_alloc(usize size)
 {
     Pmm pmm = pmm_acquire();
-    PmmObj res = Try(MaybeAllocObj, pmm.calloc(1, size));
+    PmmObj res = Try(MaybeAllocObj, pmm.calloc(1, size, false));
     pmm.release(&pmm);
 
     auto obj = (AllocObj){
