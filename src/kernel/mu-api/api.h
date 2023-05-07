@@ -28,6 +28,7 @@ typedef enum
     MU_SYS_WAIT,
     MU_SYS_EXIT,
     MU_SYS_SELF,
+    MU_SYS_BOOTSTRAP_PORT,
 
     MU_SYS_MAP,
     MU_SYS_UNMAP,
@@ -80,14 +81,15 @@ typedef struct MuArgs
 
 typedef struct
 {
-    MuArg label;
-    MuArgs args;
-} MuMsg;
+    u64 _raw;
+} Maybe$(MuCap);
 
 typedef struct
 {
-    u64 _raw;
-} Maybe$(MuCap);
+    MuArg label;
+    MuCap reply_port;
+    MuArgs args;
+} MuMsg;
 
 typedef struct
 {
@@ -129,20 +131,21 @@ typedef enum
 
 /* --- IPC ------------------------------------------------------------------ */
 
-#define mu_msg(label, ...) __mu_msg(label, __VA_ARGS__, 0, 0, 0, 0, 0, 0)
+#define mu_msg(label, port, ...) __mu_msg(label, port, __VA_ARGS__, 0, 0, 0, 0, 0, 0)
 
-#define __mu_msg(l, a1, a2, a3, a4, a5, a6, ...) \
-    (MuMsg)                                      \
-    {                                            \
-        .label = (MuArg)l,                       \
-        .args = {                                \
-            .arg1 = (MuArg)a1,                   \
-            .arg2 = (MuArg)a2,                   \
-            .arg3 = (MuArg)a3,                   \
-            .arg4 = (MuArg)a4,                   \
-            .arg5 = (MuArg)a5,                   \
-            .arg6 = (MuArg)a6,                   \
-        },                                       \
+#define __mu_msg(l, p, a1, a2, a3, a4, a5, a6, ...) \
+    (MuMsg)                                         \
+    {                                               \
+        .label = (MuArg)l,                          \
+        .reply_port = (MuCap)p,                     \
+        .args = {                                   \
+            .arg1 = (MuArg)a1,                      \
+            .arg2 = (MuArg)a2,                      \
+            .arg3 = (MuArg)a3,                      \
+            .arg4 = (MuArg)a4,                      \
+            .arg5 = (MuArg)a5,                      \
+            .arg6 = (MuArg)a6,                      \
+        },                                          \
     }
 
 /* --- Syscall -------------------------------------------------------------- */
@@ -244,9 +247,9 @@ mu_always_inline MuRes mu_create_cnode(MuCap *cap, usize len)
     return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_CNODE, (MuArg)cap, len);
 }
 
-mu_always_inline MuRes mu_create_port(MuCap *cap)
+mu_always_inline MuRes mu_create_port(MuCap *cap, MuIpcFlags right)
 {
-    return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_PORT, (MuArg)cap);
+    return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_PORT, (MuArg)cap, right);
 }
 
 mu_always_inline MuRes mu_close(MuCap cap)
@@ -266,7 +269,7 @@ mu_always_inline MuRes mu_ipc(MuCap *port, MuMsg *msg, MuIpcFlags flags)
 
 mu_always_inline MuRes mu_call(MuCap port, MuMsg *msg)
 {
-    return mu_ipc(&port, msg, MU_IPC_SEND | MU_IPC_RECV | MU_IPC_SEND);
+    return mu_ipc(&port, msg, MU_IPC_SEND | MU_IPC_RECV);
 }
 
 mu_always_inline MuRes mu_bind(MuCap event, MuCap port, MuArg sel)
@@ -297,4 +300,9 @@ mu_always_inline MuRes mu_out(MuCap iospace, uintptr_t port, uintptr_t val, MuIo
 mu_always_inline MuRes mu_self(MuCap *cap)
 {
     return mu_syscall(MU_SYS_SELF, (MuArg)cap);
+}
+
+mu_always_inline MuRes mu_bootstrap_port(MuCap *cap)
+{
+    return mu_syscall(MU_SYS_BOOTSTRAP_PORT, (MuArg)cap);
 }

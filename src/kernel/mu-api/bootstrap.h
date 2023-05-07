@@ -9,4 +9,10 @@ typedef struct packed
     uintptr_t ptr;
 } Maybe$(Module);
 
-int bootstrap_check_in(void *channel, cstr domain);
+enum
+{
+    BOOTSTRAP_REGISTER_SERVER = 0xdeadbeef,
+};
+
+MuCap bootstrap_lookup(cstr domain);
+void bootstrap_register_server(MuCap port, cstr domain);

@@ -27,8 +27,13 @@ typedef struct _Pmm
 } Pmm;
 
 void pmm_init(void);
+
 Pmm pmm_acquire(void);
+
 void pmm_release(Pmm *self);
+
 void pmm_free(PmmObj *obj);
+
 u64 pmm_available_pages(void);
+
 MaybePtr pmm_alloc_page(usize pages, bool high);

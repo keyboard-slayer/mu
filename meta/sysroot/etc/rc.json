@@ -1,12 +1,6 @@
 [
     {
         "path": "/bin/echo",
-        "args": [
-            184594917
-        ]
-    },
-    {
-        "path": "/bin/echo-client",
         "args": []
     }
 ]

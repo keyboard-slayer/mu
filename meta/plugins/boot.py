@@ -103,7 +103,6 @@ def bootCmd(args: Args) -> None:
         # "-cpu", "host",
         "-serial", "mon:stdio",  # "stdio",
         "-bios", ovmf,
-        "-display", "none",
         "-m", "4G",
         "-smp", "4",
         "-drive",

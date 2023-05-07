@@ -5,6 +5,7 @@
     "requires": [
         "crt0",
         "mu-base",
+        "mu-api",
         "libc"
     ],
     "props": {

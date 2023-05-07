@@ -22,4 +22,5 @@ typedef struct
 } Maybe$(Task);
 
 MaybeTaskPtr task_init(Str path, HalSpace *space);
+
 MaybeTaskPtr task_kernel(void);

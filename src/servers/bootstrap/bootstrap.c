@@ -108,11 +108,15 @@ static MaybeRCVec init_servers(void)
 int mu_main(MuArgs args)
 {
     MuCap info;
+    MuCap port;
+    MuMsg msg;
+
     mods = (Module *)args.arg1;
     len = args.arg2;
 
     assert(len, "No modules received");
     assert(mu_self(&info) == MU_RES_OK, "Failed to get self info");
+    assert(mu_create_port(&port, MU_IPC_RECV | MU_IPC_SEND) == MU_RES_OK, "Failed to create port");
 
     auto servers = unwrap(init_servers());
 
@@ -122,6 +126,12 @@ int mu_main(MuArgs args)
     {
         Module mod = unwrap(search_module((cstr)entry.path.buf));
         unwrap(elf_parse((cstr)entry.path.buf, mod.ptr, entry.vspace._raw, entry.args));
+    }
+
+    for (;;)
+    {
+        mu_ipc(&port, &msg, MU_IPC_RECV | MU_IPC_BLOCK);
+        debug_info("{x}", (u64)msg.label);
     }
 
     return 0;

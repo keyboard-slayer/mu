@@ -37,4 +37,7 @@ void vec_expand_(char **data, usize *length, usize *capacity, int memsz, AllocAc
     vec_clear(v);                                                      \
 })
 
+#define vec_pop(v) \
+    (v)->data[--(v)->length]
+
 typedef Vec(char) VecChar;
