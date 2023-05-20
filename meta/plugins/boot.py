@@ -7,12 +7,10 @@ from osdk.const import CACHE_DIR
 from osdk.cmds import Cmd, append
 from osdk.args import Args
 
-
 def kvmAvailable() -> bool:
     if os.path.exists("/dev/kvm") and os.access("/dev/kvm", os.R_OK):
         return True
     return False
-
 
 def installLimine(bootDir: str, efiBootDir: str) -> None:
     limine = shell.wget(
@@ -20,17 +18,6 @@ def installLimine(bootDir: str, efiBootDir: str) -> None:
     )
 
     shell.cp(limine, f"{efiBootDir}/BOOTX64.EFI")
-
-
-def buildPkgs(binDir: str, debug: bool) -> list[str]:
-    pkgs = [p.id for p in loadAllComponents() if "src/servers" in p.dirname() or "src/pkgs" in p.dirname()]
-
-    for pkg in pkgs:
-        elf = builder.build(pkg, "mu-x86_64:debug:o0")
-        shell.cp(elf.outfile(), f"{binDir}/{os.path.basename(elf.outfile())[:-4]}")
-
-    return pkgs
-
 
 def limineGenConfig(bootDir: str, pkgs: list[str]) -> None:
     with open(f"{bootDir}/limine.cfg", "w") as cfg:
@@ -87,12 +74,9 @@ def bootCmd(args: Args) -> None:
     mu = builder.build("mu-core", "kernel-x86_64:debug")
 
     shell.cp(mu.outfile(), f"{bootDir}/kernel.elf")
-    copy_tree("meta/sysroot", imageDir)
 
-    pkgs = buildPkgs(binDir, debug)
     installLimine(bootDir, efiBootDir)
-    limineGenConfig(bootDir, pkgs)
-    limineAddSubmodules(bootDir, "/etc/rc.json")
+    limineGenConfig(bootDir, [])
 
     qemuCmd: list[str] = [
         "qemu-system-x86_64",
@@ -121,6 +105,5 @@ def bootCmd(args: Args) -> None:
         print("KVM not available, using QEMU-TCG")
 
     shell.exec(*qemuCmd)
-
 
 append(Cmd("s", "start", "Boot the system", bootCmd))

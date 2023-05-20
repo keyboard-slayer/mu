@@ -1,7 +1,0 @@
-{
-    "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
-    "id": "mu-api",
-    "description": "The µnix microkernel API",
-    "type": "lib",
-    "requires": []
-}

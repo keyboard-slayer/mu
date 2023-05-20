@@ -77,7 +77,10 @@
             ]
         },
         "as": {
-            "cmd": "clang",
+            "cmd": [
+                "@latest",
+                "clang"
+            ],
             "args": [
                 "-target",
                 "x86_64-none-elf",

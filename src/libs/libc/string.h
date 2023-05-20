@@ -13,10 +13,6 @@ void *memcpy(void *dest, const void *src, usize n);
 
 int memcmp(const void *s1, const void *s2, usize n);
 
-char *strdup(cstr s);
-
-char *strndup(cstr s, usize n);
-
 int strcmp(cstr s1, cstr s2);
 
 int strncmp(cstr s1, cstr s2, usize len);

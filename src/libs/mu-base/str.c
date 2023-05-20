@@ -22,7 +22,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <ctype.h>
 #include <mu-traits/alloc.h>
 
 #include "str.h"
@@ -53,6 +52,16 @@ MaybeStr str_dup(Str const str, Alloc *alloc)
     memcpy(buf, str.buf, str.len);
     return Some(MaybeStr, str_n(str.len, buf));
 }
+
+static int tolower(int c)
+{
+    if (c >= 'A' && c <= 'Z')
+    {
+        return c + ('a' - 'A');
+    }
+    return c;
+}
+
 
 bool str_eq_ci(Str const lhs, Str const rhs)
 {

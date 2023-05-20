@@ -1,13 +1,10 @@
 #include <libheap/libheap.h>
 #include <mu-base/std.h>
 #include <mu-embed/alloc.h>
+#include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
-
-#ifdef __osdk_freestanding__
-#    include <mu-hal/hal.h>
-#    include <mu-misc/lock.h>
+#include <mu-misc/lock.h>
 static Spinlock lock = {0};
-#endif /* __osdk_freestanding__ */
 
 static void *alloc_block(unused void *ctx, usize size)
 {
@@ -75,21 +72,13 @@ static MaybePtr _heap_realloc(unused Alloc *self, void *ptr, usize size)
 
 void heap_release(Alloc *alloc)
 {
-#ifdef __osdk_freestanding__
     spinlock_release(&lock);
-#else
-/* TODO */
-#endif /* !__osdk_freestanding__ */
     memset(alloc, 0, sizeof(Alloc));
 }
 
 Alloc heap_acquire(void)
 {
-#ifdef __osdk_freestanding__
     spinlock_acquire(&lock);
-#else
-    /* TODO */
-#endif /* !__osdk_freestanding__ */
     return (Alloc){
         .malloc = _heap_alloc,
         .realloc = _heap_realloc,

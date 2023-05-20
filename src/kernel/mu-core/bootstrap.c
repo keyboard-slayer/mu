@@ -57,6 +57,12 @@ int _start()
     HalSpace *vspace;
     assert(hal_space_create(&vspace) == MU_RES_OK, "Couldn't create vspace for bootstrap");
     auto mod = handover_file_find(hal_get_handover(), "/bin/bootstrap");
+
+    if (mod.size == 0)
+    {
+        panic("Couldn't find bootstrap");
+    }
+
     MuCap bootstrap = unwrap(elf_parse("/bin/bootstrap", mod.start, (uintptr_t)vspace, (MuArgs){0}));
     passModules((Task *)bootstrap._raw);
 
