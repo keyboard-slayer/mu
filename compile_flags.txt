@@ -7,7 +7,7 @@
 -Isrc/entry 
 -Isrc/libs
 -Isrc/servers
--I.osdk/extern/cute-engineering
--D__osdk_arch_x86_64__
--D__osdk_bits_64__
--D__osdk_osdk_debug__
+-I.cutekit/extern/cute-engineering
+-D__ck_arch_x86_64__
+-D__ck_bits_64__
+-D__ck_osdk_debug__

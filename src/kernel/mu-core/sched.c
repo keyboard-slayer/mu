@@ -5,7 +5,7 @@
 
 #include "sched.h"
 
-#if defined(__x86_64__)
+#ifdef __ck_arch_x86_64__
 #    include <mu-x86_64/cpu.h>
 #else
 #    error "Unsupported architecture"

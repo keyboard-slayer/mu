@@ -150,7 +150,7 @@ typedef enum
 
 /* --- Syscall -------------------------------------------------------------- */
 
-#ifdef __osdk_arch_x86_64__
+#ifdef __ck_arch_x86_64__
 
 mu_always_inline MuRes __mu_syscall_impl(MuSyscall s, MuArg arg1, MuArg arg2, MuArg arg3, MuArg arg4, MuArg arg5, MuArg arg6)
 {

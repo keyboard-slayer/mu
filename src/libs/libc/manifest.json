@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schemas.cute.engineering/stable/osdk.manifest.component.v1",
+    "$schema": "https://schemas.cute.engineering/stable/cutekit.manifest.component.v1",
     "id": "libc",
     "description": "Libc compatibility layer for the kernel (useful for data structures)",
     "type": "lib",

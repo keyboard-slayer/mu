@@ -17,12 +17,12 @@
 ## Building
 Before building µ, you need to install the LLVM toolchain. You can find the instructions [here](https://llvm.org/docs/GettingStarted.html).
 
-µ uses [osdk](https://github.com/cute-engineering/osdk) to build. You can go to the osdk repository to find the instructions to install it.
+µ uses [cutekit](https://github.com/cute-engineering/cutekit) to build. You can go to the cutekit repository to find the instructions to install it.
 
 You can build µ by running the following command:
 ```sh
-osdk i                    # Download the dependencies
-osdk b --target=x86_64    # Build the dependencies
+cutekit i                           # Download the dependencies
+cutekit b --target=kernel-x86_64    # Build the dependencies
 ```
 
 ## Running
@@ -30,7 +30,7 @@ An installation of QEMU is required to run µ. We also recommend you to run QEMU
 
 You can run µ by running the following command:
 ```sh
-osdk s
+cutekit s
 ```
 
 ## Contributing

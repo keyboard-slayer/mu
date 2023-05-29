@@ -3,5 +3,5 @@
 meta/cache
 mu.iso
 .ninja_log
-.osdk
+.cutekit
 __pycache__/
