@@ -80,6 +80,7 @@ def bootCmd(args: Args) -> None:
         "-no-shutdown",
         "-serial", "mon:stdio",
         "-bios", ovmf,
+        "-display", "sdl",
         "-m", "4G",
         "-smp", "4",
         "-drive",
