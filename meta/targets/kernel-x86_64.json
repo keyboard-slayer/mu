@@ -59,7 +59,7 @@
             "args": [
                 "-m",
                 "elf_x86_64",
-                "-Tmeta/targets/kernel-x86_64.ld",
+                "-T", ["@abspath", "kernel-x86_64.ld"],
                 "-z",
                 "max-page-size=0x1000"
             ],
