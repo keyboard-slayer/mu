@@ -1,9 +1,10 @@
 {
     "$schema": "https://schemas.cute.engineering/stable/cutekit.manifest.component.v1",
-    "id": "mu-base",
+    "id": "mu-debug",
     "type": "lib",
-    "description": "Base library for the mu project",
+    "description": "Debug library for the mu project",
     "requires": [
-        "mu-embed"
+        "mu-embed",
+        "pico-fmt"
     ]
 }

@@ -1,7 +1,6 @@
 #pragma once
 
-#include <mu-base/std.h>
-#include <mu-traits/alloc.h>
+#include <pico-traits/alloc.h>
 
 typedef struct
 {

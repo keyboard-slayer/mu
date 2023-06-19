@@ -1,7 +1,6 @@
 #pragma once
 
 #include <mu-api/api.h>
-#include <mu-base/std.h>
 
 #define PAGE_SIZE (kib(4))
 

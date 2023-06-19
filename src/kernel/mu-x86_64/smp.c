@@ -1,6 +1,5 @@
-#include "smp.h"
-#include <mu-base/std.h>
 #include <mu-core/pmm.h>
+#include <mu-debug/debug.h>
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
 #include <mu-misc/lock.h>
@@ -10,6 +9,7 @@
 #include "cpu.h"
 #include "gdt.h"
 #include "idt.h"
+#include "smp.h"
 #include "syscall.h"
 
 static uintptr_t cr3;

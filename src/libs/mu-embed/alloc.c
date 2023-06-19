@@ -1,4 +1,5 @@
 #include <mu-api/api.h>
+#include <pico-misc/macro.h>
 
 #include "alloc.h"
 
@@ -18,7 +19,7 @@ MaybeAllocObj embed_alloc(usize size)
     }
     // clang-format on
 
-    auto obj = (AllocObj){
+    AllocObj obj = (AllocObj){
         .ptr = ptr._raw,
         .size = size,
     };

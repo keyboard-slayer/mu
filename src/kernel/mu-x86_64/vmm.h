@@ -1,7 +1,5 @@
 #pragma once
 
-#include <mu-base/std.h>
-
 #define PMLX_GET_INDEX(addr, level) (((u64)addr & ((u64)0x1ff << (12 + level * 9))) >> (12 + level * 9))
 #define VMM_GET_ADDR(x)             ((x)&0x000ffffffffff000)
 #define VMM_PRESENT                 (1 << 0)

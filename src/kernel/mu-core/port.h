@@ -1,6 +1,7 @@
 #pragma once
 
-#include <mu-ds/vec.h>
+#include <mu-api/api.h>
+#include <pico-ds/vec.h>
 
 typedef Vec(MuMsg *) MuMsgVec;
 

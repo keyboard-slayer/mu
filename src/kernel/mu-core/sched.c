@@ -1,7 +1,8 @@
-#include <mu-base/std.h>
+#include <mu-debug/debug.h>
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
 #include <mu-misc/lock.h>
+#include <string.h>
 
 #include "sched.h"
 

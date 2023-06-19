@@ -1,6 +1,7 @@
 #pragma once
 
-#include <mu-base/std.h>
+#include <pico-misc/macro.h>
+#include <pico-misc/types.h>
 
 #define GDT_ACCESS_READ_WRITE      (1 << 1)
 #define GDT_ACCESS_EXE             (1 << 3)

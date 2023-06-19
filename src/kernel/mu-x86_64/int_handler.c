@@ -1,7 +1,8 @@
-#include <mu-base/std.h>
 #include <mu-core/sched.h>
+#include <mu-debug/debug.h>
 #include <mu-hal/hal.h>
 #include <mu-misc/lock.h>
+#include <pico-misc/types.h>
 
 #include "apic.h"
 #include "asm.h"

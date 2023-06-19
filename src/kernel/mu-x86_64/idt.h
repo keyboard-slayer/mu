@@ -1,6 +1,7 @@
 #pragma once
 
-#include <mu-base/std.h>
+#include <pico-misc/macro.h>
+#include <pico-misc/types.h>
 
 #define IDT_ENTRIES_LENGTH (256)
 #define IDT_INT_PRESENT    (1 << 7)

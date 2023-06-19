@@ -1,4 +1,3 @@
-#include <mu-base/std.h>
 #include <mu-core/const.h>
 #include <mu-core/pmm.h>
 #include <mu-hal/hal.h>

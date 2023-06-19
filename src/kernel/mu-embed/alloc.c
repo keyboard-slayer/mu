@@ -8,7 +8,7 @@ MaybeAllocObj embed_alloc(usize size)
     PmmObj res = Try(MaybeAllocObj, pmm.calloc(1, size, false));
     pmm.release(&pmm);
 
-    auto obj = (AllocObj){
+    AllocObj obj = (AllocObj){
         .ptr = hal_mmap_lower_to_upper(res.ptr),
         .size = size,
     };

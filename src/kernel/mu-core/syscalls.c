@@ -1,12 +1,13 @@
 #include <mu-api/api.h>
-#include <mu-base/std.h>
 #include <mu-core/const.h>
 #include <mu-core/pmm.h>
 #include <mu-core/port.h>
 #include <mu-core/sched.h>
+#include <mu-debug/debug.h>
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
 #include <stdint.h>
+#include <string.h>
 
 static MuCap bootstrap_port = {0};
 

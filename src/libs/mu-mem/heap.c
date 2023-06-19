@@ -1,9 +1,10 @@
 #include <libheap/libheap.h>
-#include <mu-base/std.h>
 #include <mu-embed/alloc.h>
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
 #include <mu-misc/lock.h>
+#include <pico-misc/macro.h>
+
 static Spinlock lock = {0};
 
 static void *alloc_block(unused void *ctx, usize size)

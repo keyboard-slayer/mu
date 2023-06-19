@@ -1,10 +1,10 @@
 #include <mu-api/api.h>
 #include <mu-embed/log.h>
 #include <mu-embed/misc.h>
+#include <pico-fmt/fmt.h>
 #include <stdarg.h>
 
 #include "debug.h"
-#include "fmt.h"
 
 static cstr event_header[DEBUG_EVENT_LENGTH] = {
     NULL,

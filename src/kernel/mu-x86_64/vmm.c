@@ -1,6 +1,7 @@
 #include <handover/utils.h>
 #include <mu-core/const.h>
 #include <mu-core/pmm.h>
+#include <mu-debug/debug.h>
 #include <mu-hal/hal.h>
 
 #include "asm.h"

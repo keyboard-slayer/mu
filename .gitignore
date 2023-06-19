@@ -1,7 +1,4 @@
-.sysroot/
-.gdb_history
+.*
 meta/cache
 mu.iso
-.ninja_log
-.cutekit
 __pycache__/

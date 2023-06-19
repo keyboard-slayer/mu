@@ -7,10 +7,10 @@
         "arch",
         "elf",
         "entry",
-        "mu-base",
-        "mu-ds",
+        "mu-debug",
         "mu-mem",
-        "mu-misc",
-        "mu-traits"
+        "pico-ds",
+        "pico-misc",
+        "pico-traits"
     ]
 }

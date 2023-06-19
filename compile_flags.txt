@@ -22,3 +22,4 @@
 -Isrc/libs
 -Isrc/kernel
 -I.cutekit/extern/cute-engineering
+-I.cutekit/extern/cute-engineering/picokit/src

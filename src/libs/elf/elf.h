@@ -1,7 +1,6 @@
 #pragma once
 
 #include <mu-api/api.h>
-#include <mu-base/std.h>
 #include <mu-core/task.h>
 
 #define EI_NIDENT (16)

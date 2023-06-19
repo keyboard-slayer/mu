@@ -4,7 +4,8 @@
     "description": "Glue code and for the x86_64 architecture",
     "type": "lib",
     "requires": [
-        "libc"
+        "libc",
+        "mu-debug"
     ],
     "enableIf": {
         "arch": [

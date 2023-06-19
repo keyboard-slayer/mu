@@ -1,8 +1,9 @@
-#include <mu-base/std.h>
 #include <mu-core/const.h>
+#include <mu-debug/debug.h>
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
 #include <mu-misc/lock.h>
+#include <string.h>
 
 #include "cpu.h"
 #include "gdt.h"

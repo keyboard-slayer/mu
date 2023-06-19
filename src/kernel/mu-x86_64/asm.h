@@ -1,6 +1,6 @@
 #pragma once
 
-#include <mu-base/std.h>
+#include <pico-misc/types.h>
 
 #define MSR_EFER              (0xC0000080)
 #define MSR_STAR              (0xC0000081)

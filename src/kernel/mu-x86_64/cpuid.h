@@ -1,6 +1,6 @@
 #pragma once
 
-#include <mu-base/std.h>
+#include <pico-misc/types.h>
 
 #define CPUID_EXTENDED_LEAF      (0x80000001)
 #define CPUID_EXFEATURE_PDPE1GB  (1 << 26)

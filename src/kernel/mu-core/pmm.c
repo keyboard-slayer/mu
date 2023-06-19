@@ -1,8 +1,8 @@
 #include <handover/utils.h>
-#include <mu-base/std.h>
+#include <mu-debug/debug.h>
 #include <mu-hal/hal.h>
 #include <mu-misc/lock.h>
-#include <mu-traits/alloc.h>
+#include <pico-traits/alloc.h>
 
 #include "const.h"
 #include "pmm.h"

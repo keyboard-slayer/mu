@@ -1,6 +1,7 @@
-#include "idt.h"
+#include <mu-debug/debug.h>
 
 #include "gdt.h"
+#include "idt.h"
 
 static Idt idt;
 static IdtDesc idt_desc = {

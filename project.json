@@ -11,6 +11,10 @@
         "cute-engineering/handover": {
             "git": "https://github.com/cute-engineering/handover.git",
             "tag": "v1.4.0"
+        },
+        "cute-engineering/picokit": {
+            "git": "https://github.com/cute-engineering/picokit.git",
+            "tag": "v1.0.0"
         }
     }
 }

@@ -3,8 +3,10 @@
 #include "limine.h"
 #include <handover/builder.h>
 #include <handover/handover.h>
-#include <mu-base/std.h>
+#include <mu-debug/debug.h>
 #include <mu-hal/hal.h>
+#include <pico-misc/macro.h>
+#include <pico-misc/types.h>
 #include <string.h>
 
 static u8 handover_buffer[kib(16)] = {0};
@@ -196,7 +198,7 @@ HandoverPayload *hal_get_handover(void)
     return builder.payload;
 }
 
-usize hal_get_handover_size(void) 
+usize hal_get_handover_size(void)
 {
     return builder.size;
 }

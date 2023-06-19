@@ -1,4 +1,3 @@
-#include <mu-base/std.h>
 #include <mu-core/core.h>
 #include <mu-hal/hal.h>
 

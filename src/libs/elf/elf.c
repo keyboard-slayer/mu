@@ -1,6 +1,7 @@
 #include <mu-api/api.h>
 #include <mu-core/const.h>
 #include <mu-core/task.h>
+#include <mu-debug/debug.h>
 #include <mu-embed/alloc.h>
 #include <mu-hal/hal.h>
 #include <string.h>

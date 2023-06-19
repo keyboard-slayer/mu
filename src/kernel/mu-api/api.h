@@ -1,6 +1,7 @@
 #pragma once
 
-#include <mu-base/str.h>
+#include <pico-adt/maybe.h>
+#include <pico-misc/types.h>
 
 #define mu_always_inline static __attribute__((always_inline, used))
 
