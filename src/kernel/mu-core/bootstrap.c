@@ -7,8 +7,6 @@
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
 
-#include <mu-x86_64/asm.h>
-
 #include "sched.h"
 
 typedef Vec(Module) VecModule;
