@@ -195,3 +195,8 @@ HandoverPayload *hal_get_handover(void)
 
     return builder.payload;
 }
+
+usize hal_get_handover_size(void) 
+{
+    return builder.size;
+}

@@ -86,6 +86,8 @@ HandoverPayload *hal_get_handover(void);
 
 void hal_parse_handover(void);
 
+usize hal_get_handover_size(void);
+
 /* --- Misc ----------------------------------------------------------------- */
 
 Writer hal_acquire_serial(void);

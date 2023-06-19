@@ -7,19 +7,19 @@
 
 #include "elf.h"
 
-MaybeMuCap elf_parse(cstr name, uintptr_t start, uintptr_t vspace, MuArgs args)
+MaybeTaskPtr elf_parse(cstr name, uintptr_t start, uintptr_t vspace, MuArgs args)
 {
     debug_info("Loading module {}", name);
     Elf_Ehdr *hdr = (void *)start;
 
     if (memcmp(hdr->e_ident, ELFMAG, 4) != 0)
     {
-        return None(MaybeMuCap);
+        return None(MaybeTaskPtr);
     }
 
     if (!elf_is_correct_class(hdr))
     {
-        return None(MaybeMuCap);
+        return None(MaybeTaskPtr);
     }
 
     for (usize i = 0; i < hdr->e_phnum; i++)
@@ -29,13 +29,13 @@ MaybeMuCap elf_parse(cstr name, uintptr_t start, uintptr_t vspace, MuArgs args)
         if (phdr->p_type == PT_LOAD)
         {
             debug_info("({}) Mapping program header start: {x} len: {x}", name, phdr->p_vaddr, phdr->p_memsz);
-            AllocObj paddr = Try(MaybeMuCap, embed_alloc(phdr->p_memsz));
+            AllocObj paddr = Try(MaybeTaskPtr, embed_alloc(phdr->p_memsz));
 
             debug_info("({}) Phdr will be copied over 0x{a}", name, paddr.ptr);
 
             if (hal_space_map((HalSpace *)vspace, phdr->p_vaddr, hal_mmap_upper_to_lower(paddr.ptr), align_up(phdr->p_memsz, PAGE_SIZE), MU_MEM_READ | MU_MEM_WRITE | MU_MEM_USER | MU_MEM_EXEC) != MU_RES_OK)
             {
-                return None(MaybeMuCap);
+                return None(MaybeTaskPtr);
             }
 
             memcpy((void *)paddr.ptr, (void *)start + phdr->p_offset, phdr->p_filesz);
@@ -43,13 +43,12 @@ MaybeMuCap elf_parse(cstr name, uintptr_t start, uintptr_t vspace, MuArgs args)
         }
     }
 
-    Task *task_impl = Try(MaybeMuCap, task_init(str(name), (HalSpace *)vspace));
-    MuCap task = (MuCap){(uintptr_t)task_impl};
+    Task *task = Try(MaybeTaskPtr, task_init(str(name), (HalSpace *)vspace));
 
-    if (hal_ctx_create(&task_impl->context, hdr->e_entry, USER_STACK_BASE, args) != MU_RES_OK)
+    if (hal_ctx_create(&task->context, hdr->e_entry, USER_STACK_BASE, args) != MU_RES_OK)
     {
-        return None(MaybeMuCap);
+        return None(MaybeTaskPtr);
     }
 
-    return Some(MaybeMuCap, task);
+    return Some(MaybeTaskPtr, task);
 }

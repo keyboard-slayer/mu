@@ -2,49 +2,13 @@
 #include <handover/utils.h>
 #include <mu-api/bootstrap.h>
 #include <mu-base/std.h>
-#include <mu-core/const.h>
 #include <mu-ds/vec.h>
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
 
 #include "sched.h"
+#include "const.h"
 
-typedef Vec(Module) VecModule;
-
-static void passModules(Task *task)
-{
-    HandoverRecord rec;
-    VecModule mods;
-
-    auto handover = hal_get_handover();
-    vec_init(&mods, heap_acquire);
-
-    handover_foreach_record(handover, rec)
-    {
-        if (rec.tag == HANDOVER_FILE)
-        {
-            uintptr_t addr = hal_mmap_upper_to_lower(rec.start);
-            Module mod = (Module){.name = {0}, .ptr = addr, .len = rec.size};
-            cstr filename = (cstr)handover + rec.file.name;
-
-            if (memcmp(filename, "/bin/bootstrap", 14) == 0)
-            {
-                continue;
-            }
-
-            hal_space_map(task->space, addr, addr, align_up(rec.size, PAGE_SIZE), MU_MEM_USER | MU_MEM_READ);
-
-            memcpy(&mod.name, filename, strlen(filename));
-            vec_push(&mods, mod);
-        }
-    }
-
-    uintptr_t addr = hal_mmap_upper_to_lower((uintptr_t)mods.data);
-    hal_space_map(task->space, align_down(addr, PAGE_SIZE), align_down(addr, PAGE_SIZE), align_up(mods.capacity * sizeof(Module), PAGE_SIZE), MU_MEM_USER | MU_MEM_READ);
-
-    task->context.regs.rdi = addr;
-    task->context.regs.rsi = mods.length;
-}
 
 int _start()
 {
@@ -61,9 +25,29 @@ int _start()
         panic("Couldn't find bootstrap");
     }
 
-    MuCap bootstrap = unwrap(elf_parse("/bin/bootstrap", mod.start, (uintptr_t)vspace, (MuArgs){0}));
-    passModules((Task *)bootstrap._raw);
+    Task *bootstrap = unwrap(elf_parse("/bin/bootstrap", mod.start, (uintptr_t)vspace, (MuArgs){0}));
+    HandoverPayload *handover = hal_get_handover();
+    usize handover_size = kib(16); 
 
-    sched_push_task((Task *)bootstrap._raw);
+
+    Alloc heap = heap_acquire();
+    HandoverPayload *handover_copy = unwrap(heap.malloc(&heap, handover_size));
+    uintptr_t handover_addr = hal_mmap_upper_to_lower((uintptr_t) handover_copy);
+    heap.release(&heap);
+    
+    debug_info("Pointer at {a}", handover_addr);
+
+    memcpy(handover_copy, handover, handover_size);
+    handover_copy->magic = 0xB00B1E5;
+
+    if (hal_space_map(bootstrap->space, align_down(handover_addr, PAGE_SIZE), \
+        align_down(handover_addr, PAGE_SIZE), hal_get_handover_size(), MU_MEM_USER | MU_MEM_READ) != MU_RES_OK)
+    {
+        panic("Couldn't map handover to bootstrap process");
+    }
+
+    bootstrap->context.regs.rdi = (uintptr_t) handover_addr;
+
+    sched_push_task(bootstrap);
     loop;
 }

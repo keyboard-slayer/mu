@@ -2,6 +2,7 @@
 
 #include <mu-api/api.h>
 #include <mu-base/std.h>
+#include <mu-core/task.h>
 
 #define EI_NIDENT (16)
 
@@ -86,4 +87,4 @@ typedef struct
     Elf_Half e_shstrndx;
 } Elf_Ehdr;
 
-MaybeMuCap elf_parse(cstr name, uintptr_t start, uintptr_t vspace, MuArgs args);
+MaybeTaskPtr elf_parse(cstr name, uintptr_t start, uintptr_t vspace, MuArgs args);
