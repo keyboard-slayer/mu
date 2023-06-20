@@ -9,7 +9,6 @@
 #include <stdint.h>
 #include <string.h>
 
-static MuCap bootstrap_port = {0};
 
 typedef MuRes Handler(MuArg arg1, MuArg arg2, MuArg arg3, MuArg arg4, MuArg arg5, MuArg arg6);
 
@@ -116,11 +115,6 @@ static MuRes sys_create(MuType type, unused MuCap *cap, unused MuArg arg1, unuse
 
         case MU_TYPE_PORT:
         {
-            if (strcmp((cstr)sched_self()->tasks.data[sched_self()->task_index]->path.buf, "/bin/bootstrap") == 0 && bootstrap_port._raw)
-            {
-                return MU_RES_BAD_ARG;
-            }
-
             auto heap = heap_acquire();
 
             cap->_raw = (uintptr_t)unwrap_or(heap.calloc(&heap, 1, sizeof(MuPort)), NULL);
@@ -134,12 +128,6 @@ static MuRes sys_create(MuType type, unused MuCap *cap, unused MuArg arg1, unuse
             if (!cap->_raw)
             {
                 return MU_RES_NO_MEM;
-            }
-
-            if (strcmp((cstr)sched_self()->tasks.data[sched_self()->task_index]->path.buf, "/bin/bootstrap") == 0)
-            {
-                bootstrap_port._raw = cap->_raw;
-                debug_info("Bootstrap registered");
             }
 
             break;
@@ -177,17 +165,6 @@ static MuRes sys_start(MuCap task, uintptr_t ip, uintptr_t sp, MuArgs *args)
     return MU_RES_OK;
 }
 
-static MuRes sys_bootstrap_port(MuCap *cap)
-{
-    if (!bootstrap_port._raw)
-    {
-        return MU_RES_BAD_ARG;
-    }
-
-    cap->_raw = bootstrap_port._raw;
-
-    return MU_RES_OK;
-}
 
 static MuRes sys_ipc(MuCap *port, MuMsg *msg, MuIpcFlags flags)
 {
@@ -236,7 +213,6 @@ static Handler *handlers[__MU_SYS_LEN] = {
     [MU_SYS_CREATE] = (Handler *)sys_create,
     [MU_SYS_MAP] = (Handler *)sys_map,
     [MU_SYS_START] = (Handler *)sys_start,
-    [MU_SYS_BOOTSTRAP_PORT] = (Handler *)sys_bootstrap_port,
     [MU_SYS_IPC] = (Handler *)sys_ipc,
 };
 
