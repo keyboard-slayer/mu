@@ -6,6 +6,7 @@
 #include <pico-ds/vec.h>
 
 #include "const.h"
+#include "handover/handover.h"
 #include "sched.h"
 
 int _start()
@@ -39,6 +40,20 @@ int _start()
                       align_down(handover_addr, PAGE_SIZE), hal_get_handover_size() + PAGE_SIZE, MU_MEM_USER | MU_MEM_READ) != MU_RES_OK)
     {
         panic("Couldn't map handover to bootstrap process");
+    }
+
+    for (size_t i = 0; i < handover_copy->count; i++)
+    {
+        HandoverRecord *rec = &handover_copy->records[i];
+        if (rec->tag == HANDOVER_FILE)
+        {
+            rec->start = hal_mmap_upper_to_lower(rec->start);
+            if (hal_space_map(bootstrap->space, align_down(rec->start, PAGE_SIZE), align_down(rec->start, PAGE_SIZE),
+                              align_up(rec->size, PAGE_SIZE), MU_MEM_USER | MU_MEM_READ) != MU_RES_OK)
+            {
+                panic("Couldn't map file to bootstrap process");
+            }
+        }
     }
 
     bootstrap->context.regs.rdi = (uintptr_t)handover_addr;
