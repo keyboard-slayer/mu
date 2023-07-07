@@ -3,8 +3,6 @@
 #include <pico-misc/types.h>
 #include <string.h>
 
-char *strrchr(const char *s, int c);
-
 usize strlen(cstr s);
 
 void *memset(void *s, int c, usize n);
