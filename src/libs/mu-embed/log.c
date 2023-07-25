@@ -3,6 +3,7 @@
 #include <pico-ds/vec.h>
 #include <pico-misc/macro.h>
 #include <pico-traits/writer.h>
+#include <string.h>
 
 static VecChar buf;
 

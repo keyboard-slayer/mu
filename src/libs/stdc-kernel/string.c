@@ -1,17 +1,5 @@
 #include <mu-mem/heap.h>
 
-usize strlen(const char *s)
-{
-    usize len = 0;
-
-    while (*s++)
-    {
-        len++;
-    }
-
-    return len;
-}
-
 void *memset(void *s, int c, usize n)
 {
     char *p = s;
@@ -50,11 +38,11 @@ int memcmp(const void *s1, const void *s2, usize n)
     return 0;
 }
 
-int strncmp(cstr s1, cstr s2, usize n)
+int strcmp(cstr s1, cstr s2) 
 {
-    for (usize i = 0; i < n; i++)
+    for (usize i = 0; s1[i] != 0; i++) 
     {
-        if (s1[i] != s2[i])
+        if (s1[i] != s2[i]) 
         {
             return s1[i] - s2[i];
         }
@@ -63,7 +51,13 @@ int strncmp(cstr s1, cstr s2, usize n)
     return 0;
 }
 
-int strcmp(cstr s1, cstr s2)
+usize strlen(cstr s)
 {
-    return strncmp(s1, s2, strlen(s1));
+    usize len = 0;
+    while (s[len] != 0)
+    {
+        len++;
+    }
+
+    return len;
 }

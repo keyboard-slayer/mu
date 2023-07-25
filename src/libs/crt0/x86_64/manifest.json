@@ -1,18 +1,17 @@
 {
     "$schema": "https://schemas.cute.engineering/stable/cutekit.manifest.component.v1",
-    "id": "arch-x86_64",
-    "description": "Glue code and for the x86_64 architecture",
+    "id": "crt0-x86_64",
+    "description": "Crt0 for x86_64",
     "type": "lib",
-    "requires": [
-        "stdc-ansi",
-        "mu-debug"
-    ],
     "enableIf": {
         "arch": [
             "x86_64"
         ]
     },
     "provides": [
-        "arch"
+        "crt0"
+    ],
+    "requires": [
+        "crt0-common"
     ]
 }

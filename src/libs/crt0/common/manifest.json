@@ -1,10 +1,10 @@
 {
     "$schema": "https://schemas.cute.engineering/stable/cutekit.manifest.component.v1",
-    "id": "elf",
-    "description": "Elf spec & parser",
+    "id": "crt0-common",
+    "description": "Common crt0 code for all platforms",
     "type": "lib",
     "requires": [
-        "stdc-ansi",
-        "mu-embed"
+        "munix-debug",
+        "stdc-ansi-munix"
     ]
 }

@@ -5,7 +5,7 @@
     "type": "lib",
     "requires": [
         "handover",
-        "libc"
+        "stdc-ansi"
     ],
     "enableif": {
         "loader": [

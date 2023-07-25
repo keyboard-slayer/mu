@@ -1,10 +1,9 @@
 {
     "$schema": "https://schemas.cute.engineering/stable/cutekit.manifest.component.v1",
-    "id": "elf",
-    "description": "Elf spec & parser",
     "type": "lib",
+    "id": "munix-debug",
+    "description": "Munix debug library",
     "requires": [
-        "stdc-ansi",
-        "mu-embed"
+        "pico-fmt"
     ]
 }

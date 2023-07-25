@@ -1,102 +1,86 @@
 import os
+import shutil
+from cutekit import args, cmds, builder, context, const, shell, model
+from typing import Self
 
-from cutekit import shell, builder
-from cutekit.const import CACHE_DIR, PROJECT_CK_DIR
-from cutekit.cmds import Cmd, append
-from cutekit.args import Args
 
 def kvmAvailable() -> bool:
-    if os.path.exists("/dev/kvm") and os.access("/dev/kvm", os.R_OK):
-        return True
-    return False
+    return os.path.exists("/dev/kvm") and os.access("/dev/kvm", os.R_OK)
 
-def installLimine(bootDir: str, efiBootDir: str) -> None:
-    limine = shell.wget(
-        "https://raw.githubusercontent.com/limine-bootloader/limine/v4.x-branch-binary/BOOTX64.EFI"
-    )
+class LimineCfg:
+    def __init__(self, kernel: context.ComponentInstance):
+        self.kernel = kernel
+        self.pkgs: list[context.ComponentInstance] = []
+        self.cfg = "TIMEOUT=0\n:Mu\nPROTOCOL=limine\nKERNEL_PATH=boot:///boot/kernel.elf\n"
+        self.imageDir = None
 
-    shell.cp(limine, os.path.join(efiBootDir, "BOOTX64.EFI"))
+    def append(self, pkg: context.ComponentInstance, is_bin=True):
+        if is_bin:
+            self.cfg += f"MODULE_PATH=boot:///bin/{pkg.id()}\n"
+            self.pkgs.append(pkg)
+        else:
+            self.cfg += f"MODULE_PATH=boot://{pkg}\n"
 
-def limineGenConfig(bootDir: str, pkgs: list[str]) -> None:
-    with open(os.path.join(bootDir, "limine.cfg"), "w") as cfg:
-        cfg.write(
-            "TIMEOUT=0\n:Mu\nPROTOCOL=limine\nKERNEL_PATH=boot:///boot/kernel.elf\n"
+    def createImage(self) -> Self:
+        self.imageDir = shell.mkdir(
+            os.path.join(const.PROJECT_CK_DIR, "munix"))
+        efiBootDir = shell.mkdir(os.path.join(self.imageDir, "EFI", "BOOT"))
+        bootDir = shell.mkdir(os.path.join(self.imageDir, "boot"))
+        binDir = shell.mkdir(os.path.join(self.imageDir, "bin"))
+
+        limine = shell.wget(
+            "https://raw.githubusercontent.com/limine-bootloader/limine/v4.x-branch-binary/BOOTX64.EFI"
         )
 
-        for pkg in pkgs:
-            cfg.write(f"MODULE_PATH=boot:///bin/{pkg}\n")
+        shell.cp(limine, os.path.join(efiBootDir, "BOOTX64.EFI"))
+        shell.cp(self.kernel.outfile(), os.path.join(bootDir, "kernel.elf"))
 
+        for root, _, files in os.walk(os.path.join(const.META_DIR, "sysroot")): 
+            root = root.replace(os.path.join(const.META_DIR, "sysroot"), "")
+            list(map(lambda f: self.append(os.path.join(root, f), False), files))
 
-def limineAddSubmodules(bootDir: str, modPath: str) -> None:
-    with open(os.path.join(bootDir, "limine.cfg")) as cfg:
-        cfg.write(f"MODULE_PATH=boot://{modPath}\n")
+        shell.cpTree(os.path.join(const.META_DIR, "sysroot"), self.imageDir)
 
+        list(map(lambda pkg: shell.cp(pkg.outfile(),
+             os.path.join(binDir, pkg.id())), self.pkgs))
 
-def downloadOvmf() -> str:
-    path = os.path.join(CACHE_DIR, "OVMF.fd")
+        with open(os.path.join(bootDir, "limine.cfg"), 'w') as f:
+            f.write(self.cfg)
 
-    if os.path.isfile(path):
-        return path
+        return self
 
-    deb = shell.wget(
-        "http://ftp.debian.org/debian/pool/main/e/edk2/ovmf_2020.11-2+deb11u1_all.deb"
-    )
+    def run(self):
+        ovmf = shell.wget(
+            "https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd")
 
-    shell.exec(*["ar", "x", "--output", CACHE_DIR, deb])
-    shell.exec(
-        *[
-            "tar",
-            "xf",
-            os.path.join(CACHE_DIR, "data.tar.xz"),
-            "-C",
-            os.path.dirname(deb),
+        qemuCmd: list[str] = [
+            "qemu-system-x86_64",
+            "-no-reboot",
+            "-no-shutdown",
+            "-serial", "stdio",
+            "-bios", ovmf,
+            "-m", "4G",
+            "-smp", "4",
+            "-drive",
+            f"file=fat:rw:{self.imageDir},media=disk,format=raw",
         ]
-    )
 
-    shell.cp(os.path.join(CACHE_DIR, "usr", "share", "ovmf", "OVMF.fd"), path)
+        if kvmAvailable():
+            qemuCmd += ["-enable-kvm", "-cpu", "host"]
 
-    return path
+        shell.exec(*qemuCmd)
 
 
-def bootCmd(args: Args) -> None:
-    debug = "debug" in args.opts
-    no_ui = "no-ui" in args.opts
-    imageDir = shell.mkdir(os.path.join(PROJECT_CK_DIR, "boot"))
-    efiBootDir = shell.mkdir(os.path.join(imageDir, "EFI", "BOOT"))
-    bootDir = shell.mkdir(os.path.join(imageDir, "boot"))
+def bootFunc(args: args.Args):
+    limine = LimineCfg(builder.build("mu-core", "kernel-x86_64"))
 
-    # ovmf = downloadOvmf()
-    ovmf = shell.wget("https://retrage.github.io/edk2-nightly/bin/RELEASEX64_OVMF.fd")
-    mu = builder.build("mu-core", "kernel-x86_64:debug")
+    for pkg in filter(lambda m: const.EXTERN_DIR not in m.dirname(), context.loadAllComponents()):
+        if pkg.type == model.Type.EXE and pkg.id != "mu-core":
+            limine.append(builder.build(pkg.id, "munix-x86_64"))
 
-    shell.cp(mu.outfile(), os.path.join(bootDir, "kernel.elf"))
+    limine.createImage().run()
 
-    installLimine(bootDir, efiBootDir)
-    limineGenConfig(bootDir, [])
 
-    qemuCmd: list[str] = [
-        "qemu-system-x86_64",
-        "-no-reboot",
-        "-no-shutdown",
-        "-serial", "mon:stdio",
-        "-bios", ovmf,
-        "-m", "4G",
-        "-smp", "4",
-        "-drive",
-        f"file=fat:rw:{imageDir},media=disk,format=raw",
-    ]
-
-    if debug:
-        qemuCmd += ["-s", "-S", "-d", "int", "-M", "smm=off"]
-
-    if no_ui:
-        qemuCmd += ["-display", "none"]
-
-    if kvmAvailable():
-        qemuCmd += ["-enable-kvm", "-cpu", "host"]
-    else:
-        print("KVM not available, using QEMU-TCG")
-
-    shell.exec(*qemuCmd)
-
-append(Cmd("s", "start", "Boot the system", bootCmd))
+cmds.append(
+    cmds.Cmd("s", "boot", "Boot Munix", bootFunc)
+)
