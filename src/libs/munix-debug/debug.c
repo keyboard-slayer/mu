@@ -1,7 +1,5 @@
 #include <pico-misc/types.h>
 #include <pico-traits/writer.h>
-#include <stdio.h>
-#include <unistd.h>
 
 #include "debug.h"
 #include "mu-api/api.h"
@@ -34,11 +32,11 @@ static void logger_putc(Writer *writer, char c)
 void __debug_impl(const char *filename, usize lineno, DebugEvent event, const char *fmt, FmtArgs args)
 {
     MuCap self;
-    ssize_t tid = -1;
+    int64_t tid = -1;
 
     if (mu_self(&self) == MU_RES_OK)
-    { 
-        tid = ((MuTask *) self._raw)->tid;
+    {
+        tid = ((MuTask *)self._raw)->tid;
     }
 
     Writer writer = {
@@ -48,7 +46,7 @@ void __debug_impl(const char *filename, usize lineno, DebugEvent event, const ch
 
     if (event != DEBUG_NONE)
     {
-        fmt(&writer, "{}{} ? {} - {}:{} \033[0m", event_colors[event], event_header[event], tid, filename, lineno);
+        fmt(&writer, "{}{} pid: {} - {}:{} \033[0m", event_colors[event], event_header[event], tid, filename, lineno);
     }
 
     fmt_impl(&writer, fmt, args);

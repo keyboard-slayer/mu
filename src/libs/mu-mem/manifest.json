@@ -5,7 +5,7 @@
     "type": "lib",
     "requires": [
         "mu-embed",
-        "mu-misc",
+        "sync",
         "libheap"
     ]
 }

@@ -15,6 +15,10 @@
         "cute-engineering/picokit": {
             "git": "https://github.com/cute-engineering/picokit.git",
             "tag": "v1.0.0"
+        },
+        "cute-engineering/tiny-json": {
+            "git": "https://github.com/cute-engineering/tiny-json.git",
+            "tag": "v1.3.2"
         }
     }
 }

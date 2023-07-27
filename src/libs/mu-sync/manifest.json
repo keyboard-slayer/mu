@@ -1,0 +1,14 @@
+{
+    "$schema": "https://schemas.cute.engineering/stable/cutekit.manifest.component.v1",
+    "id": "mu-sync",
+    "type": "lib",
+    "description": "Mu's Sync library",
+    "enableIf": {
+        "sys": [
+            "mu"
+        ]
+    },
+    "provides": [
+        "sync"
+    ]
+}

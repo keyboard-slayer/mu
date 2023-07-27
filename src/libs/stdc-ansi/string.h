@@ -12,4 +12,10 @@ size_t strlen(const char *s);
 
 int memcmp(const void *s1, const void *s2, size_t n);
 
+int strncmp(char const *s1, char const *s2, size_t n);
+
 int strcmp(char const *s1, char const *s2);
+
+char *strndup(const char *s, size_t n);
+
+char *strdup(const char *s);

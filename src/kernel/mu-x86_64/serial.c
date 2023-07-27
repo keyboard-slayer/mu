@@ -1,5 +1,5 @@
 #include <mu-hal/hal.h>
-#include <mu-misc/lock.h>
+#include <mu-sync/lock.h>
 #include <pico-misc/macro.h>
 #include <pico-traits/writer.h>
 

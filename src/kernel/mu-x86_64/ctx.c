@@ -1,7 +1,7 @@
 #include <mu-core/const.h>
 #include <mu-core/pmm.h>
 #include <mu-hal/hal.h>
-#include <mu-misc/lock.h>
+#include <mu-sync/lock.h>
 
 #include "asm.h"
 #include "ctx.h"

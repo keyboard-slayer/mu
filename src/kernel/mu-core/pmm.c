@@ -1,7 +1,7 @@
 #include <handover/utils.h>
 #include <mu-debug/debug.h>
 #include <mu-hal/hal.h>
-#include <mu-misc/lock.h>
+#include <mu-sync/lock.h>
 #include <pico-traits/alloc.h>
 
 #include "const.h"

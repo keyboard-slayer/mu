@@ -1,17 +1,12 @@
 {
     "$schema": "https://schemas.cute.engineering/stable/cutekit.manifest.component.v1",
-    "id": "stdc-ansi-munix",
+    "id": "stdc-ansi",
     "type": "lib",
     "description": "The ISO C standard library, ISO/IEC 9899",
     "props": {
         "cpp-root-include": true
     },
-    "enableIf": {
-        "sys": [
-            "munix"
-        ]
-    },
-    "provides": [
-        "stdc-ansi"
+    "requires": [
+        "mu-mem"
     ]
 }

@@ -2,10 +2,14 @@
 #include <mu-embed/alloc.h>
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
-#include <mu-misc/lock.h>
 #include <pico-misc/macro.h>
 
+#ifdef __ck_sys_mu__
+#    include <mu-sync/lock.h>
 static Spinlock lock = {0};
+#elif __ck_sys_munix__
+// TODO
+#endif
 
 static void *alloc_block(unused void *ctx, usize size)
 {
@@ -73,13 +77,21 @@ static MaybePtr _heap_realloc(unused Alloc *self, void *ptr, usize size)
 
 void heap_release(Alloc *alloc)
 {
+#ifdef __ck_sys_mu__
     spinlock_release(&lock);
+#elif __ck_sys_munix__
+// TODO
+#endif
     memset(alloc, 0, sizeof(Alloc));
 }
 
 Alloc heap_acquire(void)
 {
+#ifdef __ck_sys_mu__
     spinlock_acquire(&lock);
+#elif __ck_sys_munix__
+    // TODO
+#endif
     return (Alloc){
         .malloc = _heap_alloc,
         .realloc = _heap_realloc,

@@ -1,10 +1,10 @@
 {
     "$schema": "https://schemas.cute.engineering/stable/cutekit.manifest.component.v1",
-    "id": "crt0-common",
-    "description": "Common crt0 code for all platforms",
+    "id": "munix-json",
     "type": "lib",
+    "description": "Munix's JSON library",
     "requires": [
-        "munix-debug",
-        "stdc-ansi"
+        "tiny-json",
+        "mu-mem"
     ]
 }

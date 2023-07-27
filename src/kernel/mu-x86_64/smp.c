@@ -2,7 +2,7 @@
 #include <mu-debug/debug.h>
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
-#include <mu-misc/lock.h>
+#include <mu-sync/lock.h>
 
 #include "apic.h"
 #include "asm.h"

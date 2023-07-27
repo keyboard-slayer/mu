@@ -1,6 +1,6 @@
 #include <pico-misc/macro.h>
 #include <pico-misc/types.h>
-#include <unistd.h>
+#include <mu-api/api.h>
 
 weak int mu_main(unused MuArgs const args)
 {

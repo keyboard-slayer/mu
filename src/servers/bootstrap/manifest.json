@@ -4,6 +4,8 @@
     "id": "bootstrap",
     "description": "Munix's bootstrap server",
     "requires": [
-        "crt0"
+        "crt0",
+        "mu-embed",
+        "munix-json"
     ]
 }

@@ -1,0 +1,14 @@
+{
+    "$schema": "https://schemas.cute.engineering/stable/cutekit.manifest.component.v1",
+    "id": "munix-sync",
+    "type": "lib",
+    "description": "Munix's Sync library",
+    "enableIf": {
+        "sys": [
+            "munix"
+        ]
+    },
+    "provides": [
+        "sync"
+    ]
+}
