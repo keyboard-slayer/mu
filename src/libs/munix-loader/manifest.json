@@ -1,0 +1,11 @@
+{
+    "$schema": "https://schemas.cute.engineering/stable/cutekit.manifest.component.v1",
+    "id": "munix-loader",
+    "type": "lib",
+    "description": "Loaders for Munix",
+    "enableIf": {
+        "sys": [
+            "munix"
+        ]
+    }
+}

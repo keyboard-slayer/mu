@@ -1,9 +1,9 @@
-#include <elf/elf.h>
 #include <handover/utils.h>
 #include <mu-debug/debug.h>
 #include <mu-hal/hal.h>
 #include <mu-mem/heap.h>
 #include <pico-ds/vec.h>
+#include <specs/elf.h>
 
 #include "const.h"
 #include "handover/handover.h"

@@ -13,13 +13,15 @@
 -mno-sse
 -mno-sse2
 -mno-red-zone
+-Wno-initializer-overrides
 -std=gnu2x
 -Wall
 -Wextra
 -Werror
 -Isrc/entry
--Isrc/libs/libc
 -Isrc/libs
+-Isrc/libs/crt0
+-Isrc/libs/stdc-ansi
 -Isrc/kernel
 -I.cutekit/extern/cute-engineering
 -I.cutekit/extern/cute-engineering/picokit/src

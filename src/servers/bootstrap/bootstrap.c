@@ -3,12 +3,13 @@
 #include <mu-api/api.h>
 #include <mu-mem/heap.h>
 #include <munix-debug/debug.h>
+#include <munix-loader/elf.h>
 #include <string.h>
 #include <tiny-json/json.h>
 
 #include "bootstrap.h"
 
-static MuRes handover_find_file(HandoverPayload *handover, HandoverRecord *rec, unused cstr name)
+static MuRes handover_find_file(HandoverPayload handover[static 1], HandoverRecord *rec, const char name[static 1])
 {
     handover_foreach_record(handover, *rec)
     {
@@ -95,10 +96,11 @@ static MaybeRcVec init_servers(json_t rc)
                     break;
             }
         }
+
         RcEntry rc_entry = {
             .vspace = vspace,
             .path = str(path.string),
-            .args = {mu_args[0], mu_args[1], mu_args[2], mu_args[3], mu_args[4], mu_args[5]},
+            .args = {(MuArg){0}, mu_args[0], mu_args[1], mu_args[2], mu_args[3], mu_args[4]},
         };
 
         vec_push(&rc_vec, rc_entry);
@@ -127,11 +129,17 @@ noreturn int mu_main(MuArgs args)
     cleanup(json_free) json_t entries = json_parse(&reader);
     RcVec servers = unwrap(init_servers(entries));
     RcEntry server;
+    HandoverRecord server_binary;
 
     vec_foreach(&servers, server)
     {
-        // TODO: Userspace ELF loading
-        debug_info("Loading {}", server.path);
+        if (handover_find_file(payload, &server_binary, (cstr)server.path.buf) != MU_RES_OK)
+        {
+            panic("Couldn't find server binary");
+        }
+
+        ElfReturn task = unwrap(elf_parse((cstr)server.path.buf, server_binary.start, .vspace = server.vspace));
+        mu_start(task.task, task.entry, USER_STACK_BASE, server.args);
     }
 
     vec_free(&servers);

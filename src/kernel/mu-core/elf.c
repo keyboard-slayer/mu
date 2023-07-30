@@ -4,9 +4,8 @@
 #include <mu-debug/debug.h>
 #include <mu-embed/alloc.h>
 #include <mu-hal/hal.h>
+#include <specs/elf.h>
 #include <string.h>
-
-#include "elf.h"
 
 MaybeTaskPtr elf_parse(cstr name, uintptr_t start, uintptr_t vspace, MuArgs args)
 {

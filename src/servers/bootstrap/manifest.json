@@ -6,6 +6,7 @@
     "requires": [
         "crt0",
         "mu-embed",
-        "munix-json"
+        "munix-json",
+        "munix-loader"
     ]
 }
