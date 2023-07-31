@@ -13,7 +13,6 @@
 -mno-sse
 -mno-sse2
 -mno-red-zone
--Wno-initializer-overrides
 -std=gnu2x
 -Wall
 -Wextra
@@ -22,6 +21,7 @@
 -Isrc/libs
 -Isrc/libs/crt0
 -Isrc/libs/stdc-ansi
+-Isrc/servers
 -Isrc/kernel
 -I.cutekit/extern/cute-engineering
 -I.cutekit/extern/cute-engineering/picokit/src

@@ -1,6 +1,7 @@
 #include <handover/handover.h>
 #include <handover/utils.h>
 #include <mu-api/api.h>
+#include <mu-embed/alloc.h>
 #include <mu-mem/heap.h>
 #include <munix-debug/debug.h>
 #include <munix-loader/elf.h>
@@ -26,7 +27,7 @@ static MuRes handover_find_file(HandoverPayload handover[static 1], HandoverReco
     return MU_RES_BAD_ARG;
 }
 
-static MaybeRcVec init_servers(json_t rc)
+static MaybeRcVec init_servers(json_t rc, MuCap port)
 {
     RcVec rc_vec;
     MuCap vspace;
@@ -100,7 +101,7 @@ static MaybeRcVec init_servers(json_t rc)
         RcEntry rc_entry = {
             .vspace = vspace,
             .path = str(path.string),
-            .args = {(MuArg){0}, mu_args[0], mu_args[1], mu_args[2], mu_args[3], mu_args[4]},
+            .args = {(MuArg)port._raw, mu_args[0], mu_args[1], mu_args[2], mu_args[3], mu_args[4]},
         };
 
         vec_push(&rc_vec, rc_entry);
@@ -113,6 +114,13 @@ noreturn int mu_main(MuArgs args)
 {
     HandoverPayload *payload = (HandoverPayload *)args.arg1;
     HandoverRecord rc;
+    MuCap port;
+    MuCap self_cap;
+    MuTask *self;
+
+    Alloc heap = heap_acquire();
+    MuMsg *msg = unwrap(heap.malloc(&heap, sizeof(MuMsg)));
+    heap.release(&heap);
 
     if (payload->magic != 0xB00B1E5)
     {
@@ -124,10 +132,15 @@ noreturn int mu_main(MuArgs args)
         panic("Couldn't find /etc/rc.json file");
     }
 
+    if (mu_create_port(&port, MU_PORT_SEND | MU_PORT_RECV) != MU_RES_OK)
+    {
+        panic("Couldn't create port");
+    }
+
     json_reader_t reader = json_init((cstr)rc.start, rc.size);
 
     cleanup(json_free) json_t entries = json_parse(&reader);
-    RcVec servers = unwrap(init_servers(entries));
+    RcVec servers = unwrap(init_servers(entries, port));
     RcEntry server;
     HandoverRecord server_binary;
 
@@ -143,6 +156,43 @@ noreturn int mu_main(MuArgs args)
     }
 
     vec_free(&servers);
-    loop;
+
+    if (mu_self(&self_cap) != MU_RES_OK)
+    {
+        panic("Couldn't get bootstrap process informations");
+    }
+
+    self = (MuTask *)self_cap._raw;
+
+    loop
+    {
+        if (mu_ipc(&port, msg, MU_MSG_RECV | MU_MSG_BLOCK) != MU_RES_OK)
+        {
+            panic("Couldn't receive message");
+        }
+
+        debug_info("Message address is: {a}", (uintptr_t)msg);
+
+        switch (msg->label)
+        {
+            case BOOTSTRAP_REGISTER_SERVER:
+            {
+                if (mu_map(self->space, (MuCap){align_down(msg->args.arg1, PAGE_SIZE)}, align_down(msg->args.arg1, PAGE_SIZE), 0, align_up(msg->args.arg2, PAGE_SIZE), MU_MEM_READ) != MU_RES_OK)
+                {
+                    panic("Couldn't map server binary");
+                }
+
+                debug_info("Got registration for server {}", (cstr)msg->args.arg1);
+
+                break;
+            }
+
+            default:
+            {
+                debug_warn("Unknown message label: {d}", msg->label);
+            }
+        }
+    }
+
     unreachable();
 }

@@ -117,10 +117,16 @@ typedef enum
 
 typedef enum
 {
-    MU_IPC_BLOCK = 1 << 0,
-    MU_IPC_SEND = 1 << 1,
-    MU_IPC_RECV = 1 << 2,
-} MuIpcFlags;
+    MU_PORT_SEND = 1 << 1,
+    MU_PORT_RECV = 1 << 2,
+} MuPortFlags;
+
+typedef enum
+{
+    MU_MSG_SEND = 1 << 0,
+    MU_MSG_RECV = 1 << 1,
+    MU_MSG_BLOCK = 1 << 2
+} MuMsgFlags;
 
 typedef enum
 {
@@ -248,7 +254,7 @@ mu_always_inline MuRes mu_create_cnode(MuCap *cap, usize len)
     return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_CNODE, (MuArg)cap, len);
 }
 
-mu_always_inline MuRes mu_create_port(MuCap *cap, MuIpcFlags right)
+mu_always_inline MuRes mu_create_port(MuCap *cap, MuPortFlags right)
 {
     return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_PORT, (MuArg)cap, right);
 }
@@ -263,14 +269,14 @@ mu_always_inline MuRes mu_dup(MuCap cap, MuCap *new_cap)
     return mu_syscall(MU_SYS_DUP, cap._raw, (MuArg)new_cap);
 }
 
-mu_always_inline MuRes mu_ipc(MuCap *port, MuMsg *msg, MuIpcFlags flags)
+mu_always_inline MuRes mu_ipc(MuCap *dst, MuMsg *msg, MuMsgFlags flags)
 {
-    return mu_syscall(MU_SYS_IPC, (MuArg)port, (MuArg)msg, (MuArg)flags);
+    return mu_syscall(MU_SYS_IPC, (MuArg)dst, (MuArg)msg, (MuArg)flags);
 }
 
-mu_always_inline MuRes mu_call(MuCap port, MuMsg *msg)
+mu_always_inline MuRes mu_call(MuCap dst, MuMsg *msg)
 {
-    return mu_ipc(&port, msg, MU_IPC_SEND | MU_IPC_RECV);
+    return mu_ipc(&dst, msg, MU_MSG_SEND | MU_MSG_RECV);
 }
 
 mu_always_inline MuRes mu_bind(MuCap event, MuCap port, MuArg sel)

@@ -9,7 +9,6 @@
 #include <stdint.h>
 #include <string.h>
 
-
 typedef MuRes Handler(MuArg arg1, MuArg arg2, MuArg arg3, MuArg arg4, MuArg arg5, MuArg arg6);
 
 static MuRes sys_log(cstr str, usize len)
@@ -165,16 +164,15 @@ static MuRes sys_start(MuCap task, uintptr_t ip, uintptr_t sp, MuArgs *args)
     return MU_RES_OK;
 }
 
-
-static MuRes sys_ipc(MuCap *port, MuMsg *msg, MuIpcFlags flags)
+static MuRes sys_ipc(MuCap *port, MuMsg *msg, MuMsgFlags flags)
 {
     MuPort *p = (MuPort *)port->_raw;
 
-    if (flags & MU_IPC_SEND)
+    if (flags & MU_MSG_SEND)
     {
         MuPort *ret = (MuPort *)msg->reply_port._raw;
 
-        if ((ret->rights & MU_IPC_SEND) == 0)
+        if ((ret->rights & MU_PORT_SEND) == 0)
         {
             return MU_RES_BAD_CAP;
         }
@@ -183,11 +181,16 @@ static MuRes sys_ipc(MuCap *port, MuMsg *msg, MuIpcFlags flags)
 
         return MU_RES_OK;
     }
-    else if (flags & MU_IPC_RECV)
+    else if (flags & MU_MSG_RECV)
     {
+        if ((p->rights & MU_PORT_RECV) == 0)
+        {
+            return MU_RES_BAD_CAP;
+        }
+
         if (p->msg.length == 0)
         {
-            if (flags & MU_IPC_BLOCK)
+            if (flags & MU_MSG_BLOCK)
             {
                 while (p->msg.length == 0)
                     ;
@@ -198,7 +201,10 @@ static MuRes sys_ipc(MuCap *port, MuMsg *msg, MuIpcFlags flags)
             }
         }
 
-        msg = vec_pop(&p->msg);
+        MuMsg *tmp = vec_pop(&p->msg);
+
+        // TODO: Translate userspace address to kernel space
+        memcpy((void *)hal_mmap_lower_to_upper((uintptr_t)msg), (void *)hal_mmap_lower_to_upper((uintptr_t)tmp), sizeof(MuMsg));
 
         return MU_RES_OK;
     }

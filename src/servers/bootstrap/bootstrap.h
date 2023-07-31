@@ -11,4 +11,9 @@ typedef struct
     MuCap vspace;
 } RcEntry;
 
+typedef enum
+{
+    BOOTSTRAP_REGISTER_SERVER = 1,
+} BootstrapLabel;
+
 typedef Vec(RcEntry) Maybe$(RcVec);
