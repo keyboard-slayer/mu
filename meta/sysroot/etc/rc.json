@@ -1,5 +1,10 @@
 {
     "servers": [
-        {"path": "/bin/hello", "args": []}
+        {
+            "path": "/bin/hello",
+            "requires": {
+                "framebuffer": true
+            }
+        }
     ]
 }

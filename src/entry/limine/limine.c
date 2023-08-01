@@ -50,6 +50,12 @@ volatile struct limine_module_request module_request = {
     .revision = 0,
 };
 
+volatile struct limine_framebuffer_request fb_request = {
+    .id = LIMINE_FRAMEBUFFER_REQUEST,
+    .response = 0,
+    .revision = 0,
+};
+
 void *abstract_get_rsdp(void)
 {
     assert(hhdm_request.response != nullptr, "Couldn't retrieve HHDM offset");
@@ -130,13 +136,13 @@ void handover_parse_mmap(HandoverBuilder *builder)
 
     for (usize i = 0; i < memmap_request.response->entry_count; i++)
     {
+        HandoverRecord record = {0};
         struct limine_memmap_entry *entry = memmap_request.response->entries[i];
-        int tag_type = 0;
 
         switch (entry->type)
         {
             case LIMINE_MEMMAP_USABLE:
-                tag_type = HANDOVER_FREE;
+                record.tag = HANDOVER_FREE;
                 debug_info("Free        | {a} | {a}", entry->base, entry->length);
                 break;
 
@@ -144,23 +150,32 @@ void handover_parse_mmap(HandoverBuilder *builder)
             case LIMINE_MEMMAP_RESERVED:
             case LIMINE_MEMMAP_BAD_MEMORY:
                 debug_info("Reserved    | {a} | {a}", entry->base, entry->length);
-                tag_type = HANDOVER_RESERVED;
+                record.tag = HANDOVER_RESERVED;
                 break;
 
             case LIMINE_MEMMAP_ACPI_RECLAIMABLE:
             case LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE:
                 debug_info("Reclaimable | {a} | {a}", entry->base, entry->length);
-                tag_type = HANDOVER_LOADER;
+                record.tag = HANDOVER_LOADER;
                 break;
 
             case LIMINE_MEMMAP_KERNEL_AND_MODULES:
                 debug_info("Kernel      | {a} | {a}", entry->base, entry->length);
-                tag_type = HANDOVER_KERNEL;
+                record.tag = HANDOVER_KERNEL;
                 break;
 
             case LIMINE_MEMMAP_FRAMEBUFFER:
                 debug_info("Framebuffer | {a} | {a}", entry->base, entry->length);
-                tag_type = HANDOVER_FB;
+                record.tag = HANDOVER_FB;
+
+                if (fb_request.response != nullptr)
+                {
+                    record.fb.width = fb_request.response->framebuffers[0]->width;
+                    record.fb.height = fb_request.response->framebuffers[0]->height;
+                    record.fb.pitch = fb_request.response->framebuffers[0]->pitch;
+                    record.fb.format = fb_request.response->framebuffers[0]->bpp;
+                }
+
                 break;
 
             default:
@@ -168,12 +183,8 @@ void handover_parse_mmap(HandoverBuilder *builder)
                 break;
         }
 
-        HandoverRecord record = {
-            .tag = tag_type,
-            .flags = 0,
-            .start = entry->base,
-            .size = entry->length,
-        };
+        record.start = entry->base;
+        record.size = entry->length;
 
         handover_builder_append(builder, record);
     }

@@ -1,3 +1,4 @@
+#include <misc/fb.h>
 #include <mu-api/api.h>
 #include <mu-mem/heap.h>
 #include <munix-debug/debug.h>
@@ -9,6 +10,8 @@
 noreturn int mu_main(MuArgs args)
 {
     MuCap bootstrap_port = {._raw = args.arg1};
+    Framebuffer *fb = (Framebuffer *)args.arg2;
+
     MuCap port;
     cstr server_name = strdup("engineering.cute.hello");
 
@@ -31,6 +34,18 @@ noreturn int mu_main(MuArgs args)
     }
 
     debug_info("Message to bootstrap sent");
+
+    for (size_t x = 0; x < fb->width; x++)
+    {
+        for (size_t y = 0; y < fb->height; y++)
+        {
+            size_t raw_position = x + y * fb->width;
+
+            fb->pixels[raw_position].blue = x ^ y;
+            fb->pixels[raw_position].red = (y * 2) ^ (x * 2);
+            fb->pixels[raw_position].green = (y * 4) ^ (x * 4);
+        }
+    }
 
     loop;
     unreachable();

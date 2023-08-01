@@ -1,5 +1,6 @@
 #include <handover/handover.h>
 #include <handover/utils.h>
+#include <misc/fb.h>
 #include <mu-api/api.h>
 #include <mu-embed/alloc.h>
 #include <mu-mem/heap.h>
@@ -10,7 +11,10 @@
 
 #include "bootstrap.h"
 
-static MuRes handover_find_file(HandoverPayload handover[static 1], HandoverRecord *rec, const char name[static 1])
+HandoverPayload *handover = NULL;
+static bool framebuffer_assigned = false;
+
+static MuRes handover_find_file(HandoverRecord *rec, const char name[static 1])
 {
     handover_foreach_record(handover, *rec)
     {
@@ -21,6 +25,25 @@ static MuRes handover_find_file(HandoverPayload handover[static 1], HandoverReco
             {
                 return MU_RES_OK;
             }
+        }
+    }
+
+    return MU_RES_BAD_ARG;
+}
+
+static MuRes handover_find_framebuffer(HandoverRecord *fb)
+{
+    if (framebuffer_assigned)
+    {
+        return MU_RES_BAD_ARG;
+    }
+
+    handover_foreach_record(handover, *fb)
+    {
+        if (fb->tag == HANDOVER_FB)
+        {
+            framebuffer_assigned = true;
+            return MU_RES_OK;
         }
     }
 
@@ -55,46 +78,93 @@ static MaybeRcVec init_servers(json_t rc, MuCap port)
 
         json_t path = json_get(server, "path");
         json_t args = json_get(server, "args");
+        json_t req = json_get(server, "requires");
 
-        if (path.type != JSON_STRING || args.type != JSON_ARRAY || args.array.len > 6)
+        if (path.type != JSON_STRING)
         {
             return None(MaybeRcVec);
         }
 
-        json_t arg;
+        MuArg mu_args[6] = {0};
         usize idx = 0;
-        MuArg mu_args[6];
 
-        json_arr_foreach(&args, arg)
+        if (req.type == JSON_OBJECT)
         {
-            switch (arg.type)
+            json_t fb = json_get(req, "framebuffer");
+
+            if (fb.type == JSON_BOOL && fb.number)
             {
-                case JSON_OBJECT:
-                    [[fallthrough]];
-                case JSON_ARRAY:
-                    [[fallthrough]];
-                case JSON_ERROR:
-                    [[fallthrough]];
-                case JSON_KEY:
+                HandoverRecord fb_rec;
+
+                if (handover_find_framebuffer(&fb_rec) != MU_RES_OK)
+                {
+                    debug_warn("Failed to find framebuffer\n");
                     return None(MaybeRcVec);
-                case JSON_NUMBER:
-                    [[fallthrough]];
-                case JSON_BOOL:
-                    mu_args[idx++] = arg.number;
-                    break;
-                case JSON_STRING:
-                    mu_args[idx] = (uintptr_t)strdup(arg.string);
+                }
 
-                    if (mu_map(vspace, (MuCap){(uintptr_t)mu_args[idx]}, 0, (uintptr_t)mu_args[idx], strlen(arg.string), MU_MEM_USER | MU_MEM_READ) != MU_RES_OK)
-                    {
+                if (mu_map(vspace, (MuCap){align_down(fb_rec.start, PAGE_SIZE)},
+                           (uintptr_t)align_down(fb_rec.start, PAGE_SIZE), 0,
+                           align_up(fb_rec.size, PAGE_SIZE), MU_MEM_READ | MU_MEM_WRITE) != MU_RES_OK)
+                {
+                    debug_warn("Failed to map framebuffer\n");
+                    return None(MaybeRcVec);
+                }
+
+                Alloc heap = heap_acquire();
+                Framebuffer *fb = unwrap(heap.malloc(&heap, sizeof(Framebuffer)));
+                heap.release(&heap);
+
+                fb->pixels = (FramebufferPixel *)fb_rec.start;
+                fb->width = fb_rec.fb.width;
+                fb->height = fb_rec.fb.height;
+                fb->pitch = fb_rec.fb.pitch;
+                fb->format = fb_rec.fb.format;
+
+                if (mu_map(vspace, (MuCap){._raw = align_down((uintptr_t)fb, PAGE_SIZE)},
+                           align_down((uintptr_t)fb, PAGE_SIZE), 0, align_up(sizeof(Framebuffer), PAGE_SIZE), MU_MEM_READ) != MU_RES_OK)
+                {
+                    debug_warn("Failed to map framebuffer structure\n");
+                    return None(MaybeRcVec);
+                }
+
+                mu_args[idx++] = (MuArg){(uintptr_t)fb};
+            }
+        }
+
+        if (args.type == JSON_ARRAY && args.array.len <= 6)
+        {
+            json_t arg;
+            json_arr_foreach(&args, arg)
+            {
+                switch (arg.type)
+                {
+                    case JSON_OBJECT:
+                        [[fallthrough]];
+                    case JSON_ARRAY:
+                        [[fallthrough]];
+                    case JSON_ERROR:
+                        [[fallthrough]];
+                    case JSON_KEY:
                         return None(MaybeRcVec);
-                    }
+                    case JSON_NUMBER:
+                        [[fallthrough]];
+                    case JSON_BOOL:
+                        mu_args[idx++] = arg.number;
+                        break;
+                    case JSON_STRING:
+                        mu_args[idx] = (uintptr_t)strdup(arg.string);
 
-                    idx++;
-                    break;
-                case JSON_NULL:
-                    mu_args[idx++] = 0;
-                    break;
+                        if (mu_map(vspace, (MuCap){(uintptr_t)mu_args[idx]}, 0, (uintptr_t)mu_args[idx], strlen(arg.string), MU_MEM_USER | MU_MEM_READ) != MU_RES_OK)
+                        {
+                            return None(MaybeRcVec);
+                        }
+
+                        idx++;
+                        break;
+                    case JSON_NULL:
+                        mu_args[idx++] = 0;
+                        break;
+                }
             }
         }
 
@@ -112,7 +182,7 @@ static MaybeRcVec init_servers(json_t rc, MuCap port)
 
 noreturn int mu_main(MuArgs args)
 {
-    HandoverPayload *payload = (HandoverPayload *)args.arg1;
+    handover = (HandoverPayload *)args.arg1;
     HandoverRecord rc;
     MuCap port;
     MuCap self_cap;
@@ -122,12 +192,12 @@ noreturn int mu_main(MuArgs args)
     MuMsg *msg = unwrap(heap.malloc(&heap, sizeof(MuMsg)));
     heap.release(&heap);
 
-    if (payload->magic != 0xB00B1E5)
+    if (handover->magic != 0xB00B1E5)
     {
         panic("Invalid handover magic");
     }
 
-    if (handover_find_file(payload, &rc, "/etc/rc.json") != MU_RES_OK)
+    if (handover_find_file(&rc, "/etc/rc.json") != MU_RES_OK)
     {
         panic("Couldn't find /etc/rc.json file");
     }
@@ -146,7 +216,7 @@ noreturn int mu_main(MuArgs args)
 
     vec_foreach(&servers, server)
     {
-        if (handover_find_file(payload, &server_binary, (cstr)server.path.buf) != MU_RES_OK)
+        if (handover_find_file(&server_binary, (cstr)server.path.buf) != MU_RES_OK)
         {
             panic("Couldn't find server binary");
         }

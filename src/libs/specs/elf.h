@@ -3,7 +3,7 @@
 #include <mu-api/api.h>
 #include <mu-core/task.h>
 
-#define USER_STACK_BASE (0xc0000000)
+#define USER_STACK_BASE (0xff0000000)
 #define EI_NIDENT       (16)
 
 #define ELFMAG     "\177ELF"
