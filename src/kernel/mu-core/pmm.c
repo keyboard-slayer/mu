@@ -77,6 +77,7 @@ MaybePtr pmm_alloc_page(usize pages, bool high)
 
     if (ret == NULL)
     {
+        debug_warn("Out of memory");
         return None(MaybePtr);
     }
 

@@ -72,11 +72,11 @@ class LimineCfg:
 
 
 def bootFunc(args: args.Args):
-    limine = LimineCfg(builder.build("mu-core", "kernel-x86_64"))
+    limine = LimineCfg(builder.build("mu-core", "kernel-x86_64:debug"))
 
     for pkg in filter(lambda m: const.EXTERN_DIR not in m.dirname(), context.loadAllComponents()):
         if pkg.type == model.Type.EXE and pkg.id != "mu-core":
-            limine.append(builder.build(pkg.id, "munix-x86_64"))
+            limine.append(builder.build(pkg.id, "munix-x86_64:debug"))
 
     limine.createImage().run()
 

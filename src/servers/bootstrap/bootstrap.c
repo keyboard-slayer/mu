@@ -1,3 +1,4 @@
+#include <const.h>
 #include <handover/handover.h>
 #include <handover/utils.h>
 #include <misc/fb.h>
@@ -7,9 +8,11 @@
 #include <munix-debug/debug.h>
 #include <munix-loader/elf.h>
 #include <string.h>
+#include <sys/mman.h>
 #include <tiny-json/json.h>
 
 #include "bootstrap.h"
+#include "sys/mman.h"
 
 HandoverPayload *handover = NULL;
 static bool framebuffer_assigned = false;
@@ -95,6 +98,7 @@ static MaybeRcVec init_servers(json_t rc, MuCap port)
             if (fb.type == JSON_BOOL && fb.number)
             {
                 HandoverRecord fb_rec;
+                uintptr_t fb_ptr;
 
                 if (handover_find_framebuffer(&fb_rec) != MU_RES_OK)
                 {
@@ -103,10 +107,10 @@ static MaybeRcVec init_servers(json_t rc, MuCap port)
                 }
 
                 if (mu_map(vspace, (MuCap){align_down(fb_rec.start, PAGE_SIZE)},
-                           (uintptr_t)align_down(fb_rec.start, PAGE_SIZE), 0,
+                           &fb_ptr, 0,
                            align_up(fb_rec.size, PAGE_SIZE), MU_MEM_READ | MU_MEM_WRITE) != MU_RES_OK)
                 {
-                    debug_warn("Failed to map framebuffer\n");
+                    debug_warn("Failed to map framebuffer");
                     return None(MaybeRcVec);
                 }
 
@@ -114,20 +118,22 @@ static MaybeRcVec init_servers(json_t rc, MuCap port)
                 Framebuffer *fb = unwrap(heap.malloc(&heap, sizeof(Framebuffer)));
                 heap.release(&heap);
 
-                fb->pixels = (FramebufferPixel *)fb_rec.start;
+                fb->pixels = (FramebufferPixel *)fb_ptr;
                 fb->width = fb_rec.fb.width;
                 fb->height = fb_rec.fb.height;
                 fb->pitch = fb_rec.fb.pitch;
                 fb->format = fb_rec.fb.format;
 
+                uintptr_t struct_ptr;
+
                 if (mu_map(vspace, (MuCap){._raw = align_down((uintptr_t)fb, PAGE_SIZE)},
-                           align_down((uintptr_t)fb, PAGE_SIZE), 0, align_up(sizeof(Framebuffer), PAGE_SIZE), MU_MEM_READ) != MU_RES_OK)
+                           &struct_ptr, 0, align_up(sizeof(Framebuffer), PAGE_SIZE), MU_MEM_READ) != MU_RES_OK)
                 {
                     debug_warn("Failed to map framebuffer structure\n");
                     return None(MaybeRcVec);
                 }
 
-                mu_args[idx++] = (MuArg){(uintptr_t)fb};
+                mu_args[idx++] = (MuArg){(uintptr_t)struct_ptr};
             }
         }
 
@@ -152,12 +158,12 @@ static MaybeRcVec init_servers(json_t rc, MuCap port)
                         mu_args[idx++] = arg.number;
                         break;
                     case JSON_STRING:
-                        mu_args[idx] = (uintptr_t)strdup(arg.string);
+                        // mu_args[idx] = (uintptr_t)strdup(arg.string);
 
-                        if (mu_map(vspace, (MuCap){(uintptr_t)mu_args[idx]}, 0, (uintptr_t)mu_args[idx], strlen(arg.string), MU_MEM_USER | MU_MEM_READ) != MU_RES_OK)
-                        {
-                            return None(MaybeRcVec);
-                        }
+                        // if (mu_map(vspace, (MuCap){(uintptr_t)mu_args[idx]}, (uintptr_t)mu_args[idx], 0, strlen(arg.string), MU_MEM_USER | MU_MEM_READ) != MU_RES_OK)
+                        // {
+                        //     return None(MaybeRcVec);
+                        // }
 
                         idx++;
                         break;
@@ -188,9 +194,11 @@ noreturn int mu_main(MuArgs args)
     MuCap self_cap;
     MuTask *self;
 
-    Alloc heap = heap_acquire();
-    MuMsg *msg = unwrap(heap.malloc(&heap, sizeof(MuMsg)));
-    heap.release(&heap);
+    MuMsg *ipc_msg = mmap(NULL, sizeof(MuMsg), PROT_WRITE | PROT_READ, MAP_ANON | MAP_SHARED, -1, 0);
+    if (ipc_msg == NULL)
+    {
+        panic("Couldn't allocate IPC buffer");
+    }
 
     if (handover->magic != 0xB00B1E5)
     {
@@ -236,30 +244,32 @@ noreturn int mu_main(MuArgs args)
 
     loop
     {
-        if (mu_ipc(&port, msg, MU_MSG_RECV | MU_MSG_BLOCK) != MU_RES_OK)
+        if (mu_ipc(&port, ipc_msg, MU_MSG_RECV | MU_MSG_BLOCK) != MU_RES_OK)
         {
             panic("Couldn't receive message");
         }
 
-        debug_info("Message address is: {a}", (uintptr_t)msg);
+        debug_info("Message address is: {a}", (uintptr_t)ipc_msg);
 
-        switch (msg->label)
+        switch (ipc_msg->label)
         {
             case BOOTSTRAP_REGISTER_SERVER:
             {
-                if (mu_map(self->space, (MuCap){align_down(msg->args.arg1, PAGE_SIZE)}, align_down(msg->args.arg1, PAGE_SIZE), 0, align_up(msg->args.arg2, PAGE_SIZE), MU_MEM_READ) != MU_RES_OK)
+                uintptr_t server_name_ptr;
+
+                if (mu_map(self->space, (MuCap){align_down(ipc_msg->args.arg1, PAGE_SIZE)}, &server_name_ptr, 0, align_up(ipc_msg->args.arg2, PAGE_SIZE), MU_MEM_READ) != MU_RES_OK)
                 {
                     panic("Couldn't map server binary");
                 }
 
-                debug_info("Got registration for server {}", (cstr)msg->args.arg1);
+                debug_info("Got registration for server {}", (cstr)server_name_ptr);
 
                 break;
             }
 
             default:
             {
-                debug_warn("Unknown message label: {d}", msg->label);
+                debug_warn("Unknown message label: {d}", ipc_msg->label);
             }
         }
     }

@@ -1,3 +1,4 @@
+#include <const.h>
 #include <mu-api/api.h>
 #include <mu-core/const.h>
 #include <mu-core/pmm.h>
@@ -9,7 +10,19 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "tiny-vmem/vmem.h"
+
 typedef MuRes Handler(MuArg arg1, MuArg arg2, MuArg arg3, MuArg arg4, MuArg arg5, MuArg arg6);
+
+static bool is_user_stack_address(uintptr_t addr)
+{
+    return addr >= USER_STACK_BASE && addr < USER_STACK_TOP;
+}
+
+static bool is_user_heap_address(uintptr_t addr)
+{
+    return addr >= USER_HEAP_BASE && addr < USER_HEAP_TOP;
+}
 
 static MuRes sys_log(cstr str, usize len)
 {
@@ -73,12 +86,23 @@ static MuRes sys_create(MuType type, unused MuCap *cap, unused MuArg arg1, unuse
                     [[fallthrough]];
                 case MU_MEM_HIGH:
                 {
-                    Pmm pmm = pmm_acquire();
+                    cleanup(pmm_release) Pmm pmm = pmm_acquire();
                     auto obj = pmm.malloc(arg2, high);
 
-                    cap->_raw = obj.isSome ? (u64)unwrap(obj).ptr : 0;
-                    pmm.release(&pmm);
+                    if (!obj.isSome)
+                    {
+                        debug_warn("Cannot allocate memory");
+                        return MU_RES_NO_MEM;
+                    }
+
+                    cap->_raw = (u64)unwrap(obj).ptr;
                     break;
+                }
+
+                default:
+                {
+                    debug_warn("Invalid memory type");
+                    return MU_RES_BAD_ARG;
                 }
             }
 
@@ -101,8 +125,43 @@ static MuRes sys_create(MuType type, unused MuCap *cap, unused MuArg arg1, unuse
 
         case MU_TYPE_TASK:
         {
-            cstr name = (cstr)hal_mmap_lower_to_upper(arg1);
-            cap->_raw = (uintptr_t)unwrap_or(task_init(str(name), (HalSpace *)arg2), NULL);
+            auto sched = sched_self();
+            Task const *task = sched->tasks.data[sched->task_index];
+
+            debug_info("arg1: {x}", arg1);
+
+            if (is_user_heap_address(arg1))
+            {
+                uintptr_t paddr;
+
+                if (hal_space_virt2phys(task->space, arg1, &paddr) != MU_RES_OK)
+                {
+                    debug_warn("Cannot resolve virtual address to map to");
+                    return MU_RES_BAD_ARG;
+                }
+
+                if (paddr == 0)
+                {
+                    debug_warn("Task name cannot be NULL");
+                    return MU_RES_BAD_ARG;
+                }
+
+                arg1 = (MuArg)hal_mmap_lower_to_upper(paddr);
+            }
+            else if (is_user_stack_address(arg1))
+            {
+                if (arg1 == 0)
+                {
+                    return MU_RES_BAD_ARG;
+                }
+            }
+            else
+            {
+                return MU_RES_BAD_ARG;
+            }
+
+            debug_info("Creating task with name {}", (cstr)arg1);
+            cap->_raw = (uintptr_t)unwrap_or(task_init(str((cstr)arg1), (HalSpace *)arg2), NULL);
 
             if (!cap->_raw)
             {
@@ -140,20 +199,54 @@ static MuRes sys_create(MuType type, unused MuCap *cap, unused MuArg arg1, unuse
 
     if (!cap->_raw)
     {
+        debug_warn("Cannot create object");
         return MU_RES_NO_MEM;
     }
 
     return MU_RES_OK;
 }
 
-static MuRes sys_map(MuCap space, MuCap vmo, uintptr_t virt, uintptr_t off, usize len, MuMapFlags flags)
+static MuRes sys_map(MuCap space, MuCap vmo, uintptr_t *virt, uintptr_t off, usize len, MuMapFlags flags)
 {
     if (space._raw == 0)
     {
         return MU_RES_BAD_ARG;
     }
 
-    return hal_space_map((HalSpace *)space._raw, virt, vmo._raw + off, len, flags | MU_MEM_USER);
+    if (is_user_heap_address((uintptr_t)virt))
+    {
+        uintptr_t paddr;
+        if (hal_space_virt2phys((HalSpace *)space._raw, (uintptr_t)virt, &paddr) != MU_RES_OK)
+        {
+            debug_warn("Cannot resolve virtual address to map to");
+            return MU_RES_BAD_ARG;
+        }
+
+        virt = (uintptr_t *)hal_mmap_upper_to_lower(paddr);
+    }
+    else if (!is_user_stack_address((uintptr_t)virt))
+    {
+        debug_warn("Cannot resolve virtual address to map to");
+        return MU_RES_BAD_ARG;
+    }
+
+    if (!(flags & MU_MEM_NO_ALLOC))
+    {
+        auto sched = sched_self();
+        Task *task = sched->tasks.data[sched->task_index];
+
+        *virt = (uintptr_t)vmem_alloc(&task->vmem, len, VM_INSTANTFIT);
+
+        if (virt == NULL)
+        {
+            debug_warn("Failed to allocate virtual memory for mapping");
+            return MU_RES_NO_MEM;
+        }
+    }
+
+    flags = flags & ~MU_MEM_NO_ALLOC;
+    return hal_space_map((HalSpace *)space._raw, *virt, align_down(vmo._raw + off, PAGE_SIZE),
+                         align_up(len, PAGE_SIZE), flags | MU_MEM_USER);
 }
 
 static MuRes sys_start(MuCap task, uintptr_t ip, uintptr_t sp, MuArgs *args)
@@ -167,6 +260,8 @@ static MuRes sys_start(MuCap task, uintptr_t ip, uintptr_t sp, MuArgs *args)
 static MuRes sys_ipc(MuCap *port, MuMsg *msg, MuMsgFlags flags)
 {
     MuPort *p = (MuPort *)port->_raw;
+    auto sched = sched_self();
+    Task *task = sched->tasks.data[sched->task_index];
 
     if (flags & MU_MSG_SEND)
     {
@@ -177,7 +272,23 @@ static MuRes sys_ipc(MuCap *port, MuMsg *msg, MuMsgFlags flags)
             return MU_RES_BAD_CAP;
         }
 
-        vec_push(&p->msg, msg);
+        if (is_user_heap_address((uintptr_t)msg))
+        {
+            uintptr_t phys;
+
+            if (hal_space_virt2phys(task->space, (uintptr_t)msg, &phys) != MU_RES_OK)
+            {
+                debug_warn("Kernel wasn't able to transfer IPC");
+                return MU_RES_BAD_ARG;
+            }
+
+            vec_push(&p->msg, (MuMsg *)phys);
+        }
+        else
+        {
+            // Can you do that ?
+            return MU_RES_BAD_ARG;
+        }
 
         return MU_RES_OK;
     }
@@ -203,8 +314,15 @@ static MuRes sys_ipc(MuCap *port, MuMsg *msg, MuMsgFlags flags)
 
         MuMsg *tmp = vec_pop(&p->msg);
 
-        // TODO: Translate userspace address to kernel space
-        memcpy((void *)hal_mmap_lower_to_upper((uintptr_t)msg), (void *)hal_mmap_lower_to_upper((uintptr_t)tmp), sizeof(MuMsg));
+        if (is_user_heap_address((uintptr_t)msg))
+        {
+            // FIXME
+            uintptr_t phys;
+            hal_space_virt2phys(task->space, (uintptr_t)msg, &phys);
+            memcpy((void *)hal_mmap_lower_to_upper(phys), (void *)hal_mmap_lower_to_upper((uintptr_t)tmp), sizeof(MuMsg));
+
+            debug_info("OK");
+        }
 
         return MU_RES_OK;
     }

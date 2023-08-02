@@ -140,6 +140,7 @@ MuRes hal_space_map(HalSpace *self, uintptr_t virt, uintptr_t phys, usize len, M
 {
     if (phys % PAGE_SIZE != 0 || virt % PAGE_SIZE != 0 || len % PAGE_SIZE != 0)
     {
+        debug_warn("non aligned address or length => virt: {x}, phys: {x}, len: {x}", virt, phys, len);
         return MU_RES_NON_ALIGN;
     }
 
@@ -255,4 +256,36 @@ MuRes hal_space_create(HalSpace **self)
 HalSpace *hal_space_kernel(void)
 {
     return (HalSpace *)pml4;
+}
+
+MuRes hal_space_virt2phys(HalSpace *self, uintptr_t virt, uintptr_t *phys)
+{
+    usize pml1_entry = PMLX_GET_INDEX(virt, 0);
+    usize pml2_entry = PMLX_GET_INDEX(virt, 1);
+    usize pml3_entry = PMLX_GET_INDEX(virt, 2);
+    usize pml4_entry = PMLX_GET_INDEX(virt, 3);
+
+    MaybePtr pml3 = vmm_get_pml_alloc((uintptr_t *)self, pml4_entry, false);
+    if (!pml3.isSome)
+    {
+        debug_warn("Couldn't get pml3");
+        return MU_RES_NO_MEM;
+    }
+
+    MaybePtr pml2 = vmm_get_pml_alloc((uintptr_t *)pml3.value, pml3_entry, false);
+    if (!pml2.isSome)
+    {
+        debug_warn("Couldn't get pml2");
+        return MU_RES_NO_MEM;
+    }
+
+    MaybePtr pml1 = vmm_get_pml_alloc((uintptr_t *)pml2.value, pml2_entry, false);
+    if (!pml1.isSome)
+    {
+        debug_warn("Couldn't get pml1");
+        return MU_RES_NO_MEM;
+    }
+
+    *phys = VMM_GET_ADDR(((uintptr_t *)pml1.value)[pml1_entry]);
+    return MU_RES_OK;
 }

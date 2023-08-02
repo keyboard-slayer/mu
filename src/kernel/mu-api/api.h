@@ -106,6 +106,7 @@ typedef enum
     MU_MEM_EXEC = 1 << 2,
     MU_MEM_USER = 1 << 3,
     MU_MEM_HUGE = 1 << 4,
+    MU_MEM_NO_ALLOC = 1 << 5,
 } MuMapFlags;
 
 typedef enum
@@ -209,9 +210,9 @@ mu_always_inline MuRes mu_panic(cstr str, usize len)
     return mu_exit(1);
 }
 
-mu_always_inline MuRes mu_map(MuCap space, MuCap vmo, uintptr_t virt, usize off, usize len, MuMapFlags flags)
+mu_always_inline MuRes mu_map(MuCap space, MuCap vmo, uintptr_t *virt, usize off, usize len, MuMapFlags flags)
 {
-    return mu_syscall(MU_SYS_MAP, space._raw, vmo._raw, virt, off, len, (MuArg)flags);
+    return mu_syscall(MU_SYS_MAP, space._raw, vmo._raw, (MuArg)virt, off, len, (MuArg)flags);
 }
 
 mu_always_inline MuRes mu_unmap(MuCap space, uintptr_t virt, usize len)
@@ -224,9 +225,9 @@ mu_always_inline MuRes mu_create(MuType type, MuCap *cap, MuArg arg1, MuArg arg2
     return mu_syscall(MU_SYS_CREATE, (MuArg)type, (MuArg)cap, arg1, arg2, arg3, arg4);
 }
 
-mu_always_inline MuRes mu_create_task(MuCap *cap, MuCap name, MuCap vspace)
+mu_always_inline MuRes mu_create_task(MuCap *cap, MuArg name, MuCap vspace)
 {
-    return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_TASK, (MuArg)cap, name._raw, vspace._raw);
+    return mu_syscall(MU_SYS_CREATE, (MuArg)MU_TYPE_TASK, (MuArg)cap, name, vspace._raw);
 }
 
 mu_always_inline MuRes mu_create_vspace(MuCap *cap)
@@ -307,9 +308,4 @@ mu_always_inline MuRes mu_out(MuCap iospace, uintptr_t port, uintptr_t val, MuIo
 mu_always_inline MuRes mu_self(MuCap *cap)
 {
     return mu_syscall(MU_SYS_SELF, (MuArg)cap);
-}
-
-mu_always_inline MuRes mu_bootstrap_port(MuCap *cap)
-{
-    return mu_syscall(MU_SYS_BOOTSTRAP_PORT, (MuArg)cap);
 }

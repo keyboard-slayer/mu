@@ -1,26 +1,22 @@
 #include <mu-api/api.h>
+#include <mu-debug/debug.h>
 #include <pico-misc/macro.h>
+#include <sys/mman.h>
 
 #include "alloc.h"
 
 MaybeAllocObj embed_alloc(usize size)
 {
-    MuCap ptr;
-    MuCap task;
+    // FIXME: change to MAP_PRIVATE
+    void *ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
 
-    // TODO FIX ME space == nullptr
-    // clang-format off
-    
-    if (mu_create_vmo(&ptr, 0, align_up(size, PAGE_SIZE), MU_MEM_LOW) != MU_RES_OK \
-        || mu_self((MuCap *)&task) != MU_RES_OK \
-        || mu_map(((MuTask *)task._raw)->space, ptr, ptr._raw, 0, align_up(size, PAGE_SIZE), MU_MEM_USER | MU_MEM_READ | MU_MEM_WRITE) != MU_RES_OK)
+    if (ptr == NULL)
     {
         return None(MaybeAllocObj);
     }
-    // clang-format on
 
     AllocObj obj = (AllocObj){
-        .ptr = ptr._raw,
+        .ptr = (uintptr_t)ptr,
         .size = size,
     };
 
@@ -33,7 +29,7 @@ void embed_free(AllocObj *self)
 
     mu_self((MuCap *)&task);
 
-    // TODO mu_close
+    // TODO munmap
 
     mu_unmap(task.space, self->ptr, self->size);
 }

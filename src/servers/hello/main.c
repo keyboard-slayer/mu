@@ -4,6 +4,7 @@
 #include <munix-debug/debug.h>
 #include <pico-misc/macro.h>
 #include <string.h>
+#include <sys/mman.h>
 
 #include "../bootstrap/bootstrap.h"
 
@@ -17,9 +18,11 @@ noreturn int mu_main(MuArgs args)
 
     debug_info("Hello, world! {a}", server_name);
 
-    Alloc heap = heap_acquire();
-    MuMsg *ipc_msg = unwrap(heap.malloc(&heap, sizeof(MuMsg)));
-    heap.release(&heap);
+    MuMsg *ipc_msg = mmap(NULL, sizeof(MuMsg), PROT_WRITE | PROT_READ, MAP_ANON | MAP_SHARED, -1, 0);
+    if (ipc_msg == NULL)
+    {
+        panic("ipc_msg is NULL");
+    }
 
     memcpy(ipc_msg, &mu_msg(BOOTSTRAP_REGISTER_SERVER, bootstrap_port, server_name, 23), sizeof(MuMsg));
 

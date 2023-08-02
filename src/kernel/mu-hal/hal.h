@@ -64,6 +64,8 @@ MuRes hal_space_map(HalSpace *self, uintptr_t virt, uintptr_t phys, usize len, M
 
 MuRes hal_space_unmap(HalSpace *self, uintptr_t virt, usize len);
 
+MuRes hal_space_virt2phys(HalSpace *self, uintptr_t virt, uintptr_t *phys);
+
 HalSpace *hal_space_kernel(void);
 
 /* --- Mmap ----------------------------------------------------------------- */
