@@ -15,8 +15,7 @@ MuRes hal_ctx_create(HalCtx *self, uintptr_t ip, uintptr_t sp, MuArgs args)
     self->regs.cs = (GDT_USER_CODE * 8) | 3;
     self->regs.ss = (GDT_USER_DATA * 8) | 3;
     self->regs.rip = ip;
-    self->regs.rsp = sp + STACK_SIZE;
-    self->regs.rbp = sp;
+    self->regs.rsp = sp;
     self->regs.rflags = 0x202;
 
     self->regs.rsi = args.arg2;

@@ -222,7 +222,7 @@ noreturn int mu_main(MuArgs args)
         }
 
         ElfReturn task = unwrap(elf_parse((cstr)server.path.buf, server_binary.start, .vspace = server.vspace));
-        mu_start(task.task, task.entry, USER_STACK_BASE, server.args);
+        mu_start(task.task, task.entry, USER_STACK_TOP, server.args);
     }
 
     vec_free(&servers);

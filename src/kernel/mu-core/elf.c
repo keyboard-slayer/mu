@@ -45,7 +45,7 @@ MaybeTaskPtr elf_parse(cstr name, uintptr_t start, uintptr_t vspace, MuArgs args
 
     Task *task = Try(MaybeTaskPtr, task_init(str(name), (HalSpace *)vspace));
 
-    if (hal_ctx_create(&task->context, hdr->e_entry, USER_STACK_BASE, args) != MU_RES_OK)
+    if (hal_ctx_create(&task->context, hdr->e_entry, USER_STACK_TOP, args) != MU_RES_OK)
     {
         return None(MaybeTaskPtr);
     }
